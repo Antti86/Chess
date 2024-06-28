@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
+#include "chessboard.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -17,7 +19,14 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+
 private:
     Ui::MainWindow *ui;
+    QGraphicsScene *scene;
+    ChessBoard *board;
+
+    void kill();
+    void ChangePage(QWidget* widget);
 };
 #endif // MAINWINDOW_H
