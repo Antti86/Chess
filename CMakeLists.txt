@@ -25,6 +25,10 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
         ${PROJECT_SOURCES}
         resources.qrc
         chessboard.h chessboard.cpp
+        game.h game.cpp
+        basepiece.h
+        Queen.h
+        ConstantValues.h
 
     )
 # Define target properties for Android with Qt 6 as:

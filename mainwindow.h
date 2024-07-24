@@ -26,7 +26,12 @@ private:
     QGraphicsScene *scene;
     ChessBoard *board;
 
+    bool isPlaying;
+
     void kill();
     void ChangePage(QWidget* widget);
+
+    void StartGame();
+    void GameOver();
 };
 #endif // MAINWINDOW_H

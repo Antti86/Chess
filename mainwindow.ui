@@ -89,6 +89,13 @@
       <widget class="QWidget" name="PlayScreen">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
+         <widget class="QPushButton" name="ExitGame">
+          <property name="text">
+           <string>End Game</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QGraphicsView" name="Board"/>
         </item>
        </layout>
