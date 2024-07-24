@@ -4,9 +4,8 @@
 #include <QGraphicsScene>
 #include "qgraphicsitem.h"
 #include <QVector>
-#include "basepiece.h"
-#include "Queen.h"
-#include "ConstantValues.h"
+#include "Pieces/basepiece.h"
+
 
 class ChessBoard
 {
@@ -15,7 +14,7 @@ public:
 
     void UpdateBoard(); //To Do
 
-    void AddPiece(BasePiece *piece); //To Do
+
 
     QVector<BasePiece*> pieces;
 
@@ -24,8 +23,10 @@ public:
 
 private:
     void DrawBoard();
-    void SetPiecesOnBoard(); //To Do
     void DrawPieces();
+    void SetPiecesOnBoard(); //To Do
+    void AddPiece(BasePiece *piece);
+
     QGraphicsScene *scene;
     //Square color
     QBrush fColor;

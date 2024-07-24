@@ -1,5 +1,7 @@
 #include "chessboard.h"
-
+#include "Pieces/Queen.h"
+#include "Pieces/Pawn.h"
+#include "ConstantValues.h"
 
 ChessBoard::ChessBoard(QGraphicsScene *scene, QBrush fColor, QBrush sColor)
     : scene(scene),
@@ -73,7 +75,7 @@ void ChessBoard::SetPiecesOnBoard()
         {
             if (y == 6)
             {
-                AddPiece(new Queen(Qt::white, QPoint(x, y), PieceType::Queen ));
+                AddPiece(new Pawn(Qt::white, QPoint(x, y), PieceType::Pawn ));
             }
         }
     }

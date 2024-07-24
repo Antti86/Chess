@@ -2,5 +2,15 @@
     <qresource prefix="/">
         <file>Images/b_queen.png</file>
         <file>Images/w_queen.png</file>
+        <file>Images/b_bishop.png</file>
+        <file>Images/b_king.png</file>
+        <file>Images/b_knight.png</file>
+        <file>Images/b_pawn.png</file>
+        <file>Images/b_rook.png</file>
+        <file>Images/w_bishop.png</file>
+        <file>Images/w_king.png</file>
+        <file>Images/w_knight.png</file>
+        <file>Images/w_pawn.png</file>
+        <file>Images/w_rook.png</file>
     </qresource>
 </RCC>
