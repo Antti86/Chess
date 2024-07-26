@@ -96,7 +96,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QGraphicsView" name="Board"/>
+         <widget class="QGraphicsView" name="Board">
+          <property name="mouseTracking">
+           <bool>false</bool>
+          </property>
+          <property name="acceptDrops">
+           <bool>true</bool>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>

@@ -8,6 +8,7 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , scene(new QGraphicsScene(this))
     , board(nullptr)
+    , game(nullptr)
 {
     ui->setupUi(this);
     isPlaying = false;
@@ -24,23 +25,13 @@ MainWindow::MainWindow(QWidget *parent)
     //Set up
     ui->stackedWidget->setCurrentWidget(ui->MainMenu);
 
-    //scene = new QGraphicsScene(this);
-    //ui->Board->setScene(scene);
-
-
-
-    //QPixmap pixmap(":/Images/Chessboard.png");
-
-    //QGraphicsPixmapItem *item = new QGraphicsPixmapItem(pixmap);
-    //scene->addItem(item);
-
-    //ui->Board->fitInView(item, Qt::KeepAspectRatio);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
     delete board;
+    delete game;
 }
 
 void MainWindow::kill()
@@ -62,7 +53,19 @@ void MainWindow::StartGame()
     {
         delete board;
     }
-    board = new ChessBoard(scene, Qt::white, Qt::gray);
+    board = new ChessBoard(scene, Qt::white, Qt::gray, ui->Board);
+
+    if (game)
+    {
+        delete game;
+    }
+    game = new Game(board, this);
+
+
+
+    connect(board, &ChessBoard::pieceSelected, game, &Game::handlePieceSelection );
+    connect(game, &Game::pieceMoved, board, &ChessBoard::MovePiece);
+    connect(board, &ChessBoard::endTurn, game, &Game::EndOfTurn);
 
 }
 
@@ -74,6 +77,11 @@ void MainWindow::GameOver()
     {
         delete board;
         board = nullptr;
+    }
+    if (game)
+    {
+        delete game;
+        game = nullptr;
     }
 
 }

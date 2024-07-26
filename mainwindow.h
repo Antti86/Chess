@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QGraphicsScene>
 #include "chessboard.h"
+#include "game.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -25,6 +26,7 @@ private:
     Ui::MainWindow *ui;
     QGraphicsScene *scene;
     ChessBoard *board;
+    Game *game;
 
     bool isPlaying;
 

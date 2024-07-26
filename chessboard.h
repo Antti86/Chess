@@ -5,29 +5,39 @@
 #include "qgraphicsitem.h"
 #include <QVector>
 #include "Pieces/basepiece.h"
+#include "qgraphicsview.h"
+#include <QMouseEvent>
 
 
-class ChessBoard
+class ChessBoard : public QGraphicsView
 {
+    Q_OBJECT
 public:
-    ChessBoard(QGraphicsScene *scene, QBrush fColor, QBrush sColor);
-
-    void UpdateBoard(); //To Do
-
+    ChessBoard(QGraphicsScene *scene, QBrush fColor, QBrush sColor, QGraphicsView *view, QWidget *parent = nullptr);
 
 
     QVector<BasePiece*> pieces;
 
-    const QVector<QPoint>& CheckPopulatedAreas() const; // ???
+    const QVector<QPoint>& CheckPopulatedAreas() const; // TODO
 
+public slots:
+    void MovePiece(QPoint from, QPoint to);
+
+signals:
+    void pieceSelected(QPoint pos);
+    void endTurn();
+
+protected:
+    void mousePressEvent(QMouseEvent *event) override;
 
 private:
     void DrawBoard();
     void DrawPieces();
-    void SetPiecesOnBoard(); //To Do
+    void SetPiecesOnBoard();
     void AddPiece(BasePiece *piece);
-
+    void UpdateBoard();
     QGraphicsScene *scene;
+    QGraphicsView *view;
     //Square color
     QBrush fColor;
     QBrush sColor;
@@ -37,5 +47,6 @@ private:
     QFont font;
 
 };
+
 
 #endif // CHESSBOARD_H
