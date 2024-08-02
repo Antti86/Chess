@@ -36,6 +36,7 @@ void Game::handlePieceSelection(QPoint pos)
 void Game::EndOfTurn()
 {
     isWhiteTurn = !isWhiteTurn;
+    emit UpdateUiToTurn(isWhiteTurn);
 }
 
 bool Game::IsPieceOnSelectedSquare(QPoint square) const

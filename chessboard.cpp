@@ -7,20 +7,45 @@
 #include "Pieces/Knight.h"
 #include "ConstantValues.h"
 
-ChessBoard::ChessBoard(QGraphicsScene *scene, QBrush fColor, QBrush sColor, QGraphicsView* view, QWidget *parent)
-    : QGraphicsView(scene, parent), scene(scene), view(view), fColor(fColor), sColor(sColor)
+ChessBoard::ChessBoard(QBrush fColor, QBrush sColor, QWidget *widget)
+    : QGraphicsView(widget),
+    fColor(fColor),
+    sColor(sColor)
 {
+
+    boardWidth = 8 * squareSize;
+    boardHeight = 8 * squareSize;
+
+
+    scene = new QGraphicsScene();
+    this->setScene(scene);
+    // scene->setSceneRect(0, 0, boardWidth, boardHeight);
+
+
     textColor = Qt::black;
 
     DrawBoard();
     SetPiecesOnBoard();
     DrawPieces();
+
+
+}
+
+ChessBoard::~ChessBoard()
+{
+    for (auto& i : pieces)
+    {
+        delete i;
+    }
+    pieces.clear();
+    scene->clear();
+    delete scene;
 }
 
 void ChessBoard::UpdateBoard()
 {
-    DrawBoard();
     DrawPieces();
+    scene->update();
 }
 
 void ChessBoard::MovePiece(QPoint from, QPoint to)
@@ -37,13 +62,19 @@ void ChessBoard::MovePiece(QPoint from, QPoint to)
     emit endTurn();
 }
 
-
 void ChessBoard::mousePressEvent(QMouseEvent *event)
 {
-    QPoint pos = event->pos();
-    QPointF scenePos = mapToScene(pos);
-    QPoint boardPos(scenePos.x() / Constants::SQUARE_SIZE, scenePos.y() / Constants::SQUARE_SIZE);
+    QPointF pos = event->pos();
+    QPoint boardPos(pos.x() / Constants::SQUARE_SIZE, pos.y() / Constants::SQUARE_SIZE);
+
     emit pieceSelected(boardPos);
+}
+
+void ChessBoard::mouseMoveEvent(QMouseEvent *event)
+{
+    QPointF movment;
+    movment = mapToScene(event->pos ());
+    emit sendMousePoint(movment);
 }
 
 void ChessBoard::AddPiece(BasePiece *piece)
@@ -71,25 +102,25 @@ void ChessBoard::DrawBoard()
                 square->setBrush(sColor);
             }
 
-            if (col == 0)
-            {
-                QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(QString::number(revRow));
-                text->setBrush(Qt::black);
-                text->setFont(QFont("Arial", 20));
-                text->setPos(col * Constants::SQUARE_SIZE - 25, row * Constants::SQUARE_SIZE + 10);
-                scene->addItem(text);
-            }
+            // if (col == 0)
+            // {
+            //     QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(QString::number(revRow));
+            //     text->setBrush(Qt::black);
+            //     text->setFont(QFont("Arial", 20));
+            //     text->setPos(col * Constants::SQUARE_SIZE - 25, row * Constants::SQUARE_SIZE + 10);
+            //     scene->addItem(text);
+            // }
 
-            if (row == 7)
-            {
-                char c = 65 + col;
-                QString t = QString(c);
-                QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(t);
-                text->setBrush(Qt::black);
-                text->setFont(QFont("Arial", 20));
-                text->setPos(col * Constants::SQUARE_SIZE + 10, row * Constants::SQUARE_SIZE + 60);
-                scene->addItem(text);
-            }
+            // if (row == 7)
+            // {
+            //     char c = 65 + col;
+            //     QString t = QString(c);
+            //     QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(t);
+            //     text->setBrush(Qt::black);
+            //     text->setFont(QFont("Arial", 20));
+            //     text->setPos(col * Constants::SQUARE_SIZE + 10, row * Constants::SQUARE_SIZE + 60);
+            //     scene->addItem(text);
+            // }
 
             scene->addItem(square);
 

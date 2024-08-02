@@ -25,10 +25,10 @@ public:
 signals:
     void pieceMoved(QPoint from, QPoint to);
     void gameOver(bool isWhiteWinner);
+    void UpdateUiToTurn(bool isWhiteTurn);
 
 public slots:
     void handlePieceSelection(QPoint pos);
-    // void handleMove(QPoint from, QPoint to);
     void EndOfTurn(); //???
 
 private:

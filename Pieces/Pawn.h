@@ -20,13 +20,13 @@ public:
         }
 
         scaledPixmap = pixmap.scaled(Constants::SQUARE_SIZE - 10, Constants::SQUARE_SIZE - 10, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        setPixmap(scaledPixmap);
     }
 
     void Move(QPoint newPos) override
     {
         //TODO
         pos = newPos;
-        setPos(pos);
     }
 
     QVector<QPoint> GetLegalMoves() const override

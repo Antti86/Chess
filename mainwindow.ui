@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>808</width>
-    <height>630</height>
+    <width>1366</width>
+    <height>768</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>2</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="MainMenu">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -95,17 +95,70 @@
           </property>
          </widget>
         </item>
-        <item>
-         <widget class="QGraphicsView" name="Board">
-          <property name="mouseTracking">
-           <bool>false</bool>
-          </property>
-          <property name="acceptDrops">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
        </layout>
+      </widget>
+      <widget class="QWidget" name="Testi">
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <widget class="ChessBoard" name="Board2">
+        <property name="geometry">
+         <rect>
+          <x>310</x>
+          <y>60</y>
+          <width>580</width>
+          <height>580</height>
+         </rect>
+        </property>
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+       </widget>
+       <widget class="QPushButton" name="ExitGame2">
+        <property name="geometry">
+         <rect>
+          <x>750</x>
+          <y>25</y>
+          <width>141</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>Exit</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="TurnMark">
+        <property name="geometry">
+         <rect>
+          <x>310</x>
+          <y>20</y>
+          <width>71</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 600 22pt &quot;Ubuntu Sans&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Turn:</string>
+        </property>
+       </widget>
+       <widget class="QLabel" name="WhosTurn">
+        <property name="geometry">
+         <rect>
+          <x>390</x>
+          <y>20</y>
+          <width>101</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 600 22pt &quot;Ubuntu Sans&quot; rgb(26, 95, 180)</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
       </widget>
       <widget class="QWidget" name="MultiplayerMenu">
        <layout class="QVBoxLayout" name="verticalLayout_4">
@@ -127,12 +180,19 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>808</width>
+     <width>1366</width>
      <height>23</height>
     </rect>
    </property>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ChessBoard</class>
+   <extends>QGraphicsView</extends>
+   <header location="global">chessboard.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

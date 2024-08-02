@@ -3,7 +3,7 @@
 
 namespace Constants
 {
-    const int SQUARE_SIZE = 50;
+    const int SQUARE_SIZE = 70;
     const int PIECE_OFFSET = SQUARE_SIZE / 10;
 }
 

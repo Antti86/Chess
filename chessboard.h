@@ -7,15 +7,18 @@
 #include "Pieces/basepiece.h"
 #include "qgraphicsview.h"
 #include <QMouseEvent>
+#include <QGraphicsSceneMouseEvent>
+
 
 
 class ChessBoard : public QGraphicsView
 {
     Q_OBJECT
 public:
-    ChessBoard(QGraphicsScene *scene, QBrush fColor, QBrush sColor, QGraphicsView *view, QWidget *parent = nullptr);
+    explicit ChessBoard(QBrush fColor, QBrush sColor, QWidget *widget = 0);
+    ~ChessBoard();
 
-
+    QGraphicsScene *scene;
     QVector<BasePiece*> pieces;
 
     const QVector<QPoint>& CheckPopulatedAreas() const; // TODO
@@ -23,12 +26,15 @@ public:
 public slots:
     void MovePiece(QPoint from, QPoint to);
 
+
 signals:
     void pieceSelected(QPoint pos);
     void endTurn();
+    void sendMousePoint(QPointF point);
 
-protected:
+public:
     void mousePressEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override; //TODO
 
 private:
     void DrawBoard();
@@ -36,8 +42,7 @@ private:
     void SetPiecesOnBoard();
     void AddPiece(BasePiece *piece);
     void UpdateBoard();
-    QGraphicsScene *scene;
-    QGraphicsView *view;
+
     //Square color
     QBrush fColor;
     QBrush sColor;
@@ -45,6 +50,12 @@ private:
     //Coordinate font and color
     QBrush textColor;
     QFont font;
+
+    //Testing for now..
+    int squareSize = 70;
+    int boardWidth = 8 * squareSize;
+    int boardHeight = 8 * squareSize;
+    QGraphicsRectItem fullBoardRect;
 
 };
 

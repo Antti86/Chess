@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include "chessboard.h"
 #include "game.h"
+#include <QMouseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -20,14 +21,15 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
+public slots:
+    void ChangeTurnMark(bool isWhiteTrun);
+    void setMousePoint (QPointF point);
 
 private:
     Ui::MainWindow *ui;
-    QGraphicsScene *scene;
+    bool firstTime;
     ChessBoard *board;
     Game *game;
-
     bool isPlaying;
 
     void kill();
@@ -35,5 +37,6 @@ private:
 
     void StartGame();
     void GameOver();
+
 };
 #endif // MAINWINDOW_H
