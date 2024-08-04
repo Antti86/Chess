@@ -1,16 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
 
-
-#include "qobject.h"
 #include "chessboard.h"
+#include "qobject.h"
 
-
-enum class PlayerTurn
-{
-    White,
-    Black
-};
+enum class PlayerTurn { White, Black };
 
 class Game : public QObject
 {
@@ -18,9 +12,6 @@ class Game : public QObject
 
 public:
     Game(ChessBoard *board, QObject *parent);
-
-
-
 
 signals:
     void pieceMoved(QPoint from, QPoint to);
@@ -38,7 +29,7 @@ private:
     bool isWhiteTurn;
     bool isPieceSelected;
     QPoint selectedPiecePos;
-    ChessBoard* board;
+    ChessBoard *board;
 };
 
 #endif // GAME_H

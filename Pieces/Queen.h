@@ -1,8 +1,9 @@
 #ifndef QUEEN_H
 #define QUEEN_H
 
+
+#include "../ConstantValues.h"
 #include "basepiece.h"
-#include "ConstantValues.h"
 
 class Queen : public BasePiece
 {
@@ -20,18 +21,13 @@ public:
         }
 
         scaledPixmap = pixmap.scaled(Constants::SQUARE_SIZE - 10, Constants::SQUARE_SIZE - 10, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        setPixmap(scaledPixmap);
     }
 
-    void Draw() override
-    {
-        setPixmap(scaledPixmap);
-        setPos(pos.x() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET, pos.y() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET);
-    }
 
     void Move(QPoint newPos) override
     {
         pos = newPos;
-        setPos(pos);
     }
 
     QVector<QPoint> GetLegalMoves() const override
@@ -44,11 +40,8 @@ public:
     }
 
 private:
-    QPixmap pixmap;
-    QPixmap scaledPixmap;
-
 
 };
 
-#endif // QUEEN_H
 
+#endif // QUEEN_H

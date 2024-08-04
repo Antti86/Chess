@@ -1,11 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QMainWindow>
 #include <QGraphicsScene>
+#include <QMainWindow>
+#include <QMouseEvent>
 #include "chessboard.h"
 #include "game.h"
-#include <QMouseEvent>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -23,7 +23,7 @@ public:
 
 public slots:
     void ChangeTurnMark(bool isWhiteTrun);
-    void setMousePoint (QPointF point);
+    void setMousePoint(QPointF point);
 
 private:
     Ui::MainWindow *ui;
@@ -33,10 +33,9 @@ private:
     bool isPlaying;
 
     void kill();
-    void ChangePage(QWidget* widget);
+    void ChangePage(QWidget *widget);
 
     void StartGame();
     void GameOver();
-
 };
 #endif // MAINWINDOW_H
