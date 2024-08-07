@@ -15,6 +15,7 @@ public:
 
 signals:
     void pieceMoved(QPoint from, QPoint to);
+    void SetSquareColor(const QPoint& pos, bool highlighting);
     void gameOver(bool isWhiteWinner);
     void UpdateUiToTurn(bool isWhiteTurn);
 

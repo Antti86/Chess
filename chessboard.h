@@ -8,6 +8,7 @@
 #include "Pieces/basepiece.h"
 #include "qgraphicsitem.h"
 #include "qgraphicsview.h"
+#include "boardsquare.h"
 
 class ChessBoard : public QGraphicsView
 {
@@ -21,13 +22,15 @@ public:
 
     const QVector<QPoint> &CheckPopulatedAreas() const; // TODO
 
+    void ResetBoard();
+
 public slots:
     void MovePiece(QPoint from, QPoint to);
+    void SettingSquareColor(const QPoint& pos, bool highlighting);
 
 signals:
     void pieceSelected(QPoint pos);
     void endTurn();
-    void sendMousePoint(QPointF point);
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
@@ -39,6 +42,8 @@ private:
     void SetPiecesOnBoard();
     void AddPiece(BasePiece *piece);
     void UpdateBoard();
+
+    BoardSquare* GetSelectedSquare(const QPoint& pos) const;
 
     //Square color
     QBrush fColor;

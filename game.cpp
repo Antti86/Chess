@@ -10,17 +10,27 @@ Game::Game(ChessBoard *board, QObject *parent)
 
 void Game::handlePieceSelection(QPoint pos)
 {
-    if (!isPieceSelected) {
-        if (IsPieceOnSelectedSquare(pos)) {
+    if (!isPieceSelected)
+    {
+        if (IsPieceOnSelectedSquare(pos))
+        {
             selectedPiecePos = pos;
             isPieceSelected = true;
+            emit SetSquareColor(selectedPiecePos, true);
         }
-    } else {
-        if (pos == selectedPiecePos) {
+    }
+    else
+    {
+        if (pos == selectedPiecePos)
+        {
             isPieceSelected = false;
-        } else {
+            emit SetSquareColor(selectedPiecePos, false);
+        }
+        else
+        {
             emit pieceMoved(selectedPiecePos, pos);
             isPieceSelected = false;
+            emit SetSquareColor(selectedPiecePos, false);
         }
     }
 }

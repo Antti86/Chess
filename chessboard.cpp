@@ -13,7 +13,7 @@ ChessBoard::ChessBoard(QWidget *widget)
     , sColor(Qt::gray)
 {
     boardWidth = 8 * squareSize;
-    boardHeight = 8 * squareSize;
+    boardHeight = 8 * squareSize + 30;
 
     scene = new QGraphicsScene();
     this->setScene(scene);
@@ -37,10 +37,42 @@ ChessBoard::~ChessBoard()
     delete scene;
 }
 
+void ChessBoard::ResetBoard()
+{
+    for (auto &i : pieces)
+    {
+        delete i;
+    }
+    pieces.clear();
+    scene->clear();
+    DrawBoard();
+    SetPiecesOnBoard();
+    DrawPieces();
+}
+
 void ChessBoard::UpdateBoard()
 {
     DrawPieces();
     scene->update();
+}
+
+BoardSquare* ChessBoard::GetSelectedSquare(const QPoint &pos) const
+{
+    auto items = scene->items();
+    for (auto& i: items)
+    {
+        BoardSquare* b = qgraphicsitem_cast<BoardSquare*>(i);
+        if (!b)
+        {
+            continue;
+        }
+
+        if (b->GetPos() == pos)
+        {
+            return b;
+        }
+    }
+    return nullptr;
 }
 
 void ChessBoard::MovePiece(QPoint from, QPoint to)
@@ -57,19 +89,32 @@ void ChessBoard::MovePiece(QPoint from, QPoint to)
     emit endTurn();
 }
 
+void ChessBoard::SettingSquareColor(const QPoint &pos, bool highlighting)
+{
+    BoardSquare* square = GetSelectedSquare(pos);
+    if (square)
+    {
+        if (highlighting)
+        {
+            square->SetColor(Qt::green);
+        }
+        else
+        {
+            square->SetColor(square->GetColor());
+        }
+    }
+}
+
 void ChessBoard::mousePressEvent(QMouseEvent *event)
 {
     QPointF pos = event->pos();
-    QPoint boardPos(pos.x() / Constants::SQUARE_SIZE, pos.y() / Constants::SQUARE_SIZE);
-
+    QPoint boardPos((pos.x() - 30) / Constants::SQUARE_SIZE, pos.y() / Constants::SQUARE_SIZE);
     emit pieceSelected(boardPos);
 }
 
 void ChessBoard::mouseMoveEvent(QMouseEvent *event)
 {
-    QPointF movment;
-    movment = mapToScene(event->pos());
-    emit sendMousePoint(movment);
+    QGraphicsView::mouseMoveEvent(event);
 }
 
 void ChessBoard::AddPiece(BasePiece *piece)
@@ -80,43 +125,41 @@ void ChessBoard::AddPiece(BasePiece *piece)
 
 void ChessBoard::DrawBoard()
 {
-    // Piirrä laudat
     for (int row = 0, revRow = 8; row < 8; ++row, --revRow)
     {
         for (int col = 0; col < 8; ++col)
         {
-            QGraphicsRectItem *square = new QGraphicsRectItem(col * Constants::SQUARE_SIZE,
-                                                              row * Constants::SQUARE_SIZE,
-                                                              Constants::SQUARE_SIZE,
-                                                              Constants::SQUARE_SIZE);
+            QBrush color;
             if ((row + col) % 2 == 0)
             {
-                square->setBrush(fColor);
+                color = Qt::white;
             }
             else
             {
-                square->setBrush(sColor);
+                color = Qt::gray;
             }
 
-            // if (col == 0)
-            // {
-            //     QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(QString::number(revRow));
-            //     text->setBrush(Qt::black);
-            //     text->setFont(QFont("Arial", 20));
-            //     text->setPos(col * Constants::SQUARE_SIZE - 25, row * Constants::SQUARE_SIZE + 10);
-            //     scene->addItem(text);
-            // }
+            if (col == 0)
+            {
+                QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(QString::number(revRow));
+                text->setBrush(Qt::black);
+                text->setFont(QFont("Arial", 20));
+                text->setPos(col * Constants::SQUARE_SIZE - 20, row * Constants::SQUARE_SIZE + 25);
+                scene->addItem(text);
+            }
 
-            // if (row == 7)
-            // {
-            //     char c = 65 + col;
-            //     QString t = QString(c);
-            //     QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(t);
-            //     text->setBrush(Qt::black);
-            //     text->setFont(QFont("Arial", 20));
-            //     text->setPos(col * Constants::SQUARE_SIZE + 10, row * Constants::SQUARE_SIZE + 60);
-            //     scene->addItem(text);
-            // }
+            if (row == 7)
+            {
+                char c = 65 + col;
+                QString t = QString(c);
+                QGraphicsSimpleTextItem *text = new QGraphicsSimpleTextItem(t);
+                text->setBrush(Qt::black);
+                text->setFont(QFont("Arial", 20));
+                text->setPos(col * Constants::SQUARE_SIZE + 25, row * Constants::SQUARE_SIZE + 75);
+                scene->addItem(text);
+            }
+
+            BoardSquare* square = new BoardSquare(color, QPoint(col, row));
 
             scene->addItem(square);
         }

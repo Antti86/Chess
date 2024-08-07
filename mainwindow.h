@@ -23,12 +23,9 @@ public:
 
 public slots:
     void ChangeTurnMark(bool isWhiteTrun);
-    void setMousePoint(QPointF point);
 
 private:
     Ui::MainWindow *ui;
-    bool firstTime;
-    ChessBoard *board;
     Game *game;
     bool isPlaying;
 
