@@ -15,6 +15,7 @@ public:
 
 signals:
     void pieceMoved(QPoint from, QPoint to);
+    void EatPiece(QPoint eatingPos);
     void SetSquareColor(const QPoint& pos, bool highlighting);
     void gameOver(bool isWhiteWinner);
     void UpdateUiToTurn(bool isWhiteTurn);
@@ -25,6 +26,8 @@ public slots:
 
 private:
     bool IsPieceOnSelectedSquare(QPoint square) const;
+    bool ValidMovement(const QPoint pos) const;
+    bool IsEatingMovement(const QPoint pos) const;
 
 private:
     bool isWhiteTurn;

@@ -30,11 +30,89 @@ public:
         pos = newPos;
     }
 
-    QVector<QPoint> GetLegalMoves() const override
+    QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
-        //TODO
-
         QVector<QPoint> moves;
+
+        //Left
+        if (pos.x() > 0)
+        {
+            for (int x = pos.x() - 1; x >= 0; x--)
+            {
+                QPoint checkArea = QPoint(x, pos.y());
+                if (friendlyPieces.contains(checkArea))
+                {
+                    break;
+                }
+                if (enemyPieces.contains(checkArea))
+                {
+                    moves.append(checkArea);
+                    break;
+                }
+                moves.append(checkArea);
+            }
+        }
+
+
+        //Right
+        if (pos.x() < 7)
+        {
+            for (int x = pos.x() + 1; x < 8; x++)
+            {
+                QPoint checkArea = QPoint(x, pos.y());
+                if (friendlyPieces.contains(checkArea))
+                {
+                    break;
+                }
+                if (enemyPieces.contains(checkArea))
+                {
+                    moves.append(checkArea);
+                    break;
+                }
+                moves.append(checkArea);
+            }
+        }
+
+
+        //Up
+        if (pos.y() > 0)
+        {
+            for (int y = pos.y() - 1; y >= 0; y--)
+            {
+                QPoint checkArea = QPoint(pos.x(), y);
+                if (friendlyPieces.contains(checkArea))
+                {
+                    break;
+                }
+                if (enemyPieces.contains(checkArea))
+                {
+                    moves.append(checkArea);
+                    break;
+                }
+                moves.append(checkArea);
+            }
+        }
+
+
+        //Down
+        if (pos.y() < 7)
+        {
+            for (int y = pos.y() + 1; y < 8; y++)
+            {
+                QPoint checkArea = QPoint(pos.x(), y);
+                if (friendlyPieces.contains(checkArea))
+                {
+                    break;
+                }
+                if (enemyPieces.contains(checkArea))
+                {
+                    moves.append(checkArea);
+                    break;
+                }
+                moves.append(checkArea);
+            }
+        }
+
 
         return moves;
     }

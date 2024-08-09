@@ -37,6 +37,43 @@ ChessBoard::~ChessBoard()
     delete scene;
 }
 
+const QVector<QPoint> ChessBoard::CheckPopulatedAreas() const
+{
+    QVector<QPoint> populatedAreas;
+    for (auto& p : pieces)
+    {
+        populatedAreas.append(p->getPos());
+    }
+    return populatedAreas;
+
+}
+
+const QVector<QPoint> ChessBoard::GetWhitePieceAreas() const
+{
+    QVector<QPoint> populatedAreas;
+    for (auto& p : pieces)
+    {
+        if (p->getColor() == Qt::white)
+        {
+            populatedAreas.append(p->getPos());
+        }
+    }
+    return populatedAreas;
+}
+
+const QVector<QPoint> ChessBoard::GetBlackPieceAreas() const
+{
+    QVector<QPoint> populatedAreas;
+    for (auto& p : pieces)
+    {
+        if (p->getColor() == Qt::black)
+        {
+            populatedAreas.append(p->getPos());
+        }
+    }
+    return populatedAreas;
+}
+
 void ChessBoard::ResetBoard()
 {
     for (auto &i : pieces)
@@ -105,6 +142,21 @@ void ChessBoard::SettingSquareColor(const QPoint &pos, bool highlighting)
     }
 }
 
+void ChessBoard::EatingPiece(QPoint eatingPos)
+{
+    auto it = std::remove_if(pieces.begin(), pieces.end(), [&eatingPos](BasePiece* piece)
+    {
+        if (piece->getPos() == eatingPos)
+        {
+            delete piece;
+            return true;
+        }
+        return false;
+    });
+    pieces.erase(it, pieces.end());
+}
+
+
 void ChessBoard::mousePressEvent(QMouseEvent *event)
 {
     QPointF pos = event->pos();
@@ -171,10 +223,10 @@ void ChessBoard::SetPiecesOnBoard()
     //Whites
 
     //Pawns
-    for (int x = 0; x < 8; x++)
-    {
-        AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
-    }
+    // for (int x = 0; x < 8; x++)
+    // {
+    //     AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
+    // }
 
     //Rooks
     AddPiece(new Rook(Qt::white, QPoint(0, 7), PieceType::Rook));
@@ -197,10 +249,10 @@ void ChessBoard::SetPiecesOnBoard()
     //Blacks
 
     //Pawns
-    for (int x = 0; x < 8; x++)
-    {
-        AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
-    }
+    // for (int x = 0; x < 8; x++)
+    // {
+    //     AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
+    // }
 
     //Rooks
     AddPiece(new Rook(Qt::black, QPoint(0, 0), PieceType::Rook));

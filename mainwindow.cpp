@@ -71,6 +71,7 @@ void MainWindow::StartGame()
     connect(ui->Board2, &ChessBoard::endTurn, game, &Game::EndOfTurn);
     connect(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
     connect(game, &Game::SetSquareColor, ui->Board2, &ChessBoard::SettingSquareColor);
+    connect(game, &Game::EatPiece, ui->Board2, &ChessBoard::EatingPiece);
 }
 
 void MainWindow::GameOver()

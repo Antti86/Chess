@@ -29,7 +29,7 @@ public:
         pos = newPos;
     }
 
-    QVector<QPoint> GetLegalMoves() const override
+    QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
         //TODO
 

@@ -31,7 +31,7 @@ public:
         setPos(pos.x() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET, pos.y() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET);
     };
     virtual void Move(QPoint newPos) = 0;
-    virtual QVector<QPoint> GetLegalMoves() const = 0;
+    virtual QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const = 0;
 
     QBrush getColor() const { return color; }
     QPoint getPos() const { return pos; }

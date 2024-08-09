@@ -20,13 +20,18 @@ public:
     QGraphicsScene *scene;
     QVector<BasePiece *> pieces;
 
-    const QVector<QPoint> &CheckPopulatedAreas() const; // TODO
+    const QVector<QPoint> CheckPopulatedAreas() const;
+
+    const QVector<QPoint> GetWhitePieceAreas() const;
+
+    const QVector<QPoint> GetBlackPieceAreas() const;
 
     void ResetBoard();
 
 public slots:
     void MovePiece(QPoint from, QPoint to);
     void SettingSquareColor(const QPoint& pos, bool highlighting);
+    void EatingPiece(QPoint eatingPos);
 
 signals:
     void pieceSelected(QPoint pos);
