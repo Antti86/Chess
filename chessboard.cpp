@@ -126,7 +126,7 @@ void ChessBoard::MovePiece(QPoint from, QPoint to)
     emit endTurn();
 }
 
-void ChessBoard::SettingSquareColor(const QPoint &pos, bool highlighting)
+void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& legalMoves, bool highlighting)
 {
     BoardSquare* square = GetSelectedSquare(pos);
     if (square)
@@ -140,6 +140,23 @@ void ChessBoard::SettingSquareColor(const QPoint &pos, bool highlighting)
             square->SetColor(square->GetColor());
         }
     }
+
+    for (auto& point : legalMoves)
+    {
+        BoardSquare* square = GetSelectedSquare(point);
+        if (square)
+        {
+            if (highlighting)
+            {
+                square->SetColor(Qt::blue);
+            }
+            else
+            {
+                square->SetColor(square->GetColor());
+            }
+        }
+    }
+
 }
 
 void ChessBoard::EatingPiece(QPoint eatingPos)
@@ -223,10 +240,10 @@ void ChessBoard::SetPiecesOnBoard()
     //Whites
 
     //Pawns
-    for (int x = 0; x < 8; x++)
-    {
-        AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
-    }
+    // for (int x = 0; x < 8; x++)
+    // {
+    //     AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
+    // }
 
     //Rooks
     AddPiece(new Rook(Qt::white, QPoint(0, 7), PieceType::Rook));
@@ -249,10 +266,10 @@ void ChessBoard::SetPiecesOnBoard()
     //Blacks
 
     //Pawns
-    for (int x = 0; x < 8; x++)
-    {
-        AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
-    }
+    // for (int x = 0; x < 8; x++)
+    // {
+    //     AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
+    // }
 
     //Rooks
     AddPiece(new Rook(Qt::black, QPoint(0, 0), PieceType::Rook));

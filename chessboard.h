@@ -29,7 +29,7 @@ public:
 
 public slots:
     void MovePiece(QPoint from, QPoint to);
-    void SettingSquareColor(const QPoint& pos, bool highlighting);
+    void SettingSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
     void EatingPiece(QPoint eatingPos);
 
 signals:

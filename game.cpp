@@ -16,7 +16,10 @@ void Game::handlePieceSelection(QPoint pos)
         {
             selectedPiecePos = pos;
             isPieceSelected = true;
-            emit SetSquareColor(selectedPiecePos, true);
+            BasePiece* piece = GetSelectedPiece(pos);
+            QVector<QPoint> friendly = isWhiteTurn ? board->GetWhitePieceAreas() : board->GetBlackPieceAreas();
+            QVector<QPoint> enemy = isWhiteTurn ? board->GetBlackPieceAreas() : board->GetWhitePieceAreas();
+            emit SetSquareColor(selectedPiecePos, piece->GetLegalMoves(friendly, enemy), true);
         }
     }
     else
@@ -24,19 +27,27 @@ void Game::handlePieceSelection(QPoint pos)
         if (pos == selectedPiecePos)
         {
             isPieceSelected = false;
-            emit SetSquareColor(selectedPiecePos, false);
+            BasePiece* piece = GetSelectedPiece(pos);
+            QVector<QPoint> friendly = isWhiteTurn ? board->GetWhitePieceAreas() : board->GetBlackPieceAreas();
+            QVector<QPoint> enemy = isWhiteTurn ? board->GetBlackPieceAreas() : board->GetWhitePieceAreas();
+            emit SetSquareColor(selectedPiecePos, piece->GetLegalMoves(friendly, enemy), false);
+
         }
         else
         {
             if (ValidMovement(pos))
             {
+                BasePiece* piece = GetSelectedPiece(pos);
+                QVector<QPoint> friendly = isWhiteTurn ? board->GetWhitePieceAreas() : board->GetBlackPieceAreas();
+                QVector<QPoint> enemy = isWhiteTurn ? board->GetBlackPieceAreas() : board->GetWhitePieceAreas();
+                emit SetSquareColor(selectedPiecePos, piece->GetLegalMoves(friendly, enemy), false);
+
                 if (IsEatingMovement(pos))
                 {
                     emit EatPiece(pos);
                 }
                 emit pieceMoved(selectedPiecePos, pos);
                 isPieceSelected = false;
-                emit SetSquareColor(selectedPiecePos, false);
             }
 
         }
@@ -77,15 +88,7 @@ bool Game::IsPieceOnSelectedSquare(QPoint square) const
 
 bool Game::ValidMovement(const QPoint pos) const
 {
-    BasePiece* piece = nullptr;
-    for (auto& p : board->pieces)
-    {
-        if (p->getPos() == selectedPiecePos)
-        {
-            piece = p;
-            break;
-        }
-    }
+    BasePiece* piece = GetSelectedPiece(pos);
 
     if (piece)
     {
@@ -111,4 +114,18 @@ bool Game::IsEatingMovement(const QPoint pos) const
 {
     QVector<QPoint> enemy = isWhiteTurn ? board->GetBlackPieceAreas() : board->GetWhitePieceAreas();
     return enemy.contains(pos);
+}
+
+BasePiece *Game::GetSelectedPiece(const QPoint pos) const
+{
+    BasePiece* piece = nullptr;
+    for (auto& p : board->pieces)
+    {
+        if (p->getPos() == selectedPiecePos)
+        {
+            piece = p;
+            break;
+        }
+    }
+    return piece;
 }
