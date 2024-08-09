@@ -22,7 +22,7 @@ signals:
 
 public slots:
     void handlePieceSelection(QPoint pos);
-    void EndOfTurn(); //???
+    void EndOfTurn();
 
 private:
     bool IsPieceOnSelectedSquare(QPoint square) const;

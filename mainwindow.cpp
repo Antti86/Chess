@@ -8,8 +8,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
     , game(nullptr)
 {
+    //Set up
     ui->setupUi(this);
     isPlaying = false;
+    ui->Board->setMouseTracking(true); //Needed??
+    ui->stackedWidget->setCurrentWidget(ui->MainMenu);
 
     //Navigation connections
     connect(ui->Exit, &QPushButton::clicked, this, &MainWindow::kill);
@@ -21,12 +24,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->Play, &QPushButton::clicked, this, [this]() { StartGame(); });
     connect(ui->ExitGame, &QPushButton::clicked, this, [this]() { GameOver(); });
-    connect(ui->ExitGame2, &QPushButton::clicked, this, [this]() { GameOver(); });
 
-    ui->Board2->setMouseTracking(true);
 
-    //Set up
-    ui->stackedWidget->setCurrentWidget(ui->MainMenu);
 }
 
 MainWindow::~MainWindow()
@@ -53,8 +52,7 @@ void MainWindow::ChangePage(QWidget *widget)
 
 void MainWindow::StartGame()
 {
-    // ChangePage(ui->PlayScreen);
-    ChangePage(ui->Testi);
+    ChangePage(ui->PlayScreen);
     isPlaying = true;
 
     if (game) {
@@ -62,23 +60,33 @@ void MainWindow::StartGame()
         game = nullptr;
     }
 
-    game = new Game(ui->Board2, this);
+    game = new Game(ui->Board, this);
 
     ui->WhosTurn->setText("White");
 
-    connect(ui->Board2, &ChessBoard::pieceSelected, game, &Game::handlePieceSelection);
-    connect(game, &Game::pieceMoved, ui->Board2, &ChessBoard::MovePiece);
-    connect(ui->Board2, &ChessBoard::endTurn, game, &Game::EndOfTurn);
+
+    //Gameplay connections
+
+    //Movements and eating
+    connect(ui->Board, &ChessBoard::pieceSelected, game, &Game::handlePieceSelection);
+    connect(game, &Game::pieceMoved, ui->Board, &ChessBoard::MovePiece);
+    connect(game, &Game::EatPiece, ui->Board, &ChessBoard::EatingPiece);
+
+    //Marking selection and available moves
+    connect(game, &Game::SetSquareColor, ui->Board, &ChessBoard::SettingSquareColor);
+
+    //Changing turn
+    connect(ui->Board, &ChessBoard::endTurn, game, &Game::EndOfTurn);
     connect(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
-    connect(game, &Game::SetSquareColor, ui->Board2, &ChessBoard::SettingSquareColor);
-    connect(game, &Game::EatPiece, ui->Board2, &ChessBoard::EatingPiece);
+
+
 }
 
 void MainWindow::GameOver()
 {
     ChangePage(ui->MainMenu);
     isPlaying = false;
-    ui->Board2->ResetBoard();
+    ui->Board->ResetBoard();
 
     if (game) {
         delete game;

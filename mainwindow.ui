@@ -21,7 +21,7 @@
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="currentIndex">
-       <number>3</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="MainMenu">
        <layout class="QVBoxLayout" name="verticalLayout">
@@ -87,21 +87,10 @@
        </layout>
       </widget>
       <widget class="QWidget" name="PlayScreen">
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <widget class="QPushButton" name="ExitGame">
-          <property name="text">
-           <string>End Game</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="Testi">
        <property name="mouseTracking">
         <bool>true</bool>
        </property>
-       <widget class="ChessBoard" name="Board2">
+       <widget class="ChessBoard" name="Board">
         <property name="geometry">
          <rect>
           <x>310</x>
@@ -114,7 +103,7 @@
          <bool>true</bool>
         </property>
        </widget>
-       <widget class="QPushButton" name="ExitGame2">
+       <widget class="QPushButton" name="ExitGame">
         <property name="geometry">
          <rect>
           <x>750</x>

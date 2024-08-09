@@ -23,12 +23,6 @@ public:
         setPixmap(scaledPixmap);
     }
 
-    void Move(QPoint newPos) override
-    {
-        //TODO
-        pos = newPos;
-    }
-
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
         //TODO

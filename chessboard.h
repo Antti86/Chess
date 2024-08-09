@@ -20,10 +20,9 @@ public:
     QGraphicsScene *scene;
     QVector<BasePiece *> pieces;
 
-    const QVector<QPoint> CheckPopulatedAreas() const;
+    const QVector<QPoint> CheckPopulatedAreas() const; //Maybe needed??
 
     const QVector<QPoint> GetWhitePieceAreas() const;
-
     const QVector<QPoint> GetBlackPieceAreas() const;
 
     void ResetBoard();
