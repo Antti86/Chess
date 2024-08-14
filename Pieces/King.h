@@ -30,10 +30,21 @@ public:
 
         QVector<QPoint> moves;
 
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::South));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::North));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::West));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::East));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::SouthEast));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::SouthWest));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::NorthWest));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, true, CheckDirection::NorthEast));
+
+
         return moves;
     }
 
 private:
+
 
 };
 

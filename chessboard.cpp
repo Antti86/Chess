@@ -112,6 +112,25 @@ BoardSquare* ChessBoard::GetSelectedSquare(const QPoint &pos) const
     return nullptr;
 }
 
+const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy) const
+{
+
+    QVector<QPoint> dangerAreas;
+
+    QBrush turn = isWhiteturn ? Qt::black : Qt::white;
+
+    for (auto& p : pieces)
+    {
+        if (p->getColor() == turn)
+        {
+            dangerAreas.append(p->GetLegalMoves(friendly, enemy));
+        }
+    }
+
+    return dangerAreas;
+
+}
+
 void ChessBoard::MovePiece(QPoint from, QPoint to)
 {
     for (auto &piece : pieces)

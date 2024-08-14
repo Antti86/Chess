@@ -40,6 +40,19 @@ void MainWindow::ChangeTurnMark(bool isWhiteTrun)
     ui->WhosTurn->setText(turn);
 }
 
+void MainWindow::ChangeCheckedStatus(bool isChecked)
+{
+    if (isChecked)
+    {
+        ui->Checked->setText("Check");
+    }
+    else
+    {
+        ui->Checked->setText("");
+    }
+
+}
+
 void MainWindow::kill()
 {
     QCoreApplication::quit();
@@ -78,6 +91,7 @@ void MainWindow::StartGame()
     //Changing turn
     connect(ui->Board, &ChessBoard::endTurn, game, &Game::EndOfTurn);
     connect(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
+    connect(game, &Game::UpdateUiForCheck, this, &MainWindow::ChangeCheckedStatus);
 
 
 }

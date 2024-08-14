@@ -23,6 +23,7 @@ public:
 
 public slots:
     void ChangeTurnMark(bool isWhiteTrun);
+    void ChangeCheckedStatus(bool isChecked);
 
 private:
     Ui::MainWindow *ui;

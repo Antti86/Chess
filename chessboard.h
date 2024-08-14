@@ -25,6 +25,8 @@ public:
     const QVector<QPoint> GetWhitePieceAreas() const;
     const QVector<QPoint> GetBlackPieceAreas() const;
 
+    const QVector<QPoint> GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint>& enemy) const;
+
     void ResetBoard();
 
 public slots:
@@ -48,6 +50,8 @@ private:
     void UpdateBoard();
 
     BoardSquare* GetSelectedSquare(const QPoint& pos) const;
+
+
 
     //Square color
     QBrush fColor;

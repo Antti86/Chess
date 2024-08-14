@@ -26,9 +26,26 @@ public:
 
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
-        //TODO
 
         QVector<QPoint> moves;
+
+        QVector<QPoint> East = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::East);
+        QVector<QPoint> West = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::West);
+        QVector<QPoint> North = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::North);
+        QVector<QPoint> South = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::South);
+        QVector<QPoint> SouthEast = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthEast);
+        QVector<QPoint> NorthEast = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthEast);
+        QVector<QPoint> NorthWest = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthWest);
+        QVector<QPoint> SouthWest = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthWest);
+
+        moves.append(East);
+        moves.append(West);
+        moves.append(North);
+        moves.append(South);
+        moves.append(SouthEast);
+        moves.append(NorthEast);
+        moves.append(NorthWest);
+        moves.append(SouthWest);
 
         return moves;
     }

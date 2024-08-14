@@ -16,6 +16,18 @@ enum class PieceType {
 
 };
 
+enum class CheckDirection
+{
+    South,
+    SouthWest,
+    West,
+    NorthWest,
+    North,
+    NorthEast,
+    East,
+    SouthEast
+};
+
 class BasePiece : public QGraphicsPixmapItem
 {
 public:
@@ -41,11 +53,146 @@ public:
     PieceType getType() const { return type; }
 
 protected:
+    QVector<QPoint> CheckMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces, bool onlyOneSquare, CheckDirection dir) const
+    {
+        QVector<QPoint> moves;
+
+        int xOffset;
+        int yOffset;
+        int dirCap;
+        int dirCheckVal;
+        int dirIncrement;
+        std::function<bool(int, int)> comp;
+
+        switch (dir)
+        {
+        case CheckDirection::East:
+            xOffset = 1;
+            dirCheckVal = pos.x() + 1;
+            dirIncrement = 1;
+            yOffset = 0;
+            dirCap = 7;
+            comp = std::less_equal<int>();
+            break;
+        case CheckDirection::North:
+            xOffset = 0;
+            dirCheckVal = pos.y() - 1;
+            dirIncrement = -1;
+            yOffset = -1;
+            dirCap = 0;
+            comp = std::greater_equal<int>();
+            break;
+        case CheckDirection::NorthEast:
+        {
+            bool isXmain = (7 - pos.x()) <= pos.y() ? true : false;
+            xOffset = 1;
+            dirCheckVal = isXmain ? (pos.x() + 1) : (pos.y() - 1);
+            dirIncrement = isXmain ? 1 : -1;
+            yOffset = -1;
+            dirCap = isXmain ? 7 : 0;
+            if (isXmain)
+            {
+                comp = std::less_equal<int>();
+            }
+            else
+            {
+                comp = std::greater_equal<int>();
+            }
+        }
+        break;
+        case CheckDirection::South:
+            xOffset = 0;
+            dirCheckVal = pos.y() + 1;
+            dirIncrement = 1;
+            yOffset = 1;
+            dirCap = 7;
+            comp = std::less_equal<int>();
+            break;
+        case CheckDirection::SouthWest:
+        {
+            bool isXmain = pos.x() <= (7 - pos.y()) ? true : false;
+            xOffset = -1;
+            dirCheckVal = isXmain ? (pos.x() - 1) : (pos.y() + 1);
+            dirIncrement = isXmain ? -1 : 1;
+            yOffset = 1;
+            dirCap = isXmain ? 0 : 7;
+            if (isXmain)
+            {
+
+                comp = std::greater_equal<int>();
+            }
+            else
+            {
+                comp = std::less_equal<int>();
+            }
+        }
+            break;
+        case CheckDirection::West:
+            xOffset = -1;
+            dirCheckVal = pos.x() - 1;
+            dirIncrement = -1;
+            yOffset = 0;
+            dirCap = 0;
+            comp = std::greater_equal<int>();
+            break;
+        case CheckDirection::NorthWest:
+            xOffset = -1;
+            dirCheckVal = std::min(pos.x(), pos.y()) - 1;
+            dirIncrement = -1;
+            yOffset = -1;
+            dirCap = 0;
+            comp = std::greater_equal<int>();
+            break;
+        case CheckDirection::SouthEast:
+            xOffset = 1;
+            dirCheckVal = std::min(pos.x(), pos.y()) + 1;
+            dirIncrement = 1;
+            yOffset = 1;
+            dirCap = 7;
+            comp = std::less_equal<int>();
+            break;
+        }
+
+        if (comp(dirCheckVal, dirCap))
+        {
+            if (onlyOneSquare)
+            {
+                QPoint checkArea = QPoint(pos.x() + xOffset, pos.y() + yOffset);
+                if (!friendlyPieces.contains(checkArea) || enemyPieces.contains(checkArea))
+                {
+                    moves.append(checkArea);
+                }
+            }
+            else
+            {
+
+                for (int x = pos.x() + xOffset, y = pos.y() + yOffset; comp(dirCheckVal, dirCap); dirCheckVal += dirIncrement, x += xOffset, y += yOffset )
+                {
+                    QPoint checkArea = QPoint(x, y);
+                    if (friendlyPieces.contains(checkArea))
+                    {
+                        break;
+                    }
+                    if (enemyPieces.contains(checkArea))
+                    {
+                        moves.append(checkArea);
+                        break;
+                    }
+                    moves.append(checkArea);
+                }
+            }
+
+        }
+        return moves;
+    }
+
+protected:
     QBrush color;
     QPoint pos;
     PieceType type;
     QPixmap pixmap;
     QPixmap scaledPixmap;
+
 };
 
 #endif // BASEPIECE_H
