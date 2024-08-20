@@ -37,36 +37,12 @@ ChessBoard::~ChessBoard()
     delete scene;
 }
 
-const QVector<QPoint> ChessBoard::CheckPopulatedAreas() const
+const QVector<QPoint> ChessBoard::GetPopulatedAreas(QBrush color) const
 {
     QVector<QPoint> populatedAreas;
     for (auto& p : pieces)
     {
-        populatedAreas.append(p->getPos());
-    }
-    return populatedAreas;
-
-}
-
-const QVector<QPoint> ChessBoard::GetWhitePieceAreas() const
-{
-    QVector<QPoint> populatedAreas;
-    for (auto& p : pieces)
-    {
-        if (p->getColor() == Qt::white)
-        {
-            populatedAreas.append(p->getPos());
-        }
-    }
-    return populatedAreas;
-}
-
-const QVector<QPoint> ChessBoard::GetBlackPieceAreas() const
-{
-    QVector<QPoint> populatedAreas;
-    for (auto& p : pieces)
-    {
-        if (p->getColor() == Qt::black)
+        if (p->getColor() == color)
         {
             populatedAreas.append(p->getPos());
         }
@@ -112,23 +88,20 @@ BoardSquare* ChessBoard::GetSelectedSquare(const QPoint &pos) const
     return nullptr;
 }
 
-const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy) const
+const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy,
+            const QPoint ignoredPiecePos) const
 {
 
     QVector<QPoint> dangerAreas;
-
-    QBrush turn = isWhiteturn ? Qt::black : Qt::white;
-
+    QBrush enemyColor = isWhiteturn ? Qt::black : Qt::white;
     for (auto& p : pieces)
     {
-        if (p->getColor() == turn)
+        if (p->getColor() == enemyColor && ignoredPiecePos != p->getPos())
         {
-            dangerAreas.append(p->GetLegalMoves(friendly, enemy));
+            dangerAreas.append(p->GetThreateningMoves(enemy, friendly));
         }
     }
-
     return dangerAreas;
-
 }
 
 void ChessBoard::MovePiece(QPoint from, QPoint to)
@@ -175,7 +148,6 @@ void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& le
             }
         }
     }
-
 }
 
 void ChessBoard::EatingPiece(QPoint eatingPos)
@@ -269,7 +241,8 @@ void ChessBoard::SetPiecesOnBoard()
     AddPiece(new Rook(Qt::white, QPoint(7, 7), PieceType::Rook));
 
     //Knights
-    AddPiece(new Knight(Qt::white, QPoint(1, 7), PieceType::Knight));
+    AddPiece(new Knight(Qt::white, QPoint(4, 4), PieceType::Knight));
+    // AddPiece(new Knight(Qt::white, QPoint(1, 7), PieceType::Knight));
     AddPiece(new Knight(Qt::white, QPoint(6, 7), PieceType::Knight));
 
     //Bishops

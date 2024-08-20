@@ -30,23 +30,20 @@ private:
     bool ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& pos) const;
     bool IsEatingMovement(const QPoint pos) const;
     BasePiece* GetSelectedPiece(const QPoint pos) const;
-    bool IsKingChecked(const QVector<QPoint> &f);
+    bool IsKingChecked(const QVector<QPoint> &dangerAreas);
 
-    QVector<QPoint> FilterCheckedAreas(QVector<QPoint>& moves);
+    QVector<QPoint> FilterKingMovements(QVector<QPoint>& moves);
+    QVector<QPoint> FilterAvailableMovements(const QVector<QPoint>& moves);
 
     void SetAreaFields();
+    QVector<QPoint> GetGhostArea(const QVector<QPoint> &field, const QPoint &pos);
 
-    QVector<QPoint> GetGhostArea();
-
-
-    QVector<QPoint> Filter(const QVector<QPoint>& moves);
 private:
     bool isWhiteTurn;
     bool isPieceSelected;
     QPoint selectedPiecePos;
     ChessBoard *board;
     QVector<QPoint> friendly;
-    QVector<QPoint> ghostFriendly;
     QVector<QPoint> enemy;
 };
 

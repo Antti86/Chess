@@ -20,12 +20,10 @@ public:
     QGraphicsScene *scene;
     QVector<BasePiece *> pieces;
 
-    const QVector<QPoint> CheckPopulatedAreas() const; //Maybe needed??
+    const QVector<QPoint> GetPopulatedAreas(QBrush color) const;
 
-    const QVector<QPoint> GetWhitePieceAreas() const;
-    const QVector<QPoint> GetBlackPieceAreas() const;
-
-    const QVector<QPoint> GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint>& enemy) const;
+    const QVector<QPoint> GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint>& enemy,
+                                         const QPoint ignoredPiecePos = QPoint(-1, -1) ) const;
 
     void ResetBoard();
 

@@ -47,14 +47,20 @@ public:
         pos = newPos;
     }
     virtual QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const = 0;
-
+    virtual QVector<QPoint> GetThreateningMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const = 0;
     QBrush getColor() const { return color; }
     QPoint getPos() const { return pos; }
     PieceType getType() const { return type; }
 
 protected:
-    QVector<QPoint> CheckMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces, bool onlyOneSquare, CheckDirection dir) const
+    QVector<QPoint> CheckMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces, bool onlyOneSquare,
+                               CheckDirection dir, bool checkingThreat = false) const
     {
+
+        //Did this algorithm, cos wanted to see if i could make generic movement checker. Works nice for the most pieces.
+        //But if this was a paid or team project, i would have probably maked simplier version and just copy pastet to
+        // inhereting pieces.
+
         QVector<QPoint> moves;
 
         int xOffset;
@@ -169,16 +175,38 @@ protected:
                 for (int x = pos.x() + xOffset, y = pos.y() + yOffset; comp(dirCheckVal, dirCap); dirCheckVal += dirIncrement, x += xOffset, y += yOffset )
                 {
                     QPoint checkArea = QPoint(x, y);
-                    if (friendlyPieces.contains(checkArea))
+                    if (!checkingThreat)
                     {
-                        break;
-                    }
-                    if (enemyPieces.contains(checkArea))
-                    {
+                        if (friendlyPieces.contains(checkArea))
+                        {
+                            break;
+                        }
+                        if (enemyPieces.contains(checkArea))
+                        {
+                            moves.append(checkArea);
+                            break;
+                        }
                         moves.append(checkArea);
-                        break;
                     }
-                    moves.append(checkArea);
+                    else
+                    {
+                        if (friendlyPieces.contains(checkArea) || enemyPieces.contains(checkArea))
+                        {
+                            moves.append(checkArea);
+                            break;
+                        }
+                        moves.append(checkArea);
+                    }
+                    // if (friendlyPieces.contains(checkArea))
+                    // {
+                    //     break;
+                    // }
+                    // if (enemyPieces.contains(checkArea))
+                    // {
+                    //     moves.append(checkArea);
+                    //     break;
+                    // }
+                    // moves.append(checkArea);
                 }
             }
 

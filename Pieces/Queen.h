@@ -26,27 +26,29 @@ public:
 
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
-
         QVector<QPoint> moves;
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::East));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::West));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::North));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::South));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthEast));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthEast));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthWest));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthWest));
+        return moves;
+    }
 
-        QVector<QPoint> East = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::East);
-        QVector<QPoint> West = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::West);
-        QVector<QPoint> North = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::North);
-        QVector<QPoint> South = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::South);
-        QVector<QPoint> SouthEast = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthEast);
-        QVector<QPoint> NorthEast = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthEast);
-        QVector<QPoint> NorthWest = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthWest);
-        QVector<QPoint> SouthWest = CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthWest);
-
-        moves.append(East);
-        moves.append(West);
-        moves.append(North);
-        moves.append(South);
-        moves.append(SouthEast);
-        moves.append(NorthEast);
-        moves.append(NorthWest);
-        moves.append(SouthWest);
-
+    QVector<QPoint> GetThreateningMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
+    {
+        QVector<QPoint> moves;
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::East, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::West, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::North, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::South, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthEast, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthEast, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthWest, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthWest, true));
         return moves;
     }
 

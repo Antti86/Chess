@@ -26,10 +26,21 @@ public:
 
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
-        //TODO
-
         QVector<QPoint> moves;
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthEast));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthEast));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthWest));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthWest));
+        return moves;
+    }
 
+    QVector<QPoint> GetThreateningMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
+    {
+        QVector<QPoint> moves;
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthEast, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthEast, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::NorthWest, true));
+        moves.append(CheckMoves(friendlyPieces, enemyPieces, false, CheckDirection::SouthWest, true));
         return moves;
     }
 

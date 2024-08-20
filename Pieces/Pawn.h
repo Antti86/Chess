@@ -32,6 +32,14 @@ public:
         return moves;
     }
 
+    QVector<QPoint> GetThreateningMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
+    {
+        //TODO
+        QVector<QPoint> moves;
+
+        return moves;
+    }
+
 private:
 
 
