@@ -24,6 +24,7 @@ public:
 public slots:
     void ChangeTurnMark(bool isWhiteTrun);
     void ChangeCheckedStatus(bool isChecked);
+    void GameOver(bool isWhiteWinner);
 
 private:
     Ui::MainWindow *ui;
@@ -34,6 +35,6 @@ private:
     void ChangePage(QWidget *widget);
 
     void StartGame();
-    void GameOver();
+    void ExitGame();
 };
 #endif // MAINWINDOW_H

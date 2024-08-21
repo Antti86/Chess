@@ -20,6 +20,7 @@ signals:
     void gameOver(bool isWhiteWinner);
     void UpdateUiToTurn(bool isWhiteTurn);
     void UpdateUiForCheck(bool isChecked);
+    void UpdateUiForCheckMate(bool isWhiteWinner);
 
 public slots:
     void handlePieceSelection(QPoint pos);
@@ -30,13 +31,14 @@ private:
     bool ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& pos) const;
     bool IsEatingMovement(const QPoint pos) const;
     BasePiece* GetSelectedPiece(const QPoint pos) const;
-    bool IsKingChecked(const QVector<QPoint> &dangerAreas);
+    bool IsKingChecked(const QVector<QPoint> &dangerAreas) const;
+    bool IsCheckMate() const;
 
-    QVector<QPoint> FilterKingMovements(QVector<QPoint>& moves);
-    QVector<QPoint> FilterAvailableMovements(const QVector<QPoint>& moves);
+    QVector<QPoint> FilterKingMovements(QVector<QPoint>& moves) const;
+    QVector<QPoint> FilterAvailableMovements(const QVector<QPoint>& moves) const;
 
     void SetAreaFields();
-    QVector<QPoint> GetGhostArea(const QVector<QPoint> &field, const QPoint &pos);
+    QVector<QPoint> GetGhostArea(const QVector<QPoint> &field, const QPoint &pos) const;
 
 private:
     bool isWhiteTurn;

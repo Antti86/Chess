@@ -21,9 +21,10 @@ MainWindow::MainWindow(QWidget *parent)
     });
     connect(ui->BackToMain, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
     connect(ui->BackToMain_2, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
+    connect(ui->WinExit, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
 
     connect(ui->Play, &QPushButton::clicked, this, [this]() { StartGame(); });
-    connect(ui->ExitGame, &QPushButton::clicked, this, [this]() { GameOver(); });
+    connect(ui->ExitGame, &QPushButton::clicked, this, [this]() { ExitGame(); });
 
 
 }
@@ -51,6 +52,20 @@ void MainWindow::ChangeCheckedStatus(bool isChecked)
         ui->Checked->setText("");
     }
 
+}
+
+void MainWindow::GameOver(bool isWhiteWinner)
+{
+    ChangePage(ui->WinScreen);
+    ui->Winner->setText(isWhiteWinner ? "White" : "Black");
+
+    isPlaying = false;
+    ui->Board->ResetBoard();
+
+    if (game) {
+        delete game;
+        game = nullptr;
+    }
 }
 
 void MainWindow::kill()
@@ -92,11 +107,12 @@ void MainWindow::StartGame()
     connect(ui->Board, &ChessBoard::endTurn, game, &Game::EndOfTurn);
     connect(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
     connect(game, &Game::UpdateUiForCheck, this, &MainWindow::ChangeCheckedStatus);
+    connect(game, &Game::UpdateUiForCheckMate, this, &MainWindow::GameOver);
 
 
 }
 
-void MainWindow::GameOver()
+void MainWindow::ExitGame()
 {
     ChangePage(ui->MainMenu);
     isPlaying = false;

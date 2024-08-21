@@ -107,8 +107,18 @@ void Game::EndOfTurn()
     SetAreaFields();
     QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
     bool isChecked = IsKingChecked(dangerAreas);
+
+    if (isChecked)
+    {
+        if (IsCheckMate())
+        {
+            emit UpdateUiForCheckMate(!isWhiteTurn);
+            return;
+        }
+    }
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(isWhiteTurn);
+
 
 }
 
@@ -162,7 +172,7 @@ BasePiece *Game::GetSelectedPiece(const QPoint pos) const
     return piece;
 }
 
-bool Game::IsKingChecked(const QVector<QPoint> &dangerAreas)
+bool Game::IsKingChecked(const QVector<QPoint> &dangerAreas) const
 {
     QPoint kingPos;
     QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
@@ -177,7 +187,29 @@ bool Game::IsKingChecked(const QVector<QPoint> &dangerAreas)
     return dangerAreas.contains(kingPos);
 }
 
-QVector<QPoint> Game::FilterKingMovements(QVector<QPoint> &moves)
+bool Game::IsCheckMate() const
+{
+    QVector<QPoint> availableMoves;
+    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+    for (auto& p : board->pieces)
+    {
+        if (p->getColor() == turn)
+        {
+            QVector<QPoint> legalMoves = p->GetLegalMoves(friendly, enemy);
+            if (p->getType() == PieceType::King)
+            {
+                availableMoves.append(FilterKingMovements(legalMoves));
+            }
+            else
+            {
+                availableMoves.append(FilterAvailableMovements(legalMoves));
+            }
+        }
+    }
+    return availableMoves.size() == 0;
+}
+
+QVector<QPoint> Game::FilterKingMovements(QVector<QPoint> &moves) const
 {
     QVector<QPoint> filteredMoves;
     QVector<QPoint> ghostFriendly = GetGhostArea(friendly, selectedPiecePos);
@@ -201,7 +233,7 @@ void Game::SetAreaFields()
     enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
 }
 
-QVector<QPoint> Game::GetGhostArea(const QVector<QPoint>& field, const QPoint& pos)
+QVector<QPoint> Game::GetGhostArea(const QVector<QPoint>& field, const QPoint& pos) const
 {
     QVector<QPoint> ret;
     for (auto& p : field)
@@ -214,7 +246,7 @@ QVector<QPoint> Game::GetGhostArea(const QVector<QPoint>& field, const QPoint& p
     return ret;
 }
 
-QVector<QPoint> Game::FilterAvailableMovements(const QVector<QPoint> &moves)
+QVector<QPoint> Game::FilterAvailableMovements(const QVector<QPoint> &moves) const
 {
     QVector<QPoint> filteredMoves;
     QVector<QPoint> ghost = GetGhostArea(friendly, selectedPiecePos);

@@ -197,16 +197,6 @@ protected:
                         }
                         moves.append(checkArea);
                     }
-                    // if (friendlyPieces.contains(checkArea))
-                    // {
-                    //     break;
-                    // }
-                    // if (enemyPieces.contains(checkArea))
-                    // {
-                    //     moves.append(checkArea);
-                    //     break;
-                    // }
-                    // moves.append(checkArea);
                 }
             }
 
