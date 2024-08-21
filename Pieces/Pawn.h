@@ -25,23 +25,90 @@ public:
 
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
-        //TODO
-
         QVector<QPoint> moves;
+
+        if (this->getColor() == Qt::white)
+        {
+            QPoint basicMove = QPoint(pos.x(), pos.y() - 1);
+            bool canBasicMove = false;
+            if (!friendlyPieces.contains(basicMove) && !enemyPieces.contains(basicMove))
+            {
+                moves.append(basicMove);
+                canBasicMove = true;
+            }
+
+            QPoint eatingMoveR = QPoint(pos.x() + 1, pos.y() - 1);
+            QPoint eatingMoveL = QPoint(pos.x() - 1, pos.y() - 1);
+
+            if (enemyPieces.contains(eatingMoveL))
+            {
+                moves.append(eatingMoveL);
+            }
+            if (enemyPieces.contains(eatingMoveR))
+            {
+                moves.append(eatingMoveR);
+            }
+
+            if (!hasMoved && canBasicMove)
+            {
+                QPoint twoStepMove = QPoint(pos.x(), pos.y() - 2);
+                if (!friendlyPieces.contains(twoStepMove) && !enemyPieces.contains(twoStepMove))
+                {
+                    moves.append(twoStepMove);
+                }
+            }
+        }
+        else
+        {
+            QPoint basicMove = QPoint(pos.x(), pos.y() + 1);
+            bool canBasicMove = false;
+            if (!friendlyPieces.contains(basicMove) && !enemyPieces.contains(basicMove))
+            {
+                moves.append(basicMove);
+                canBasicMove = true;
+            }
+            QPoint eatingMoveR = QPoint(pos.x() + 1, pos.y() + 1);
+            QPoint eatingMoveL = QPoint(pos.x() - 1, pos.y() + 1);
+
+            if (enemyPieces.contains(eatingMoveL))
+            {
+                moves.append(eatingMoveL);
+            }
+            if (enemyPieces.contains(eatingMoveR))
+            {
+                moves.append(eatingMoveR);
+            }
+
+            if (!hasMoved && canBasicMove)
+            {
+                QPoint twoStepMove = QPoint(pos.x(), pos.y() + 2);
+                if (!friendlyPieces.contains(twoStepMove) && !enemyPieces.contains(twoStepMove))
+                {
+                    moves.append(twoStepMove);
+                }
+            }
+        }
 
         return moves;
     }
 
     QVector<QPoint> GetThreateningMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
-        //TODO
         QVector<QPoint> moves;
-
+        if (this->getColor() == Qt::white)
+        {
+            moves.append(QPoint(pos.x() - 1, pos.y() - 1));
+            moves.append(QPoint(pos.x() + 1, pos.y() - 1));
+        }
+        else
+        {
+            moves.append(QPoint(pos.x() + 1, pos.y() + 1));
+            moves.append(QPoint(pos.x() - 1, pos.y() + 1));
+        }
         return moves;
     }
 
 private:
-
 
 };
 

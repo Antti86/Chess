@@ -231,18 +231,18 @@ void ChessBoard::SetPiecesOnBoard()
     //Whites
 
     //Pawns
-    // for (int x = 0; x < 8; x++)
-    // {
-    //     AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
-    // }
+    for (int x = 0; x < 8; x++)
+    {
+        AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
+    }
 
     //Rooks
     AddPiece(new Rook(Qt::white, QPoint(0, 7), PieceType::Rook));
     AddPiece(new Rook(Qt::white, QPoint(7, 7), PieceType::Rook));
 
     //Knights
-    AddPiece(new Knight(Qt::white, QPoint(4, 4), PieceType::Knight));
-    // AddPiece(new Knight(Qt::white, QPoint(1, 7), PieceType::Knight));
+    // AddPiece(new Knight(Qt::white, QPoint(4, 4), PieceType::Knight));
+    AddPiece(new Knight(Qt::white, QPoint(1, 7), PieceType::Knight));
     AddPiece(new Knight(Qt::white, QPoint(6, 7), PieceType::Knight));
 
     //Bishops
@@ -258,10 +258,10 @@ void ChessBoard::SetPiecesOnBoard()
     //Blacks
 
     //Pawns
-    // for (int x = 0; x < 8; x++)
-    // {
-    //     AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
-    // }
+    for (int x = 0; x < 8; x++)
+    {
+        AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
+    }
 
     //Rooks
     AddPiece(new Rook(Qt::black, QPoint(0, 0), PieceType::Rook));

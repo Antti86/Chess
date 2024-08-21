@@ -36,6 +36,7 @@ public:
         , color(color)
         , pos(pos)
         , type(type)
+        , hasMoved(false)
     {}
     virtual ~BasePiece() = default;
     virtual void Draw()
@@ -45,6 +46,7 @@ public:
     void Move(QPoint newPos)
     {
         pos = newPos;
+        hasMoved = true;
     }
     virtual QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const = 0;
     virtual QVector<QPoint> GetThreateningMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const = 0;
@@ -210,6 +212,7 @@ protected:
     PieceType type;
     QPixmap pixmap;
     QPixmap scaledPixmap;
+    bool hasMoved;
 
 };
 
