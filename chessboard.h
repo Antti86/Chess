@@ -28,7 +28,7 @@ public:
     void ResetBoard();
 
 public slots:
-    void MovePiece(QPoint from, QPoint to);
+    void MovePiece(QPoint from, QPoint to, bool isWhiteTurn);
     void SettingSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
     void EatingPiece(QPoint eatingPos);
 
@@ -48,6 +48,8 @@ private:
     void UpdateBoard();
 
     BoardSquare* GetSelectedSquare(const QPoint& pos) const;
+
+    void CheckPassantStatus(BasePiece* piece, const QPoint& from, const QPoint& to, bool isWhiteTurn);
 
 
 

@@ -43,7 +43,7 @@ public:
     {
         setPos(pos.x() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET, pos.y() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET);
     };
-    void Move(QPoint newPos)
+    virtual void Move(QPoint newPos)
     {
         pos = newPos;
         hasMoved = true;

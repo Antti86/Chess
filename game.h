@@ -14,7 +14,7 @@ public:
     Game(ChessBoard *board, QObject *parent);
 
 signals:
-    void pieceMoved(QPoint from, QPoint to);
+    void pieceMoved(QPoint from, QPoint to, bool isWhiteTurn);
     void EatPiece(QPoint eatingPos);
     void SetSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
     void gameOver(bool isWhiteWinner);
@@ -30,6 +30,7 @@ private:
     bool IsPieceOnSelectedSquare(QPoint square) const;
     bool ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& pos) const;
     bool IsEatingMovement(const QPoint pos) const;
+    bool IsPassantMovement(BasePiece* piece, const QPoint& pos) const;
     BasePiece* GetSelectedPiece(const QPoint pos) const;
     bool IsKingChecked(const QVector<QPoint> &dangerAreas) const;
     bool IsCheckMate() const;

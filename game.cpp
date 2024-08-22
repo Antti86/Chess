@@ -90,11 +90,17 @@ void Game::handlePieceSelection(QPoint pos)
             if (ValidMovement(piece, filteredMoves, pos))
             {
                 emit SetSquareColor(selectedPiecePos, filteredMoves, false);
+                if (IsPassantMovement(piece, pos))
+                {
+                    int fix = isWhiteTurn ? 1 : -1;
+                    QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+                    emit EatPiece(fixed);
+                }
                 if (IsEatingMovement(pos))
                 {
                     emit EatPiece(pos);
                 }
-                emit pieceMoved(selectedPiecePos, pos);
+                emit pieceMoved(selectedPiecePos, pos, isWhiteTurn);
                 isPieceSelected = false;
             }
         }
@@ -156,6 +162,19 @@ bool Game::ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& p
 bool Game::IsEatingMovement(const QPoint pos) const
 {
     return enemy.contains(pos);
+}
+
+bool Game::IsPassantMovement(BasePiece* piece, const QPoint &pos) const
+{
+    QPoint checkPosUp = QPoint(pos.x(), pos.y() - 1);
+    QPoint checkPosDown = QPoint(pos.x(), pos.y() + 1);
+
+    if (piece->getType() == PieceType::Pawn)
+    {
+        return enemy.contains(checkPosDown) || enemy.contains(checkPosUp);
+    }
+    return false;
+
 }
 
 BasePiece *Game::GetSelectedPiece(const QPoint pos) const

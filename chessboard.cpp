@@ -88,6 +88,30 @@ BoardSquare* ChessBoard::GetSelectedSquare(const QPoint &pos) const
     return nullptr;
 }
 
+void ChessBoard::CheckPassantStatus(BasePiece *piece, const QPoint& from, const QPoint& to, bool isWhiteTurn)
+{
+    if (piece->getType() == PieceType::Pawn)
+    {
+        QPoint disCheck = QPoint(from.x(), from.y() - to.y());
+
+        if (disCheck.y() == 2 || disCheck.y() == -2)
+        {
+            QBrush enemy = isWhiteTurn ? Qt::black : Qt::white;
+
+            for (auto& p : pieces)
+            {
+                QPoint left = QPoint(to.x() - 1, to.y());
+                QPoint right = QPoint(to.x() + 1, to.y());
+                if (p->getType() == PieceType::Pawn && p->getColor() == enemy && (p->getPos() == left || p->getPos() == right))
+                {
+                    Pawn *pawn = dynamic_cast<Pawn*>(p);
+                    pawn->SetPassant();
+                }
+            }
+        }
+    }
+}
+
 const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy,
             const QPoint ignoredPiecePos) const
 {
@@ -104,13 +128,14 @@ const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector
     return dangerAreas;
 }
 
-void ChessBoard::MovePiece(QPoint from, QPoint to)
+void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
 {
     for (auto &piece : pieces)
     {
         if (piece->getPos() == from)
         {
             piece->Move(to);
+            CheckPassantStatus(piece, from, to, isWhiteTurn);
             break;
         }
     }
