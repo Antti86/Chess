@@ -56,7 +56,16 @@ void Game::handlePieceSelection(QPoint pos)
             isPieceSelected = false;
             BasePiece* piece = GetSelectedPiece(pos);
             QVector<QPoint> moves = piece->GetLegalMoves(friendly, enemy);
-            emit SetSquareColor(selectedPiecePos, moves, false);
+
+            if (piece->getType() == PieceType::King)
+            {
+                QVector<QPoint> filteredMoves = FilterKingMovements(moves);
+                emit SetSquareColor(selectedPiecePos, filteredMoves, false);
+            }
+            else
+            {
+                emit SetSquareColor(selectedPiecePos, moves, false);
+            }
         }
         else
         {
@@ -96,11 +105,34 @@ void Game::handlePieceSelection(QPoint pos)
                     QPoint fixed = QPoint(pos.x(), pos.y() + fix);
                     emit EatPiece(fixed);
                 }
+
                 if (IsEatingMovement(pos))
                 {
                     emit EatPiece(pos);
                 }
-                emit pieceMoved(selectedPiecePos, pos, isWhiteTurn);
+
+                BasePiece* castlingRook = IsCastlingMove(piece, pos);
+                if (castlingRook)
+                {
+                    QPoint kingNewPos;
+                    QPoint RookNewPos;
+                    if (pos.x() < 3)
+                    {
+                        kingNewPos = QPoint(2, pos.y());
+                        RookNewPos = QPoint(3, pos.y());
+                    }
+                    else
+                    {
+                        kingNewPos = QPoint(6, pos.y());
+                        RookNewPos = QPoint(5, pos.y());
+                    }
+                    castlingRook->Move(RookNewPos);
+                    emit pieceMoved(selectedPiecePos, kingNewPos, isWhiteTurn);
+                }
+                else
+                {
+                    emit pieceMoved(selectedPiecePos, pos, isWhiteTurn);
+                }
                 isPieceSelected = false;
             }
         }
@@ -228,6 +260,122 @@ bool Game::IsCheckMate() const
     return availableMoves.size() == 0;
 }
 
+BasePiece* Game::IsCastlingMove(BasePiece *piece, const QPoint &pos) const
+{
+    if (piece->getType() == PieceType::King)
+    {
+        QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+
+        for (auto& p : board->pieces)
+        {
+            if (p->getColor() == turn && p->getType() == PieceType::Rook && p->getPos() == pos)
+            {
+                return p;
+            }
+        }
+    }
+    return nullptr;
+}
+
+
+QVector<QPoint> Game::GetCastlingMoves() const
+{
+    QVector<QPoint> ret;
+
+    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+
+    QVector<QPoint> pieceArea;
+
+    int rookCount;
+
+    bool leftRook = false;
+    bool rightRook = false;
+
+    for (auto& p : board->pieces)
+    {
+        if (p->getColor() == turn)
+        {
+            pieceArea.append(p->getPos());
+            if (p->getType() == PieceType::King && p->GetHashMoved())
+            {
+                return ret;
+            }
+            if (p->getType() == PieceType::Rook)
+            {
+                if (!p->GetHashMoved() && (p->getPos() == QPoint(0, 7) || p->getPos() == QPoint(0, 0)))
+                {
+                    leftRook = true;
+                }
+                if (!p->GetHashMoved() && (p->getPos() == QPoint(7, 7) || p->getPos() == QPoint(7, 0)))
+                {
+                    rightRook = true;
+                }
+            }
+        }
+    }
+
+    if (!leftRook || !rightRook)
+    {
+        return ret;
+    }
+
+    QVector<QPoint> checkAreaLeft;
+    QVector<QPoint> checkAreaRight;
+
+    if (isWhiteTurn)
+    {
+        if (leftRook)
+        {
+            checkAreaLeft.append(QPoint(1, 7));
+            checkAreaLeft.append(QPoint(2, 7));
+            checkAreaLeft.append(QPoint(3, 7));
+        }
+        if (rightRook)
+        {
+            checkAreaRight.append(QPoint(5, 7));
+            checkAreaRight.append(QPoint(6, 7));
+        }
+    }
+    else
+    {
+        if (leftRook)
+        {
+            checkAreaLeft.append(QPoint(1, 0));
+            checkAreaLeft.append(QPoint(2, 0));
+            checkAreaLeft.append(QPoint(3, 0));
+        }
+        if (rightRook)
+        {
+            checkAreaRight.append(QPoint(5, 0));
+            checkAreaRight.append(QPoint(6, 0));
+        }
+    }
+
+    if (std::none_of(checkAreaLeft.begin(), checkAreaLeft.end(), [&] (QPoint& p)
+    {
+            return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;});
+
+    }))
+    {
+        int y = isWhiteTurn ? 7 : 0;
+        ret.append(QPoint(0, y));
+    }
+
+    if (std::none_of(checkAreaRight.begin(), checkAreaRight.end(), [&] (QPoint& p)
+                     {
+                         return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;});
+
+                     }))
+    {
+        int y = isWhiteTurn ? 7 : 0;
+        ret.append(QPoint(7, y));
+    }
+
+
+
+    return ret;
+}
+
 QVector<QPoint> Game::FilterKingMovements(QVector<QPoint> &moves) const
 {
     QVector<QPoint> filteredMoves;
@@ -242,6 +390,7 @@ QVector<QPoint> Game::FilterKingMovements(QVector<QPoint> &moves) const
             filteredMoves.append(m);
         }
     }
+    filteredMoves.append(GetCastlingMoves());
     return filteredMoves;
 
 }

@@ -34,6 +34,8 @@ private:
     BasePiece* GetSelectedPiece(const QPoint pos) const;
     bool IsKingChecked(const QVector<QPoint> &dangerAreas) const;
     bool IsCheckMate() const;
+    BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
+    QVector<QPoint> GetCastlingMoves() const;
 
     QVector<QPoint> FilterKingMovements(QVector<QPoint>& moves) const;
     QVector<QPoint> FilterAvailableMovements(const QVector<QPoint>& moves) const;

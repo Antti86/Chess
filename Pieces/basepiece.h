@@ -53,6 +53,7 @@ public:
     QBrush getColor() const { return color; }
     QPoint getPos() const { return pos; }
     PieceType getType() const { return type; }
+    bool GetHashMoved() const {return hasMoved;}
 
 protected:
     QVector<QPoint> CheckMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces, bool onlyOneSquare,
