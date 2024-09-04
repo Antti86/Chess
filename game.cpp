@@ -1,4 +1,5 @@
 #include "game.h"
+#include "Pawn.h"
 
 Game::Game(ChessBoard *board, QObject *parent)
     : QObject(parent)
@@ -99,7 +100,7 @@ void Game::handlePieceSelection(QPoint pos)
             if (ValidMovement(piece, filteredMoves, pos))
             {
                 emit SetSquareColor(selectedPiecePos, filteredMoves, false);
-                if (IsPassantMovement(piece, pos))
+                if (IsPassantMovement(piece, selectedPiecePos, pos))
                 {
                     int fix = isWhiteTurn ? 1 : -1;
                     QPoint fixed = QPoint(pos.x(), pos.y() + fix);
@@ -150,7 +151,16 @@ void Game::EndOfTurn()
     {
         if (IsCheckMate())
         {
-            emit UpdateUiForCheckMate(!isWhiteTurn);
+            EndStatus status = isWhiteTurn ? EndStatus::WhiteWins : EndStatus::BlackWins;
+            emit UpdateUiForGameOver(status);
+            return;
+        }
+    }
+    else
+    {
+        if (IsStaleMate())
+        {
+            emit UpdateUiForGameOver(EndStatus::StaleMate);
             return;
         }
     }
@@ -159,6 +169,7 @@ void Game::EndOfTurn()
 
 
 }
+
 
 bool Game::IsPieceOnSelectedSquare(QPoint square) const
 {
@@ -196,17 +207,29 @@ bool Game::IsEatingMovement(const QPoint pos) const
     return enemy.contains(pos);
 }
 
-bool Game::IsPassantMovement(BasePiece* piece, const QPoint &pos) const
+bool Game::IsPassantMovement(BasePiece* piece, const QPoint &selectedPiecePos, const QPoint &newpos) const
 {
-    QPoint checkPosUp = QPoint(pos.x(), pos.y() - 1);
-    QPoint checkPosDown = QPoint(pos.x(), pos.y() + 1);
+    QPoint checkPosLeft = QPoint(selectedPiecePos.x() - 1, selectedPiecePos.y() );
+    QPoint checkPosRight = QPoint(selectedPiecePos.x() + 1, selectedPiecePos.y() );
 
     if (piece->getType() == PieceType::Pawn)
     {
-        return enemy.contains(checkPosDown) || enemy.contains(checkPosUp);
+        Pawn *pawn = dynamic_cast<Pawn*>(piece);
+        if (newpos.x() != selectedPiecePos.x())
+        {
+            if (pawn->canPassantLeft)
+            {
+                return enemy.contains(checkPosLeft);
+            }
+
+            if (pawn->canPassantRight)
+            {
+                return enemy.contains(checkPosRight);
+            }
+        }
+        return false;
     }
     return false;
-
 }
 
 BasePiece *Game::GetSelectedPiece(const QPoint pos) const
@@ -260,6 +283,33 @@ bool Game::IsCheckMate() const
     return availableMoves.size() == 0;
 }
 
+bool Game::IsStaleMate() const
+{
+
+    QVector<QPoint> availableMoves;
+    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+
+    for (auto& p : board->pieces)
+    {
+        if (p->getColor() == turn)
+        {
+            if (p->getType() == PieceType::King)
+            {
+                availableMoves.append(FilterKingMovements(p->GetLegalMoves(friendly, enemy)));
+            }
+            else
+            {
+                availableMoves.append(FilterAvailableMovements(p->GetLegalMoves(friendly, enemy)));
+            }
+            if (!availableMoves.isEmpty())
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 BasePiece* Game::IsCastlingMove(BasePiece *piece, const QPoint &pos) const
 {
     if (piece->getType() == PieceType::King)
@@ -280,7 +330,14 @@ BasePiece* Game::IsCastlingMove(BasePiece *piece, const QPoint &pos) const
 
 QVector<QPoint> Game::GetCastlingMoves() const
 {
-    QVector<QPoint> ret;
+    QVector<QPoint> castlingMoves;
+
+    QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
+
+    if (IsKingChecked(dangerAreas))
+    {
+        return castlingMoves;
+    }
 
     QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
 
@@ -298,7 +355,7 @@ QVector<QPoint> Game::GetCastlingMoves() const
             pieceArea.append(p->getPos());
             if (p->getType() == PieceType::King && p->GetHashMoved())
             {
-                return ret;
+                return castlingMoves;
             }
             if (p->getType() == PieceType::Rook)
             {
@@ -316,7 +373,7 @@ QVector<QPoint> Game::GetCastlingMoves() const
 
     if (!leftRook || !rightRook)
     {
-        return ret;
+        return castlingMoves;
     }
 
     QVector<QPoint> checkAreaLeft;
@@ -353,30 +410,40 @@ QVector<QPoint> Game::GetCastlingMoves() const
 
     if (std::none_of(checkAreaLeft.begin(), checkAreaLeft.end(), [&] (QPoint& p)
     {
-            return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;});
+            return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
+                   std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a)
+                    {
+                       if (p == QPoint(1,0) || p == QPoint(1, 7))
+                       {
+                           return false;
+                       }
+                       else
+                       {
+                           return a == p;
+                       }
+                    });
 
     }))
     {
         int y = isWhiteTurn ? 7 : 0;
-        ret.append(QPoint(0, y));
+        castlingMoves.append(QPoint(0, y));
     }
 
     if (std::none_of(checkAreaRight.begin(), checkAreaRight.end(), [&] (QPoint& p)
-                     {
-                         return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;});
+    {
+            return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
+                   std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a) {return a == p;});
 
-                     }))
+    }))
     {
         int y = isWhiteTurn ? 7 : 0;
-        ret.append(QPoint(7, y));
+        castlingMoves.append(QPoint(7, y));
     }
 
-
-
-    return ret;
+    return castlingMoves;
 }
 
-QVector<QPoint> Game::FilterKingMovements(QVector<QPoint> &moves) const
+QVector<QPoint> Game::FilterKingMovements(const QVector<QPoint> &moves) const
 {
     QVector<QPoint> filteredMoves;
     QVector<QPoint> ghostFriendly = GetGhostArea(friendly, selectedPiecePos);

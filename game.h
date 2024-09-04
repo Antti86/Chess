@@ -6,6 +6,8 @@
 
 enum class PlayerTurn { White, Black };
 
+enum class EndStatus { WhiteWins, BlackWins, Draw, StaleMate};
+
 class Game : public QObject
 {
     Q_OBJECT
@@ -20,7 +22,7 @@ signals:
     void gameOver(bool isWhiteWinner);
     void UpdateUiToTurn(bool isWhiteTurn);
     void UpdateUiForCheck(bool isChecked);
-    void UpdateUiForCheckMate(bool isWhiteWinner);
+    void UpdateUiForGameOver(EndStatus status);
 
 public slots:
     void handlePieceSelection(QPoint pos);
@@ -30,14 +32,15 @@ private:
     bool IsPieceOnSelectedSquare(QPoint square) const;
     bool ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& pos) const;
     bool IsEatingMovement(const QPoint pos) const;
-    bool IsPassantMovement(BasePiece* piece, const QPoint& pos) const;
+    bool IsPassantMovement(BasePiece* piece, const QPoint& selectedPiecePos, const QPoint &newpos) const;
     BasePiece* GetSelectedPiece(const QPoint pos) const;
     bool IsKingChecked(const QVector<QPoint> &dangerAreas) const;
     bool IsCheckMate() const;
+    bool IsStaleMate() const;
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
     QVector<QPoint> GetCastlingMoves() const;
 
-    QVector<QPoint> FilterKingMovements(QVector<QPoint>& moves) const;
+    QVector<QPoint> FilterKingMovements(const QVector<QPoint>& moves) const;
     QVector<QPoint> FilterAvailableMovements(const QVector<QPoint>& moves) const;
 
     void SetAreaFields();

@@ -102,10 +102,18 @@ void ChessBoard::CheckPassantStatus(BasePiece *piece, const QPoint& from, const 
             {
                 QPoint left = QPoint(to.x() - 1, to.y());
                 QPoint right = QPoint(to.x() + 1, to.y());
-                if (p->getType() == PieceType::Pawn && p->getColor() == enemy && (p->getPos() == left || p->getPos() == right))
+                if (p->getType() == PieceType::Pawn && p->getColor() == enemy)
                 {
                     Pawn *pawn = dynamic_cast<Pawn*>(p);
-                    pawn->SetPassant();
+
+                    if (p->getPos() == left)
+                    {
+                        pawn->canPassantRight = true;
+                    }
+                    if (p->getPos() == right)
+                    {
+                        pawn->canPassantLeft = true;
+                    }
                 }
             }
         }
@@ -136,7 +144,16 @@ void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
         {
             piece->Move(to);
             CheckPassantStatus(piece, from, to, isWhiteTurn);
-            break;
+        }
+        else
+        {
+            QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+            if (piece->getType() == PieceType::Pawn && piece->getColor() == turn)
+            {
+                Pawn *pawn = dynamic_cast<Pawn*>(piece);
+                pawn->canPassantLeft = false;
+                pawn->canPassantRight = false;
+            }
         }
     }
     UpdateBoard();

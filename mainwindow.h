@@ -24,7 +24,7 @@ public:
 public slots:
     void ChangeTurnMark(bool isWhiteTrun);
     void ChangeCheckedStatus(bool isChecked);
-    void GameOver(bool isWhiteWinner);
+    void GameOver(EndStatus status);
 
 private:
     Ui::MainWindow *ui;

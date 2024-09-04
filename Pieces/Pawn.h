@@ -21,20 +21,24 @@ public:
 
         scaledPixmap = pixmap.scaled(Constants::SQUARE_SIZE - 10, Constants::SQUARE_SIZE - 10, Qt::KeepAspectRatio, Qt::SmoothTransformation);
         setPixmap(scaledPixmap);
-        canPassant = false;
+
+        canPassantLeft = false;
+        canPassantRight = false;
     }
 
     void Move(QPoint newPos) override
     {
         pos = newPos;
         hasMoved = true;
-        canPassant = false;
+
+        canPassantLeft = false;
+        canPassantRight = false;
     }
 
-    void SetPassant()
-    {
-        canPassant = true;
-    }
+
+    bool canPassantLeft;
+    bool canPassantRight;
+
 
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
@@ -53,15 +57,18 @@ public:
             QPoint eatingMoveR = QPoint(pos.x() + 1, pos.y() - 1);
             QPoint eatingMoveL = QPoint(pos.x() - 1, pos.y() - 1);
 
-            if (canPassant)
+            if (canPassantLeft)
             {
-                QPoint passantMoveR = QPoint(pos.x() + 1, pos.y());
                 QPoint passantMoveL = QPoint(pos.x() - 1, pos.y());
-
                 if (enemyPieces.contains(passantMoveL))
                 {
                     moves.append(eatingMoveL);
                 }
+            }
+
+            if (canPassantRight)
+            {
+                QPoint passantMoveR = QPoint(pos.x() + 1, pos.y());
                 if (enemyPieces.contains(passantMoveR))
                 {
                     moves.append(eatingMoveR);
@@ -101,15 +108,18 @@ public:
             QPoint eatingMoveR = QPoint(pos.x() + 1, pos.y() + 1);
             QPoint eatingMoveL = QPoint(pos.x() - 1, pos.y() + 1);
 
-            if (canPassant)
+            if (canPassantLeft)
             {
-                QPoint passantMoveR = QPoint(pos.x() + 1, pos.y());
                 QPoint passantMoveL = QPoint(pos.x() - 1, pos.y());
-
                 if (enemyPieces.contains(passantMoveL))
                 {
                     moves.append(eatingMoveL);
                 }
+            }
+
+            if (canPassantRight)
+            {
+                QPoint passantMoveR = QPoint(pos.x() + 1, pos.y());
                 if (enemyPieces.contains(passantMoveR))
                 {
                     moves.append(eatingMoveR);
@@ -155,7 +165,7 @@ public:
     }
 
 private:
-    bool canPassant;
+
 
 };
 

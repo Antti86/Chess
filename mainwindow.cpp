@@ -54,10 +54,27 @@ void MainWindow::ChangeCheckedStatus(bool isChecked)
 
 }
 
-void MainWindow::GameOver(bool isWhiteWinner)
+void MainWindow::GameOver(EndStatus status)
 {
     ChangePage(ui->WinScreen);
-    ui->Winner->setText(isWhiteWinner ? "White" : "Black");
+    QString endStatus;
+    switch (status)
+    {
+    case EndStatus::BlackWins:
+        endStatus = "White";
+        break;
+    case EndStatus::WhiteWins:
+        endStatus = "Black";
+        break;
+    case EndStatus::Draw:
+        endStatus = "Draw";
+        break;
+    case EndStatus::StaleMate:
+        endStatus = "Stalemate";
+        break;
+    }
+
+    ui->Winner->setText(endStatus);
 
     isPlaying = false;
     ui->Board->ResetBoard();
@@ -107,7 +124,7 @@ void MainWindow::StartGame()
     connect(ui->Board, &ChessBoard::endTurn, game, &Game::EndOfTurn);
     connect(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
     connect(game, &Game::UpdateUiForCheck, this, &MainWindow::ChangeCheckedStatus);
-    connect(game, &Game::UpdateUiForCheckMate, this, &MainWindow::GameOver);
+    connect(game, &Game::UpdateUiForGameOver, this, &MainWindow::GameOver);
 
 
 }
