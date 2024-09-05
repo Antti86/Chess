@@ -163,6 +163,11 @@ void Game::EndOfTurn()
             emit UpdateUiForGameOver(EndStatus::StaleMate);
             return;
         }
+        if (InsufficientMaterialDraw())
+        {
+            emit UpdateUiForGameOver(EndStatus::InsufficientMaterialDraw);
+            return;
+        }
     }
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(isWhiteTurn);
@@ -302,6 +307,39 @@ bool Game::IsStaleMate() const
                 availableMoves.append(FilterAvailableMovements(p->GetLegalMoves(friendly, enemy)));
             }
             if (!availableMoves.isEmpty())
+            {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool Game::InsufficientMaterialDraw() const
+{
+    int whiteCount = 0;
+    int blackCount = 0;
+    for (auto& p : board->pieces)
+    {
+        if (p->getType() == PieceType::Queen || p->getType() == PieceType::Rook)
+        {
+            return false;
+        }
+        else if (p->getType() == PieceType::King)
+        {
+            continue;
+        }
+        else
+        {
+            if (p->getColor() == Qt::white)
+            {
+                whiteCount++;
+            }
+            else
+            {
+                blackCount++;
+            }
+            if (whiteCount >= 2 || blackCount >= 2)
             {
                 return false;
             }

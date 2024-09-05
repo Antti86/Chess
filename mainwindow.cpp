@@ -66,11 +66,14 @@ void MainWindow::GameOver(EndStatus status)
     case EndStatus::WhiteWins:
         endStatus = "Black";
         break;
-    case EndStatus::Draw:
-        endStatus = "Draw";
+    case EndStatus::InsufficientMaterialDraw:
+        endStatus = "Insufficient Material Draw";
         break;
     case EndStatus::StaleMate:
         endStatus = "Stalemate";
+        break;
+    case EndStatus::DeadDraw:
+        endStatus = "DeadDraw";
         break;
     }
 

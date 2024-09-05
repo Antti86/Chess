@@ -6,7 +6,7 @@
 
 enum class PlayerTurn { White, Black };
 
-enum class EndStatus { WhiteWins, BlackWins, Draw, StaleMate};
+enum class EndStatus { WhiteWins, BlackWins, InsufficientMaterialDraw, DeadDraw, StaleMate};
 
 class Game : public QObject
 {
@@ -37,6 +37,7 @@ private:
     bool IsKingChecked(const QVector<QPoint> &dangerAreas) const;
     bool IsCheckMate() const;
     bool IsStaleMate() const;
+    bool InsufficientMaterialDraw() const;
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
     QVector<QPoint> GetCastlingMoves() const;
 
