@@ -75,6 +75,9 @@ void MainWindow::GameOver(EndStatus status)
     case EndStatus::DeadDraw:
         endStatus = "DeadDraw";
         break;
+    case EndStatus::ThreefoldDraw:
+        endStatus = "Threefold Draw";
+        break;
     }
 
     ui->Winner->setText(endStatus);

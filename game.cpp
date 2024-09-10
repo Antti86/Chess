@@ -163,12 +163,19 @@ void Game::EndOfTurn()
             emit UpdateUiForGameOver(EndStatus::StaleMate);
             return;
         }
-        if (InsufficientMaterialDraw())
-        {
-            emit UpdateUiForGameOver(EndStatus::InsufficientMaterialDraw);
-            return;
-        }
     }
+    if (InsufficientMaterialDraw())
+    {
+        emit UpdateUiForGameOver(EndStatus::InsufficientMaterialDraw);
+        return;
+    }
+
+    if (IsThreeRepetitionDraw())
+    {
+        emit UpdateUiForGameOver(EndStatus::ThreefoldDraw);
+        return;
+    }
+
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(isWhiteTurn);
 
@@ -346,6 +353,51 @@ bool Game::InsufficientMaterialDraw() const
         }
     }
     return true;
+}
+
+bool Game::IsThreeRepetitionDraw() const
+{
+    if (board->oldPositions.size() < 3)
+    {
+        return false;
+    }
+    int repetitions = 0;
+
+    for (int i = 0; i < board->oldPositions.size(); ++i)
+    {
+        int currentRepetitions = 1;
+        for (int j = i + 1; j < board->oldPositions.size(); ++j)
+        {
+            if (ArePositionsEqual(board->oldPositions[i], board->oldPositions[j]))
+            {
+                currentRepetitions++;
+                if (currentRepetitions == 3)
+                {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+
+}
+
+bool Game::ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const
+{
+    if (pos1.size() != pos2.size())
+    {
+        return false;
+    }
+
+    for (int i = 0; i < pos1.size(); ++i)
+    {
+        if (pos1[i] != pos2[i])
+        {
+            return false;
+        }
+    }
+    return true;
+
 }
 
 BasePiece* Game::IsCastlingMove(BasePiece *piece, const QPoint &pos) const

@@ -1,12 +1,13 @@
 #ifndef GAME_H
 #define GAME_H
 
+#pragma once
 #include "chessboard.h"
 #include "qobject.h"
 
 enum class PlayerTurn { White, Black };
 
-enum class EndStatus { WhiteWins, BlackWins, InsufficientMaterialDraw, DeadDraw, StaleMate};
+enum class EndStatus { WhiteWins, BlackWins, InsufficientMaterialDraw, DeadDraw, StaleMate, ThreefoldDraw};
 
 class Game : public QObject
 {
@@ -38,6 +39,8 @@ private:
     bool IsCheckMate() const;
     bool IsStaleMate() const;
     bool InsufficientMaterialDraw() const;
+    bool IsThreeRepetitionDraw() const;
+    bool ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const;
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
     QVector<QPoint> GetCastlingMoves() const;
 

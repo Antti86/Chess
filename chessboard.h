@@ -1,6 +1,7 @@
 #ifndef CHESSBOARD_H
 #define CHESSBOARD_H
 
+#pragma once
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QMouseEvent>
@@ -9,6 +10,7 @@
 #include "qgraphicsitem.h"
 #include "qgraphicsview.h"
 #include "boardsquare.h"
+#include "Pieces/PieceStateRecord.h"
 
 class ChessBoard : public QGraphicsView
 {
@@ -27,6 +29,8 @@ public:
 
     void ResetBoard();
 
+
+    QVector<QVector<PieceStateRecord>> oldPositions;
 public slots:
     void MovePiece(QPoint from, QPoint to, bool isWhiteTurn);
     void SettingSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
@@ -50,6 +54,13 @@ private:
     BoardSquare* GetSelectedSquare(const QPoint& pos) const;
 
     void CheckPassantStatus(BasePiece* piece, const QPoint& from, const QPoint& to, bool isWhiteTurn);
+
+    void RecordPiecePositions();
+    void ResetRecords();
+
+
+
+    int moveCount;
 
 
 

@@ -11,6 +11,7 @@ ChessBoard::ChessBoard(QWidget *widget)
     : QGraphicsView(widget)
     , fColor(Qt::white)
     , sColor(Qt::gray)
+
 {
     boardWidth = 8 * squareSize;
     boardHeight = 8 * squareSize + 30;
@@ -24,6 +25,7 @@ ChessBoard::ChessBoard(QWidget *widget)
     DrawBoard();
     SetPiecesOnBoard();
     DrawPieces();
+    ResetRecords();
 }
 
 ChessBoard::~ChessBoard()
@@ -33,6 +35,7 @@ ChessBoard::~ChessBoard()
         delete i;
     }
     pieces.clear();
+    ResetRecords();
     scene->clear();
     delete scene;
 }
@@ -61,6 +64,7 @@ void ChessBoard::ResetBoard()
     DrawBoard();
     SetPiecesOnBoard();
     DrawPieces();
+    ResetRecords();
 }
 
 void ChessBoard::UpdateBoard()
@@ -120,6 +124,26 @@ void ChessBoard::CheckPassantStatus(BasePiece *piece, const QPoint& from, const 
     }
 }
 
+void ChessBoard::RecordPiecePositions()
+{
+
+    QVector<PieceStateRecord> currentPos;
+
+    for (auto* piece : pieces)
+    {
+        currentPos.push_back({ piece->getType(), piece->getPos(), piece->GetHashMoved() });
+    }
+
+    oldPositions.push_back(currentPos);
+    moveCount++;
+}
+
+void ChessBoard::ResetRecords()
+{
+    moveCount = 0;
+    oldPositions.clear();
+}
+
 const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy,
             const QPoint ignoredPiecePos) const
 {
@@ -138,6 +162,7 @@ const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector
 
 void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
 {
+
     for (auto &piece : pieces)
     {
         if (piece->getPos() == from)
@@ -156,6 +181,7 @@ void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
             }
         }
     }
+    RecordPiecePositions();
     UpdateBoard();
     emit endTurn();
 }
@@ -194,6 +220,7 @@ void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& le
 
 void ChessBoard::EatingPiece(QPoint eatingPos)
 {
+    ResetRecords();
     auto it = std::remove_if(pieces.begin(), pieces.end(), [&eatingPos](BasePiece* piece)
     {
         if (piece->getPos() == eatingPos)
