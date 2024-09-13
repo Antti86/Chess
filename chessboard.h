@@ -28,6 +28,7 @@ public:
                                          const QPoint ignoredPiecePos = QPoint(-1, -1) ) const;
 
     void ResetBoard();
+    bool IsInsideBoard(const QPoint& pos) const;
 
 
     QVector<QVector<PieceStateRecord>> oldPositions;

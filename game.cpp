@@ -176,6 +176,12 @@ void Game::EndOfTurn()
         return;
     }
 
+    if (IsDeadPositionDraw())
+    {
+        emit UpdateUiForGameOver(EndStatus::DeadDraw);
+        return;
+    }
+
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(isWhiteTurn);
 
@@ -382,6 +388,131 @@ bool Game::IsThreeRepetitionDraw() const
 
 }
 
+bool Game::IsDeadPositionDraw() const
+{
+    QVector<QPoint> threatAreas;
+    QVector<QPoint> turnPawns;
+    QVector<QPoint> enemyPawns;
+    QPoint whiteKingPos;
+    QPoint blackKingPos;
+    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+    int pawnCount = 0;
+    for (auto& p : board->pieces)
+    {
+        if (p->getType() != PieceType::King && p->getType() != PieceType::Pawn)
+        {
+            return false;
+        }
+        if (p->getType() == PieceType::Pawn)
+        {
+            pawnCount++;
+            if (p->getColor() == turn)
+            {
+                if (p->GetLegalMoves(friendly, enemy).size() != 0)
+                {
+                    return false;
+                }
+                turnPawns.append(p->getPos());
+
+            }
+            else
+            {
+                if (p->GetLegalMoves(enemy, friendly).size() != 0)
+                {
+                    return false;
+                }
+                else
+                {
+                    threatAreas.append(p->GetThreateningMoves(friendly, enemy));
+                    enemyPawns.append(p->getPos());
+                }
+            }
+        }
+        else
+        {
+            if (p->getColor() == Qt::white)
+            {
+                whiteKingPos = p->getPos();
+            }
+            else
+            {
+                blackKingPos = p->getPos();
+            }
+        }
+    }
+
+    if (pawnCount < 6)
+    {
+        return false;
+    }
+    std::sort(turnPawns.begin(), turnPawns.end(), [] (QPoint l, QPoint r) {return l.x() < r.x();});
+    for (int i = 0, j = i + 1; i < turnPawns.size() - 1; i++, j++)
+    {
+        int xLen = turnPawns[j].x() - turnPawns[i].x();
+        int yLen = turnPawns[j].y() - turnPawns[i].y();
+        int totalLen = xLen + abs(yLen);
+        if (totalLen > 3)
+        {
+            return false;
+        }
+    }
+
+    if (whiteKingPos.y() - 2 <= blackKingPos.y())
+    {
+        return false;
+    }
+
+    for (auto& p : board->pieces)
+    {
+        if (p->getType() == PieceType::Pawn && p->getColor() == turn)
+        {
+            QPoint pPos = p->getPos();
+
+            QPoint left = QPoint(pPos.x() - 1, pPos.y());
+            QPoint right = QPoint(pPos.x() + 1, pPos.y());
+
+            if (pPos.x() == 0)
+            {
+                if (!threatAreas.contains(right))
+                {
+                    return false;
+                }
+            }
+            else if (pPos.x() == 7)
+            {
+                if (!threatAreas.contains(left))
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (!threatAreas.contains(left) || !threatAreas.contains(right))
+                {
+                    return false;
+                }
+                if (pPos.x() == 2)
+                {
+                    QPoint left2 = QPoint(pPos.x() - 2, pPos.y());
+                    if (board->IsInsideBoard(left2) && (!threatAreas.contains(left2) && !turnPawns.contains(left2) && enemyPawns.contains(left2)))
+                    {
+                        return false;
+                    }
+                }
+                if (pPos.x() == 5)
+                {
+                    QPoint right2 = QPoint(pPos.x() + 2, pPos.y());
+                    if (board->IsInsideBoard(right2) && (!threatAreas.contains(right2) && !turnPawns.contains(right2) && enemyPawns.contains(right2)))
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
 bool Game::ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const
 {
     if (pos1.size() != pos2.size())
@@ -461,7 +592,7 @@ QVector<QPoint> Game::GetCastlingMoves() const
         }
     }
 
-    if (!leftRook || !rightRook)
+    if (!leftRook && !rightRook)
     {
         return castlingMoves;
     }

@@ -4,6 +4,7 @@
 #pragma once
 #include "chessboard.h"
 #include "qobject.h"
+#include <cmath>
 
 enum class PlayerTurn { White, Black };
 
@@ -40,6 +41,7 @@ private:
     bool IsStaleMate() const;
     bool InsufficientMaterialDraw() const;
     bool IsThreeRepetitionDraw() const;
+    bool IsDeadPositionDraw() const;
     bool ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const;
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
     QVector<QPoint> GetCastlingMoves() const;

@@ -67,6 +67,11 @@ void ChessBoard::ResetBoard()
     ResetRecords();
 }
 
+bool ChessBoard::IsInsideBoard(const QPoint &pos) const
+{
+    return pos.x() >= 0 && pos.x() < 8 && pos.y() >= 0 && pos.y() < 8;
+}
+
 void ChessBoard::UpdateBoard()
 {
     DrawPieces();
@@ -305,6 +310,13 @@ void ChessBoard::SetPiecesOnBoard()
         AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
     }
 
+    // AddPiece(new Pawn(Qt::white, QPoint(0, 4), PieceType::Pawn));
+    // AddPiece(new Pawn(Qt::white, QPoint(3, 4), PieceType::Pawn));
+    // AddPiece(new Pawn(Qt::white, QPoint(5, 4), PieceType::Pawn));
+    // AddPiece(new Pawn(Qt::white, QPoint(7, 4), PieceType::Pawn));
+
+
+
     //Rooks
     AddPiece(new Rook(Qt::white, QPoint(0, 7), PieceType::Rook));
     AddPiece(new Rook(Qt::white, QPoint(7, 7), PieceType::Rook));
@@ -323,20 +335,26 @@ void ChessBoard::SetPiecesOnBoard()
 
     //King
     AddPiece(new King(Qt::white, QPoint(4, 7), PieceType::King));
+    // AddPiece(new King(Qt::black, QPoint(4, 7), PieceType::King));
 
     //Blacks
 
-    //Pawns
+    // Pawns
     for (int x = 0; x < 8; x++)
     {
         AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
     }
 
+    // AddPiece(new Pawn(Qt::black, QPoint(0, 3), PieceType::Pawn));
+    // AddPiece(new Pawn(Qt::black, QPoint(3, 3), PieceType::Pawn));
+    // AddPiece(new Pawn(Qt::black, QPoint(5, 2), PieceType::Pawn));
+    // AddPiece(new Pawn(Qt::black, QPoint(7, 2), PieceType::Pawn));
+
     //Rooks
     AddPiece(new Rook(Qt::black, QPoint(0, 0), PieceType::Rook));
     AddPiece(new Rook(Qt::black, QPoint(7, 0), PieceType::Rook));
 
-    //Knights
+    // Knights
     AddPiece(new Knight(Qt::black, QPoint(1, 0), PieceType::Knight));
     AddPiece(new Knight(Qt::black, QPoint(6, 0), PieceType::Knight));
 
@@ -349,6 +367,7 @@ void ChessBoard::SetPiecesOnBoard()
 
     //King
     AddPiece(new King(Qt::black, QPoint(4, 0), PieceType::King));
+    // AddPiece(new King(Qt::white, QPoint(4, 0), PieceType::King));
 }
 
 void ChessBoard::DrawPieces()

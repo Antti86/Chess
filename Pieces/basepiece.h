@@ -167,10 +167,18 @@ protected:
             if (onlyOneSquare)
             {
                 QPoint checkArea = QPoint(pos.x() + xOffset, pos.y() + yOffset);
-                if (!friendlyPieces.contains(checkArea) || enemyPieces.contains(checkArea))
+                if (!checkingThreat)
+                {
+                    if (!friendlyPieces.contains(checkArea))
+                    {
+                        moves.append(checkArea);
+                    }
+                }
+                else
                 {
                     moves.append(checkArea);
                 }
+
             }
             else
             {
