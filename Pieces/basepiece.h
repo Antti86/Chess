@@ -167,18 +167,20 @@ protected:
             if (onlyOneSquare)
             {
                 QPoint checkArea = QPoint(pos.x() + xOffset, pos.y() + yOffset);
-                if (!checkingThreat)
+                if (checkArea.x() >= 0 && checkArea.x() < 8 && checkArea.y() >= 0 && checkArea.y() < 8)
                 {
-                    if (!friendlyPieces.contains(checkArea))
+                    if (!checkingThreat)
+                    {
+                        if (!friendlyPieces.contains(checkArea))
+                        {
+                            moves.append(checkArea);
+                        }
+                    }
+                    else
                     {
                         moves.append(checkArea);
                     }
                 }
-                else
-                {
-                    moves.append(checkArea);
-                }
-
             }
             else
             {

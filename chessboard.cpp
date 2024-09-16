@@ -131,16 +131,12 @@ void ChessBoard::CheckPassantStatus(BasePiece *piece, const QPoint& from, const 
 
 void ChessBoard::RecordPiecePositions()
 {
-
     QVector<PieceStateRecord> currentPos;
-
     for (auto* piece : pieces)
     {
         currentPos.push_back({ piece->getType(), piece->getPos(), piece->GetHashMoved() });
     }
-
     oldPositions.push_back(currentPos);
-    moveCount++;
 }
 
 void ChessBoard::ResetRecords()

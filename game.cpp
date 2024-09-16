@@ -334,7 +334,7 @@ bool Game::InsufficientMaterialDraw() const
     int blackCount = 0;
     for (auto& p : board->pieces)
     {
-        if (p->getType() == PieceType::Queen || p->getType() == PieceType::Rook)
+        if (p->getType() == PieceType::Queen || p->getType() == PieceType::Rook || p->getType() == PieceType::Pawn)
         {
             return false;
         }
@@ -629,37 +629,45 @@ QVector<QPoint> Game::GetCastlingMoves() const
         }
     }
 
-    if (std::none_of(checkAreaLeft.begin(), checkAreaLeft.end(), [&] (QPoint& p)
+    if (leftRook)
     {
-            return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
-                   std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a)
-                    {
-                       if (p == QPoint(1,0) || p == QPoint(1, 7))
-                       {
-                           return false;
-                       }
-                       else
-                       {
-                           return a == p;
-                       }
-                    });
+        if (std::none_of(checkAreaLeft.begin(), checkAreaLeft.end(), [&] (QPoint& p)
+                         {
+                             return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
+                                    std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a)
+                                                {
+                                                    if (p == QPoint(1,0) || p == QPoint(1, 7))
+                                                    {
+                                                        return false;
+                                                    }
+                                                    else
+                                                    {
+                                                        return a == p;
+                                                    }
+                                                });
 
-    }))
-    {
-        int y = isWhiteTurn ? 7 : 0;
-        castlingMoves.append(QPoint(0, y));
+                         }))
+        {
+            int y = isWhiteTurn ? 7 : 0;
+            castlingMoves.append(QPoint(0, y));
+        }
     }
 
-    if (std::none_of(checkAreaRight.begin(), checkAreaRight.end(), [&] (QPoint& p)
-    {
-            return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
-                   std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a) {return a == p;});
 
-    }))
+    if (rightRook)
     {
-        int y = isWhiteTurn ? 7 : 0;
-        castlingMoves.append(QPoint(7, y));
+        if (std::none_of(checkAreaRight.begin(), checkAreaRight.end(), [&] (QPoint& p)
+                         {
+                             return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
+                                    std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a) {return a == p;});
+
+                         }))
+        {
+            int y = isWhiteTurn ? 7 : 0;
+            castlingMoves.append(QPoint(7, y));
+        }
     }
+
 
     return castlingMoves;
 }
