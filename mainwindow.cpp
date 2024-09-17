@@ -73,10 +73,13 @@ void MainWindow::GameOver(EndStatus status)
         endStatus = "Stalemate";
         break;
     case EndStatus::DeadDraw:
-        endStatus = "DeadDraw";
+        endStatus = "Dead Draw";
         break;
     case EndStatus::ThreefoldDraw:
         endStatus = "Threefold Draw";
+        break;
+    case EndStatus::FiftyMovesDraw:
+        endStatus = "Fifty Move Draw";
         break;
     }
 

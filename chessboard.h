@@ -29,7 +29,7 @@ public:
 
     void ResetBoard();
     bool IsInsideBoard(const QPoint& pos) const;
-
+    int GetMoveCount() const;
 
     QVector<QVector<PieceStateRecord>> oldPositions;
 public slots:

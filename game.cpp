@@ -182,6 +182,11 @@ void Game::EndOfTurn()
         return;
     }
 
+    if (Is50MoveDraw())
+    {
+        emit UpdateUiForGameOver(EndStatus::FiftyMovesDraw);
+        return;
+    }
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(isWhiteTurn);
 
@@ -511,6 +516,11 @@ bool Game::IsDeadPositionDraw() const
         }
     }
     return true;
+}
+
+bool Game::Is50MoveDraw() const
+{
+    return board->GetMoveCount() > 100;
 }
 
 bool Game::ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const

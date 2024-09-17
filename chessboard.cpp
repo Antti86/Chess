@@ -72,6 +72,11 @@ bool ChessBoard::IsInsideBoard(const QPoint &pos) const
     return pos.x() >= 0 && pos.x() < 8 && pos.y() >= 0 && pos.y() < 8;
 }
 
+int ChessBoard::GetMoveCount() const
+{
+    return moveCount;
+}
+
 void ChessBoard::UpdateBoard()
 {
     DrawPieces();
@@ -101,6 +106,7 @@ void ChessBoard::CheckPassantStatus(BasePiece *piece, const QPoint& from, const 
 {
     if (piece->getType() == PieceType::Pawn)
     {
+        moveCount = 0;
         QPoint disCheck = QPoint(from.x(), from.y() - to.y());
 
         if (disCheck.y() == 2 || disCheck.y() == -2)
@@ -163,7 +169,7 @@ const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector
 
 void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
 {
-
+    moveCount++;
     for (auto &piece : pieces)
     {
         if (piece->getPos() == from)

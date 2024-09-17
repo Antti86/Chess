@@ -8,7 +8,7 @@
 
 enum class PlayerTurn { White, Black };
 
-enum class EndStatus { WhiteWins, BlackWins, InsufficientMaterialDraw, DeadDraw, StaleMate, ThreefoldDraw};
+enum class EndStatus { WhiteWins, BlackWins, InsufficientMaterialDraw, DeadDraw, StaleMate, ThreefoldDraw, FiftyMovesDraw};
 
 class Game : public QObject
 {
@@ -42,6 +42,7 @@ private:
     bool InsufficientMaterialDraw() const;
     bool IsThreeRepetitionDraw() const;
     bool IsDeadPositionDraw() const;
+    bool Is50MoveDraw() const;
     bool ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const;
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
     QVector<QPoint> GetCastlingMoves() const;
