@@ -112,6 +112,17 @@ void Game::handlePieceSelection(QPoint pos)
                     emit EatPiece(pos);
                 }
 
+                if (IsPawnPromotionMove(piece, pos))
+                {
+                    PromotionDialog dialog;
+                    if (dialog.exec() == QDialog::Accepted)
+                    {
+                        PieceType promotedPiece = dialog.getSelectedPiece();
+                        emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
+                    }
+
+                }
+
                 BasePiece* castlingRook = IsCastlingMove(piece, pos);
                 if (castlingRook)
                 {
@@ -133,6 +144,7 @@ void Game::handlePieceSelection(QPoint pos)
                 else
                 {
                     emit pieceMoved(selectedPiecePos, pos, isWhiteTurn);
+
                 }
                 isPieceSelected = false;
             }
@@ -521,6 +533,20 @@ bool Game::IsDeadPositionDraw() const
 bool Game::Is50MoveDraw() const
 {
     return board->GetMoveCount() > 100;
+}
+
+bool Game::IsPawnPromotionMove(BasePiece *piece, const QPoint pos) const
+{
+    if (piece->getType() == PieceType::Pawn)
+    {
+        int edge = isWhiteTurn ? 0 : 7;
+        if (pos.y() == edge)
+        {
+            return true;
+        }
+        return false;
+    }
+    return false;
 }
 
 bool Game::ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const

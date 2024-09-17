@@ -240,6 +240,31 @@ void ChessBoard::EatingPiece(QPoint eatingPos)
     pieces.erase(it, pieces.end());
 }
 
+void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool isWhiteTurn)
+{
+
+    EatingPiece(pos);
+    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+
+    switch (newPieceType)
+    {
+    case PieceType::Queen:
+        AddPiece(new Queen(turn, pos, newPieceType));
+        break;
+    case PieceType::Rook:
+        AddPiece(new Rook(turn, pos, newPieceType));
+        break;
+    case PieceType::Bishop:
+        AddPiece(new Bishop(turn, pos, newPieceType));
+        break;
+    case PieceType::Knight:
+        AddPiece(new Knight(turn, pos, newPieceType));
+        break;
+    default:
+        break;
+    }
+}
+
 
 void ChessBoard::mousePressEvent(QMouseEvent *event)
 {

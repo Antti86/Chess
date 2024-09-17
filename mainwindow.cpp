@@ -125,6 +125,7 @@ void MainWindow::StartGame()
     connect(ui->Board, &ChessBoard::pieceSelected, game, &Game::handlePieceSelection);
     connect(game, &Game::pieceMoved, ui->Board, &ChessBoard::MovePiece);
     connect(game, &Game::EatPiece, ui->Board, &ChessBoard::EatingPiece);
+    connect(game, &Game::PawnPromotion, ui->Board, &ChessBoard::PromotingPawn);
 
     //Marking selection and available moves
     connect(game, &Game::SetSquareColor, ui->Board, &ChessBoard::SettingSquareColor);

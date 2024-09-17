@@ -4,6 +4,7 @@
 #pragma once
 #include "chessboard.h"
 #include "qobject.h"
+#include "PromotionDialog.h"
 #include <cmath>
 
 enum class PlayerTurn { White, Black };
@@ -21,6 +22,7 @@ signals:
     void pieceMoved(QPoint from, QPoint to, bool isWhiteTurn);
     void EatPiece(QPoint eatingPos);
     void SetSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
+    void PawnPromotion(const QPoint& pos, PieceType newPieceType, bool isWhiteTurn);
     void gameOver(bool isWhiteWinner);
     void UpdateUiToTurn(bool isWhiteTurn);
     void UpdateUiForCheck(bool isChecked);
@@ -40,10 +42,15 @@ private:
     bool IsCheckMate() const;
     bool IsStaleMate() const;
     bool InsufficientMaterialDraw() const;
+
     bool IsThreeRepetitionDraw() const;
+    bool ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const;
+
     bool IsDeadPositionDraw() const;
     bool Is50MoveDraw() const;
-    bool ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const;
+
+    bool IsPawnPromotionMove(BasePiece* piece, const QPoint pos) const;
+
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
     QVector<QPoint> GetCastlingMoves() const;
 
