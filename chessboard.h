@@ -18,19 +18,16 @@ class ChessBoard : public QGraphicsView
 public:
     explicit ChessBoard(QWidget *widget = 0);
     ~ChessBoard();
-
-    QGraphicsScene *scene;
-    QVector<BasePiece *> pieces;
-
+    void ResetBoard();
+    bool IsInsideBoard(const QPoint& pos) const;
     const QVector<QPoint> GetPopulatedAreas(QBrush color) const;
-
     const QVector<QPoint> GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint>& enemy,
                                          const QPoint ignoredPiecePos = QPoint(-1, -1) ) const;
 
-    void ResetBoard();
-    bool IsInsideBoard(const QPoint& pos) const;
     int GetMoveCount() const;
 
+    QGraphicsScene *scene;
+    QVector<BasePiece *> pieces;
     QVector<QVector<PieceStateRecord>> oldPositions;
 public slots:
     void MovePiece(QPoint from, QPoint to, bool isWhiteTurn);
@@ -44,7 +41,7 @@ signals:
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
-    void mouseMoveEvent(QMouseEvent *event) override; //TODO
+    void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
     void DrawBoard();
@@ -61,10 +58,7 @@ private:
     void ResetRecords();
 
 
-
     int moveCount;
-
-
 
     //Square color
     QBrush fColor;

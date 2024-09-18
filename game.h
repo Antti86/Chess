@@ -7,7 +7,6 @@
 #include "PromotionDialog.h"
 #include <cmath>
 
-enum class PlayerTurn { White, Black };
 
 enum class EndStatus { WhiteWins, BlackWins, InsufficientMaterialDraw, DeadDraw, StaleMate, ThreefoldDraw, FiftyMovesDraw};
 
@@ -62,11 +61,12 @@ private:
 
 private:
     bool isWhiteTurn;
+    QBrush turn;
     bool isPieceSelected;
     QPoint selectedPiecePos;
     ChessBoard *board;
-    QVector<QPoint> friendly;
-    QVector<QPoint> enemy;
+    QVector<QPoint> friendly; //Holds all the piece positions whos turn it is
+    QVector<QPoint> enemy;    //Holds all the enemy piece positions
 };
 
 #endif // GAME_H

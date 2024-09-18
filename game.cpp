@@ -8,12 +8,12 @@ Game::Game(ChessBoard *board, QObject *parent)
     isWhiteTurn = true;
     SetAreaFields();
     isPieceSelected = false;
-
+    turn = Qt::white;
 }
 
 void Game::handlePieceSelection(QPoint pos)
 {
-    if (!isPieceSelected)
+    if (!isPieceSelected) //Selects a piece
     {
         if (IsPieceOnSelectedSquare(pos))
         {
@@ -52,7 +52,7 @@ void Game::handlePieceSelection(QPoint pos)
     }
     else
     {
-        if (pos == selectedPiecePos)
+        if (pos == selectedPiecePos) //Realeses selected piece
         {
             isPieceSelected = false;
             BasePiece* piece = GetSelectedPiece(pos);
@@ -68,7 +68,7 @@ void Game::handlePieceSelection(QPoint pos)
                 emit SetSquareColor(selectedPiecePos, moves, false);
             }
         }
-        else
+        else //Moving a piece path
         {
             BasePiece* piece = GetSelectedPiece(selectedPiecePos);
             QVector<QPoint> moves = piece->GetLegalMoves(friendly, enemy);
@@ -155,6 +155,7 @@ void Game::handlePieceSelection(QPoint pos)
 void Game::EndOfTurn()
 {
     isWhiteTurn = !isWhiteTurn;
+    turn = isWhiteTurn ? Qt::white : Qt::black;
     SetAreaFields();
     QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
     bool isChecked = IsKingChecked(dangerAreas);
@@ -284,7 +285,6 @@ BasePiece *Game::GetSelectedPiece(const QPoint pos) const
 bool Game::IsKingChecked(const QVector<QPoint> &dangerAreas) const
 {
     QPoint kingPos;
-    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
     for (auto& p : board->pieces)
     {
         if (p->getType() == PieceType::King && p->getColor() == turn)
@@ -299,7 +299,6 @@ bool Game::IsKingChecked(const QVector<QPoint> &dangerAreas) const
 bool Game::IsCheckMate() const
 {
     QVector<QPoint> availableMoves;
-    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
     for (auto& p : board->pieces)
     {
         if (p->getColor() == turn)
@@ -320,10 +319,7 @@ bool Game::IsCheckMate() const
 
 bool Game::IsStaleMate() const
 {
-
     QVector<QPoint> availableMoves;
-    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
-
     for (auto& p : board->pieces)
     {
         if (p->getColor() == turn)
@@ -402,7 +398,24 @@ bool Game::IsThreeRepetitionDraw() const
         }
     }
     return false;
+}
 
+bool Game::ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const
+{
+    //IsThreeRepetitionDraw uses this
+    if (pos1.size() != pos2.size())
+    {
+        return false;
+    }
+
+    for (int i = 0; i < pos1.size(); ++i)
+    {
+        if (pos1[i] != pos2[i])
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool Game::IsDeadPositionDraw() const
@@ -412,8 +425,9 @@ bool Game::IsDeadPositionDraw() const
     QVector<QPoint> enemyPawns;
     QPoint whiteKingPos;
     QPoint blackKingPos;
-    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
     int pawnCount = 0;
+
+    //Checks available movements and count the pieces
     for (auto& p : board->pieces)
     {
         if (p->getType() != PieceType::King && p->getType() != PieceType::Pawn)
@@ -430,7 +444,6 @@ bool Game::IsDeadPositionDraw() const
                     return false;
                 }
                 turnPawns.append(p->getPos());
-
             }
             else
             {
@@ -457,11 +470,12 @@ bool Game::IsDeadPositionDraw() const
             }
         }
     }
-
+    // Needs least 6 pawns that this draw is possible
     if (pawnCount < 6)
     {
         return false;
     }
+    //Distance calculations. Makes sure that pawns are not to far a part
     std::sort(turnPawns.begin(), turnPawns.end(), [] (QPoint l, QPoint r) {return l.x() < r.x();});
     for (int i = 0, j = i + 1; i < turnPawns.size() - 1; i++, j++)
     {
@@ -473,12 +487,13 @@ bool Game::IsDeadPositionDraw() const
             return false;
         }
     }
-
+    //This is for checking that kings are their own sides (verticaly)
     if (whiteKingPos.y() - 2 <= blackKingPos.y())
     {
         return false;
     }
 
+    //Checks that kings cant move across the board
     for (auto& p : board->pieces)
     {
         if (p->getType() == PieceType::Pawn && p->getColor() == turn)
@@ -532,6 +547,7 @@ bool Game::IsDeadPositionDraw() const
 
 bool Game::Is50MoveDraw() const
 {
+    // In this draw one Move is consider when both players make a move. Thats why moveCount limit is 100
     return board->GetMoveCount() > 100;
 }
 
@@ -549,30 +565,11 @@ bool Game::IsPawnPromotionMove(BasePiece *piece, const QPoint pos) const
     return false;
 }
 
-bool Game::ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVector<PieceStateRecord>& pos2) const
-{
-    if (pos1.size() != pos2.size())
-    {
-        return false;
-    }
-
-    for (int i = 0; i < pos1.size(); ++i)
-    {
-        if (pos1[i] != pos2[i])
-        {
-            return false;
-        }
-    }
-    return true;
-
-}
 
 BasePiece* Game::IsCastlingMove(BasePiece *piece, const QPoint &pos) const
 {
     if (piece->getType() == PieceType::King)
     {
-        QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
-
         for (auto& p : board->pieces)
         {
             if (p->getColor() == turn && p->getType() == PieceType::Rook && p->getPos() == pos)
@@ -588,7 +585,6 @@ BasePiece* Game::IsCastlingMove(BasePiece *piece, const QPoint &pos) const
 QVector<QPoint> Game::GetCastlingMoves() const
 {
     QVector<QPoint> castlingMoves;
-
     QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
 
     if (IsKingChecked(dangerAreas))
@@ -596,12 +592,9 @@ QVector<QPoint> Game::GetCastlingMoves() const
         return castlingMoves;
     }
 
-    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
-
     QVector<QPoint> pieceArea;
 
     int rookCount;
-
     bool leftRook = false;
     bool rightRook = false;
 
@@ -689,7 +682,6 @@ QVector<QPoint> Game::GetCastlingMoves() const
         }
     }
 
-
     if (rightRook)
     {
         if (std::none_of(checkAreaRight.begin(), checkAreaRight.end(), [&] (QPoint& p)
@@ -703,8 +695,6 @@ QVector<QPoint> Game::GetCastlingMoves() const
             castlingMoves.append(QPoint(7, y));
         }
     }
-
-
     return castlingMoves;
 }
 
@@ -735,19 +725,22 @@ void Game::SetAreaFields()
 
 QVector<QPoint> Game::GetGhostArea(const QVector<QPoint>& field, const QPoint& pos) const
 {
-    QVector<QPoint> ret;
+    // Filters out selectedPiece. This vector can be feeded to GetDangerAreas so that it doesnt take count a selectedPiece
+    // This way player cant make a move that the king would end up in check
+    QVector<QPoint> ghostArea;
     for (auto& p : field)
     {
         if (p != pos)
         {
-            ret.append(p);
+            ghostArea.append(p);
         }
     }
-    return ret;
+    return ghostArea;
 }
 
 QVector<QPoint> Game::FilterAvailableMovements(const QVector<QPoint> &moves) const
 {
+    //Filters and returns all the pieces (expect kings) available movements, so that king wont end up in check
     QVector<QPoint> filteredMoves;
     QVector<QPoint> ghost = GetGhostArea(friendly, selectedPiecePos);
 

@@ -92,9 +92,6 @@ public:
                     moves.append(twoStepMove);
                 }
             }
-
-
-
         }
         else
         {

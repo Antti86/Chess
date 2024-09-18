@@ -40,19 +40,6 @@ ChessBoard::~ChessBoard()
     delete scene;
 }
 
-const QVector<QPoint> ChessBoard::GetPopulatedAreas(QBrush color) const
-{
-    QVector<QPoint> populatedAreas;
-    for (auto& p : pieces)
-    {
-        if (p->getColor() == color)
-        {
-            populatedAreas.append(p->getPos());
-        }
-    }
-    return populatedAreas;
-}
-
 void ChessBoard::ResetBoard()
 {
     for (auto &i : pieces)
@@ -72,10 +59,139 @@ bool ChessBoard::IsInsideBoard(const QPoint &pos) const
     return pos.x() >= 0 && pos.x() < 8 && pos.y() >= 0 && pos.y() < 8;
 }
 
+const QVector<QPoint> ChessBoard::GetPopulatedAreas(QBrush color) const
+{
+    QVector<QPoint> populatedAreas;
+    for (auto& p : pieces)
+    {
+        if (p->getColor() == color)
+        {
+            populatedAreas.append(p->getPos());
+        }
+    }
+    return populatedAreas;
+}
+
+const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy,
+                                                 const QPoint ignoredPiecePos) const
+{
+
+    QVector<QPoint> dangerAreas;
+    QBrush enemyColor = isWhiteturn ? Qt::black : Qt::white;
+    for (auto& p : pieces)
+    {
+        if (p->getColor() == enemyColor && ignoredPiecePos != p->getPos())
+        {
+            dangerAreas.append(p->GetThreateningMoves(enemy, friendly));
+        }
+    }
+    return dangerAreas;
+}
+
 int ChessBoard::GetMoveCount() const
 {
     return moveCount;
 }
+
+void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
+{
+    moveCount++;
+    for (auto &piece : pieces)
+    {
+        if (piece->getPos() == from)
+        {
+            piece->Move(to);
+            CheckPassantStatus(piece, from, to, isWhiteTurn);
+        }
+        else
+        {
+            //Reset En Passant, option is active only on turn
+            QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+            if (piece->getType() == PieceType::Pawn && piece->getColor() == turn)
+            {
+                Pawn *pawn = dynamic_cast<Pawn*>(piece);
+                pawn->canPassantLeft = false;
+                pawn->canPassantRight = false;
+            }
+        }
+    }
+    RecordPiecePositions();
+    UpdateBoard();
+    emit endTurn();
+}
+
+void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& legalMoves, bool highlighting)
+{
+    // Handles selection and available movement coloring
+    BoardSquare* square = GetSelectedSquare(pos);
+    if (square)
+    {
+        if (highlighting)
+        {
+            square->SetColor(Qt::green);
+        }
+        else
+        {
+            square->SetColor(square->GetColor());
+        }
+    }
+
+    for (auto& point : legalMoves)
+    {
+        BoardSquare* square = GetSelectedSquare(point);
+        if (square)
+        {
+            if (highlighting)
+            {
+                square->SetColor(Qt::blue);
+            }
+            else
+            {
+                square->SetColor(square->GetColor());
+            }
+        }
+    }
+}
+
+void ChessBoard::EatingPiece(QPoint eatingPos)
+{
+    ResetRecords();
+    auto it = std::remove_if(pieces.begin(), pieces.end(), [&eatingPos](BasePiece* piece)
+                             {
+                                 if (piece->getPos() == eatingPos)
+                                 {
+                                     delete piece;
+                                     return true;
+                                 }
+                                 return false;
+                             });
+    pieces.erase(it, pieces.end());
+}
+
+void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool isWhiteTurn)
+{
+    EatingPiece(pos);
+    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+
+    switch (newPieceType)
+    {
+    case PieceType::Queen:
+        AddPiece(new Queen(turn, pos, newPieceType));
+        break;
+    case PieceType::Rook:
+        AddPiece(new Rook(turn, pos, newPieceType));
+        break;
+    case PieceType::Bishop:
+        AddPiece(new Bishop(turn, pos, newPieceType));
+        break;
+    case PieceType::Knight:
+        AddPiece(new Knight(turn, pos, newPieceType));
+        break;
+    default:
+        break;
+    }
+}
+
 
 void ChessBoard::UpdateBoard()
 {
@@ -150,121 +266,6 @@ void ChessBoard::ResetRecords()
     moveCount = 0;
     oldPositions.clear();
 }
-
-const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy,
-            const QPoint ignoredPiecePos) const
-{
-
-    QVector<QPoint> dangerAreas;
-    QBrush enemyColor = isWhiteturn ? Qt::black : Qt::white;
-    for (auto& p : pieces)
-    {
-        if (p->getColor() == enemyColor && ignoredPiecePos != p->getPos())
-        {
-            dangerAreas.append(p->GetThreateningMoves(enemy, friendly));
-        }
-    }
-    return dangerAreas;
-}
-
-void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
-{
-    moveCount++;
-    for (auto &piece : pieces)
-    {
-        if (piece->getPos() == from)
-        {
-            piece->Move(to);
-            CheckPassantStatus(piece, from, to, isWhiteTurn);
-        }
-        else
-        {
-            QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
-            if (piece->getType() == PieceType::Pawn && piece->getColor() == turn)
-            {
-                Pawn *pawn = dynamic_cast<Pawn*>(piece);
-                pawn->canPassantLeft = false;
-                pawn->canPassantRight = false;
-            }
-        }
-    }
-    RecordPiecePositions();
-    UpdateBoard();
-    emit endTurn();
-}
-
-void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& legalMoves, bool highlighting)
-{
-    BoardSquare* square = GetSelectedSquare(pos);
-    if (square)
-    {
-        if (highlighting)
-        {
-            square->SetColor(Qt::green);
-        }
-        else
-        {
-            square->SetColor(square->GetColor());
-        }
-    }
-
-    for (auto& point : legalMoves)
-    {
-        BoardSquare* square = GetSelectedSquare(point);
-        if (square)
-        {
-            if (highlighting)
-            {
-                square->SetColor(Qt::blue);
-            }
-            else
-            {
-                square->SetColor(square->GetColor());
-            }
-        }
-    }
-}
-
-void ChessBoard::EatingPiece(QPoint eatingPos)
-{
-    ResetRecords();
-    auto it = std::remove_if(pieces.begin(), pieces.end(), [&eatingPos](BasePiece* piece)
-    {
-        if (piece->getPos() == eatingPos)
-        {
-            delete piece;
-            return true;
-        }
-        return false;
-    });
-    pieces.erase(it, pieces.end());
-}
-
-void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool isWhiteTurn)
-{
-
-    EatingPiece(pos);
-    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
-
-    switch (newPieceType)
-    {
-    case PieceType::Queen:
-        AddPiece(new Queen(turn, pos, newPieceType));
-        break;
-    case PieceType::Rook:
-        AddPiece(new Rook(turn, pos, newPieceType));
-        break;
-    case PieceType::Bishop:
-        AddPiece(new Bishop(turn, pos, newPieceType));
-        break;
-    case PieceType::Knight:
-        AddPiece(new Knight(turn, pos, newPieceType));
-        break;
-    default:
-        break;
-    }
-}
-
 
 void ChessBoard::mousePressEvent(QMouseEvent *event)
 {
