@@ -12,5 +12,8 @@
         <file>Images/w_knight.png</file>
         <file>Images/w_pawn.png</file>
         <file>Images/w_rook.png</file>
+        <file>Images/chessMain.jpg</file>
+        <file>Images/chessMain2.png</file>
+        <file>Images/SinglePlayMenu2.png</file>
     </qresource>
 </RCC>

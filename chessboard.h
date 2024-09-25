@@ -34,6 +34,7 @@ public slots:
     void SettingSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
     void EatingPiece(QPoint eatingPos);
     void PromotingPawn(const QPoint& pos, PieceType newPieceType, bool isWhiteTurn);
+    void ReverseMove();
 
 signals:
     void pieceSelected(QPoint pos);
@@ -57,6 +58,8 @@ private:
     void RecordPiecePositions();
     void ResetRecords();
 
+
+    QVector<QVector<PieceStateRecord>> posRecords;
 
     int moveCount;
 

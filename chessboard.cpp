@@ -18,7 +18,7 @@ ChessBoard::ChessBoard(QWidget *widget)
 
     scene = new QGraphicsScene();
     this->setScene(scene);
-    scene->setSceneRect(0, 0, boardWidth, boardHeight);
+    // scene->setSceneRect(0, 0, boardWidth, boardHeight);
 
     textColor = Qt::black;
 
@@ -192,6 +192,12 @@ void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool i
     }
 }
 
+void ChessBoard::ReverseMove()
+{
+
+
+}
+
 
 void ChessBoard::UpdateBoard()
 {
@@ -270,7 +276,7 @@ void ChessBoard::ResetRecords()
 void ChessBoard::mousePressEvent(QMouseEvent *event)
 {
     QPointF pos = event->pos();
-    QPoint boardPos((pos.x() - 30) / Constants::SQUARE_SIZE, pos.y() / Constants::SQUARE_SIZE);
+    QPoint boardPos((pos.x() - 25) / Constants::SQUARE_SIZE, pos.y() / Constants::SQUARE_SIZE);
     emit pieceSelected(boardPos);
 }
 
