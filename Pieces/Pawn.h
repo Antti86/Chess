@@ -36,8 +36,7 @@ public:
     }
 
 
-    bool canPassantLeft;
-    bool canPassantRight;
+
 
 
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override

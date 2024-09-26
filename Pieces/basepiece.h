@@ -37,7 +37,11 @@ public:
         , pos(pos)
         , type(type)
         , hasMoved(false)
-    {}
+    {
+        bool canPassantLeft = false;
+        bool canPassantRight = false;
+    }
+
     virtual ~BasePiece() = default;
     virtual void Draw()
     {
@@ -54,6 +58,10 @@ public:
     QPoint getPos() const { return pos; }
     PieceType getType() const { return type; }
     bool GetHashMoved() const {return hasMoved;}
+
+    bool canPassantLeft;
+    bool canPassantRight;
+    bool hasMoved;
 
 protected:
     QVector<QPoint> CheckMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces, bool onlyOneSquare,
@@ -223,7 +231,6 @@ protected:
     PieceType type;
     QPixmap pixmap;
     QPixmap scaledPixmap;
-    bool hasMoved;
 
 };
 

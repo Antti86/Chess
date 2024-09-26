@@ -376,18 +376,18 @@ bool Game::InsufficientMaterialDraw() const
 
 bool Game::IsThreeRepetitionDraw() const
 {
-    if (board->oldPositions.size() < 3)
+    if (board->repetitionTrack.size() < 3)
     {
         return false;
     }
     int repetitions = 0;
 
-    for (int i = 0; i < board->oldPositions.size(); ++i)
+    for (int i = 0; i < board->repetitionTrack.size(); ++i)
     {
         int currentRepetitions = 1;
-        for (int j = i + 1; j < board->oldPositions.size(); ++j)
+        for (int j = i + 1; j < board->repetitionTrack.size(); ++j)
         {
-            if (ArePositionsEqual(board->oldPositions[i], board->oldPositions[j]))
+            if (ArePositionsEqual(board->repetitionTrack[i], board->repetitionTrack[j]))
             {
                 currentRepetitions++;
                 if (currentRepetitions == 3)

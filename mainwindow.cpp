@@ -27,6 +27,10 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->ExitGame, &QPushButton::clicked, this, [this]() { ExitGame(); });
 
 
+
+    connect(ui->LastMove, &QPushButton::clicked, ui->Board, &ChessBoard::ReverseMoveAndTurn);
+
+
 }
 
 MainWindow::~MainWindow()
@@ -135,6 +139,9 @@ void MainWindow::StartGame()
     connect(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
     connect(game, &Game::UpdateUiForCheck, this, &MainWindow::ChangeCheckedStatus);
     connect(game, &Game::UpdateUiForGameOver, this, &MainWindow::GameOver);
+
+
+    // connect(ui->LastMove, &QPushButton::clicked, ui->Board, &ChessBoard::ReverseMoveAndTurn);
 
 
 }

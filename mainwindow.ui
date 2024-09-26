@@ -236,6 +236,9 @@ background: rgb(61, 56, 70);
           <property name="resizeAnchor">
            <enum>QGraphicsView::ViewportAnchor::AnchorViewCenter</enum>
           </property>
+          <property name="viewportUpdateMode">
+           <enum>QGraphicsView::ViewportUpdateMode::MinimalViewportUpdate</enum>
+          </property>
          </widget>
         </item>
         <item row="0" column="1">

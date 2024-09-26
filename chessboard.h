@@ -28,13 +28,13 @@ public:
 
     QGraphicsScene *scene;
     QVector<BasePiece *> pieces;
-    QVector<QVector<PieceStateRecord>> oldPositions;
+    QVector<QVector<PieceStateRecord>> repetitionTrack;
 public slots:
     void MovePiece(QPoint from, QPoint to, bool isWhiteTurn);
     void SettingSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
     void EatingPiece(QPoint eatingPos);
     void PromotingPawn(const QPoint& pos, PieceType newPieceType, bool isWhiteTurn);
-    void ReverseMove();
+    void ReverseMoveAndTurn();
 
 signals:
     void pieceSelected(QPoint pos);
@@ -56,7 +56,8 @@ private:
     void CheckPassantStatus(BasePiece* piece, const QPoint& from, const QPoint& to, bool isWhiteTurn);
 
     void RecordPiecePositions();
-    void ResetRecords();
+    void ResetRepetitionTrack();
+    void ResetAllRecords();
 
 
     QVector<QVector<PieceStateRecord>> posRecords;

@@ -25,7 +25,8 @@ ChessBoard::ChessBoard(QWidget *widget)
     DrawBoard();
     SetPiecesOnBoard();
     DrawPieces();
-    ResetRecords();
+    ResetAllRecords();
+    RecordPiecePositions();
 }
 
 ChessBoard::~ChessBoard()
@@ -35,7 +36,7 @@ ChessBoard::~ChessBoard()
         delete i;
     }
     pieces.clear();
-    ResetRecords();
+    ResetAllRecords();
     scene->clear();
     delete scene;
 }
@@ -47,11 +48,12 @@ void ChessBoard::ResetBoard()
         delete i;
     }
     pieces.clear();
-    scene->clear();
-    DrawBoard();
+    // scene->clear();
+    // DrawBoard();
     SetPiecesOnBoard();
     DrawPieces();
-    ResetRecords();
+    ResetAllRecords();
+    RecordPiecePositions();
 }
 
 bool ChessBoard::IsInsideBoard(const QPoint &pos) const
@@ -155,7 +157,7 @@ void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& le
 
 void ChessBoard::EatingPiece(QPoint eatingPos)
 {
-    ResetRecords();
+    ResetRepetitionTrack();
     auto it = std::remove_if(pieces.begin(), pieces.end(), [&eatingPos](BasePiece* piece)
                              {
                                  if (piece->getPos() == eatingPos)
@@ -192,10 +194,59 @@ void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool i
     }
 }
 
-void ChessBoard::ReverseMove()
+void ChessBoard::ReverseMoveAndTurn()
 {
 
+    if (posRecords.size() < 2)
+    {
+        return;
+    }
+    //Deleting current state
+    for (auto &i : pieces)
+    {
+        delete i;
+    }
+    pieces.clear();
 
+    // Getting old state and populating pieces
+    auto lastRecord = posRecords[posRecords.size() - 2];
+    for (auto& loc : lastRecord)
+    {
+        auto type = loc.type;
+        BasePiece* newPiece;
+        switch (type)
+        {
+        case PieceType::Bishop:
+            newPiece = new Bishop(loc.color, loc.position, loc.type);
+            break;
+        case PieceType::Pawn:
+            newPiece = new Pawn(loc.color, loc.position, loc.type);
+            break;
+        case PieceType::Queen:
+            newPiece = new Queen(loc.color, loc.position, loc.type);
+            break;
+        case PieceType::King:
+            newPiece = new King(loc.color, loc.position, loc.type);
+            break;
+        case PieceType::Knight:
+            newPiece = new Knight(loc.color, loc.position, loc.type);
+            break;
+        case PieceType::Rook:
+            newPiece = new Rook(loc.color, loc.position, loc.type);
+            break;
+        }
+        newPiece->hasMoved = loc.hasMoved;
+        newPiece->canPassantLeft = loc.canPassantLeft;
+        newPiece->canPassantRight = loc.canPassantLeft;
+
+        AddPiece(newPiece);
+    }
+
+    // Updating records and board
+    posRecords.pop_back();
+    UpdateBoard();
+    repetitionTrack.pop_back();
+    emit endTurn();
 }
 
 
@@ -262,15 +313,23 @@ void ChessBoard::RecordPiecePositions()
     QVector<PieceStateRecord> currentPos;
     for (auto* piece : pieces)
     {
-        currentPos.push_back({ piece->getType(), piece->getPos(), piece->GetHashMoved() });
+        currentPos.push_back({ piece->getType(), piece->getPos(), piece->GetHashMoved(), piece->getColor(),
+                                piece->canPassantLeft, piece->canPassantRight });
     }
-    oldPositions.push_back(currentPos);
+    repetitionTrack.push_back(currentPos);
+    posRecords.push_back(currentPos);
 }
 
-void ChessBoard::ResetRecords()
+void ChessBoard::ResetRepetitionTrack()
 {
     moveCount = 0;
-    oldPositions.clear();
+    repetitionTrack.clear();
+}
+
+void ChessBoard::ResetAllRecords()
+{
+    ResetRepetitionTrack();
+    posRecords.clear();
 }
 
 void ChessBoard::mousePressEvent(QMouseEvent *event)
