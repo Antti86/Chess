@@ -53,8 +53,9 @@ private:
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
     QVector<QPoint> GetCastlingMoves() const;
 
-    QVector<QPoint> FilterKingMovements(const QVector<QPoint>& moves) const;
+    QVector<QPoint> FilterKingMovements(const QVector<QPoint>& moves, const QPoint &kingPos) const;
     QVector<QPoint> FilterAvailableMovements(const QVector<QPoint>& moves) const;
+    QPoint GetTurnKingPos() const;
 
     void SetAreaFields();
     QVector<QPoint> GetGhostArea(const QVector<QPoint> &field, const QPoint &pos) const;

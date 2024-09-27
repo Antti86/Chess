@@ -65,10 +65,10 @@ void MainWindow::GameOver(EndStatus status)
     switch (status)
     {
     case EndStatus::BlackWins:
-        endStatus = "White";
+        endStatus = "Black wins";
         break;
     case EndStatus::WhiteWins:
-        endStatus = "Black";
+        endStatus = "White wins";
         break;
     case EndStatus::InsufficientMaterialDraw:
         endStatus = "Insufficient Material Draw";

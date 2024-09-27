@@ -245,7 +245,11 @@ void ChessBoard::ReverseMoveAndTurn()
     // Updating records and board
     posRecords.pop_back();
     UpdateBoard();
-    repetitionTrack.pop_back();
+    if (!repetitionTrack.empty())
+    {
+        repetitionTrack.pop_back();
+    }
+
     emit endTurn();
 }
 
