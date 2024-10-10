@@ -11,6 +11,7 @@
 #include "qgraphicsview.h"
 #include "boardsquare.h"
 #include "Pieces/PieceStateRecord.h"
+#include <memory>
 
 class ChessBoard : public QGraphicsView
 {
@@ -27,8 +28,14 @@ public:
     int GetMoveCount() const;
 
     QGraphicsScene *scene;
-    QVector<BasePiece *> pieces;
-    QVector<QVector<PieceStateRecord>> repetitionTrack;
+
+    std::vector<std::unique_ptr<BasePiece>> pieces; // Cant use QVector, wont play nice with unique_ptr
+    void AddPiece(std::unique_ptr<BasePiece> piece); //Bot needs to add and delete pieces in simulation, so public
+
+    //Encap these??
+    QVector<QVector<PieceStateRecord>> repetitionTrack; //Wont work with bot right now
+    QVector<QVector<PieceStateRecord>> posRecords;
+
 public slots:
     void MovePiece(QPoint from, QPoint to, bool isWhiteTurn);
     void SettingSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
@@ -48,7 +55,6 @@ private:
     void DrawBoard();
     void DrawPieces();
     void SetPiecesOnBoard();
-    void AddPiece(BasePiece *piece);
     void UpdateBoard();
 
     BoardSquare* GetSelectedSquare(const QPoint& pos) const;
@@ -59,9 +65,7 @@ private:
     void ResetRepetitionTrack();
     void ResetAllRecords();
 
-
-    QVector<QVector<PieceStateRecord>> posRecords;
-
+private:
     int moveCount;
 
     //Square color

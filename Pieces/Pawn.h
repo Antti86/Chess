@@ -26,6 +26,11 @@ public:
         canPassantRight = false;
     }
 
+    int GetPieceScore() const override
+    {
+        return 100;
+    }
+
     void Move(QPoint newPos) override
     {
         pos = newPos;

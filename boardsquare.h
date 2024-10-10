@@ -1,6 +1,7 @@
 #ifndef BOARDSQUARE_H
 #define BOARDSQUARE_H
 
+#pragma once
 #include "qgraphicsitem.h"
 #include <qbrush.h>
 

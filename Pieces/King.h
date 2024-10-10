@@ -24,6 +24,11 @@ public:
         setPixmap(scaledPixmap);
     }
 
+    int GetPieceScore() const override
+    {
+        return 5000;
+    }
+
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
     {
         QVector<QPoint> moves;

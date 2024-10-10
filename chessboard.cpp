@@ -31,10 +31,6 @@ ChessBoard::ChessBoard(QWidget *widget)
 
 ChessBoard::~ChessBoard()
 {
-    for (auto &i : pieces)
-    {
-        delete i;
-    }
     pieces.clear();
     ResetAllRecords();
     scene->clear();
@@ -43,10 +39,6 @@ ChessBoard::~ChessBoard()
 
 void ChessBoard::ResetBoard()
 {
-    for (auto &i : pieces)
-    {
-        delete i;
-    }
     pieces.clear();
     // scene->clear();
     // DrawBoard();
@@ -95,15 +87,16 @@ int ChessBoard::GetMoveCount() const
     return moveCount;
 }
 
+
 void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
 {
     moveCount++;
-    for (auto &piece : pieces)
+    for (const auto& piece : pieces)
     {
         if (piece->getPos() == from)
         {
             piece->Move(to);
-            CheckPassantStatus(piece, from, to, isWhiteTurn);
+            CheckPassantStatus(piece.get(), from, to, isWhiteTurn);
         }
         else
         {
@@ -111,9 +104,8 @@ void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
             QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
             if (piece->getType() == PieceType::Pawn && piece->getColor() == turn)
             {
-                Pawn *pawn = dynamic_cast<Pawn*>(piece);
-                pawn->canPassantLeft = false;
-                pawn->canPassantRight = false;
+                piece->canPassantLeft = false;
+                piece->canPassantRight = false;
             }
         }
     }
@@ -158,11 +150,10 @@ void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& le
 void ChessBoard::EatingPiece(QPoint eatingPos)
 {
     ResetRepetitionTrack();
-    auto it = std::remove_if(pieces.begin(), pieces.end(), [&eatingPos](BasePiece* piece)
+    auto it = std::remove_if(pieces.begin(), pieces.end(), [&eatingPos](const std::unique_ptr<BasePiece>& piece)
                              {
                                  if (piece->getPos() == eatingPos)
                                  {
-                                     delete piece;
                                      return true;
                                  }
                                  return false;
@@ -178,16 +169,16 @@ void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool i
     switch (newPieceType)
     {
     case PieceType::Queen:
-        AddPiece(new Queen(turn, pos, newPieceType));
+        AddPiece(std::make_unique<Queen>(turn, pos, newPieceType));
         break;
     case PieceType::Rook:
-        AddPiece(new Rook(turn, pos, newPieceType));
+        AddPiece(std::make_unique<Rook>(turn, pos, newPieceType));
         break;
     case PieceType::Bishop:
-        AddPiece(new Bishop(turn, pos, newPieceType));
+        AddPiece(std::make_unique<Bishop>(turn, pos, newPieceType));
         break;
     case PieceType::Knight:
-        AddPiece(new Knight(turn, pos, newPieceType));
+        AddPiece(std::make_unique<Knight>(turn, pos, newPieceType));
         break;
     default:
         break;
@@ -196,16 +187,12 @@ void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool i
 
 void ChessBoard::ReverseMoveAndTurn()
 {
-
+    // Optimize this, no need to delete and load everything all the time
     if (posRecords.size() < 2)
     {
         return;
     }
     //Deleting current state
-    for (auto &i : pieces)
-    {
-        delete i;
-    }
     pieces.clear();
 
     // Getting old state and populating pieces
@@ -213,33 +200,33 @@ void ChessBoard::ReverseMoveAndTurn()
     for (auto& loc : lastRecord)
     {
         auto type = loc.type;
-        BasePiece* newPiece;
+        std::unique_ptr<BasePiece> newPiece;
         switch (type)
         {
         case PieceType::Bishop:
-            newPiece = new Bishop(loc.color, loc.position, loc.type);
+            newPiece = std::make_unique<Bishop>(loc.color, loc.position, loc.type);
             break;
         case PieceType::Pawn:
-            newPiece = new Pawn(loc.color, loc.position, loc.type);
+            newPiece = std::make_unique<Pawn>(loc.color, loc.position, loc.type);
             break;
         case PieceType::Queen:
-            newPiece = new Queen(loc.color, loc.position, loc.type);
+            newPiece = std::make_unique<Queen>(loc.color, loc.position, loc.type);
             break;
         case PieceType::King:
-            newPiece = new King(loc.color, loc.position, loc.type);
+            newPiece = std::make_unique<King>(loc.color, loc.position, loc.type);
             break;
         case PieceType::Knight:
-            newPiece = new Knight(loc.color, loc.position, loc.type);
+            newPiece = std::make_unique<Knight>(loc.color, loc.position, loc.type);
             break;
         case PieceType::Rook:
-            newPiece = new Rook(loc.color, loc.position, loc.type);
+            newPiece = std::make_unique<Rook>(loc.color, loc.position, loc.type);
             break;
         }
         newPiece->hasMoved = loc.hasMoved;
         newPiece->canPassantLeft = loc.canPassantLeft;
         newPiece->canPassantRight = loc.canPassantLeft;
 
-        AddPiece(newPiece);
+        AddPiece(std::move(newPiece));
     }
 
     // Updating records and board
@@ -296,15 +283,13 @@ void ChessBoard::CheckPassantStatus(BasePiece *piece, const QPoint& from, const 
                 QPoint right = QPoint(to.x() + 1, to.y());
                 if (p->getType() == PieceType::Pawn && p->getColor() == enemy)
                 {
-                    Pawn *pawn = dynamic_cast<Pawn*>(p);
-
                     if (p->getPos() == left)
                     {
-                        pawn->canPassantRight = true;
+                        p->canPassantRight = true;
                     }
                     if (p->getPos() == right)
                     {
-                        pawn->canPassantLeft = true;
+                        p->canPassantLeft = true;
                     }
                 }
             }
@@ -315,7 +300,7 @@ void ChessBoard::CheckPassantStatus(BasePiece *piece, const QPoint& from, const 
 void ChessBoard::RecordPiecePositions()
 {
     QVector<PieceStateRecord> currentPos;
-    for (auto* piece : pieces)
+    for (auto& piece : pieces)
     {
         currentPos.push_back({ piece->getType(), piece->getPos(), piece->GetHashMoved(), piece->getColor(),
                                 piece->canPassantLeft, piece->canPassantRight });
@@ -348,10 +333,10 @@ void ChessBoard::mouseMoveEvent(QMouseEvent *event)
     QGraphicsView::mouseMoveEvent(event);
 }
 
-void ChessBoard::AddPiece(BasePiece *piece)
+void ChessBoard::AddPiece(std::unique_ptr<BasePiece> piece)
 {
-    pieces.append(piece);
-    scene->addItem(piece);
+    scene->addItem(piece.get());
+    pieces.push_back(std::move(piece));
 }
 
 void ChessBoard::DrawBoard()
@@ -404,72 +389,58 @@ void ChessBoard::SetPiecesOnBoard()
     //Pawns
     for (int x = 0; x < 8; x++)
     {
-        AddPiece(new Pawn(Qt::white, QPoint(x, 6), PieceType::Pawn));
+        AddPiece(std::make_unique<Pawn>(Qt::white, QPoint(x, 6), PieceType::Pawn));
     }
 
-    // AddPiece(new Pawn(Qt::white, QPoint(0, 4), PieceType::Pawn));
-    // AddPiece(new Pawn(Qt::white, QPoint(3, 4), PieceType::Pawn));
-    // AddPiece(new Pawn(Qt::white, QPoint(5, 4), PieceType::Pawn));
-    // AddPiece(new Pawn(Qt::white, QPoint(7, 4), PieceType::Pawn));
-
-
-
     //Rooks
-    AddPiece(new Rook(Qt::white, QPoint(0, 7), PieceType::Rook));
-    AddPiece(new Rook(Qt::white, QPoint(7, 7), PieceType::Rook));
+    AddPiece(std::make_unique<Rook>(Qt::white, QPoint(0, 7), PieceType::Rook));
+    AddPiece(std::make_unique<Rook>(Qt::white, QPoint(7, 7), PieceType::Rook));
 
     //Knights
-    // AddPiece(new Knight(Qt::white, QPoint(4, 4), PieceType::Knight));
-    AddPiece(new Knight(Qt::white, QPoint(1, 7), PieceType::Knight));
-    AddPiece(new Knight(Qt::white, QPoint(6, 7), PieceType::Knight));
+    AddPiece(std::make_unique<Knight>(Qt::white, QPoint(1, 7), PieceType::Knight));
+    AddPiece(std::make_unique<Knight>(Qt::white, QPoint(6, 7), PieceType::Knight));
 
     //Bishops
-    AddPiece(new Bishop(Qt::white, QPoint(2, 7), PieceType::Bishop));
-    AddPiece(new Bishop(Qt::white, QPoint(5, 7), PieceType::Bishop));
+    AddPiece(std::make_unique<Bishop>(Qt::white, QPoint(2, 7), PieceType::Bishop));
+    AddPiece(std::make_unique<Bishop>(Qt::white, QPoint(5, 7), PieceType::Bishop));
 
     //Queen
-    AddPiece(new Queen(Qt::white, QPoint(3, 7), PieceType::Queen));
+    AddPiece(std::make_unique<Queen>(Qt::white, QPoint(3, 7), PieceType::Queen));
 
     //King
-    AddPiece(new King(Qt::white, QPoint(4, 7), PieceType::King));
-    // AddPiece(new King(Qt::black, QPoint(4, 7), PieceType::King));
+    AddPiece(std::make_unique<King>(Qt::white, QPoint(4, 7), PieceType::King));
+
 
     //Blacks
 
     // Pawns
     for (int x = 0; x < 8; x++)
     {
-        AddPiece(new Pawn(Qt::black, QPoint(x, 1), PieceType::Pawn));
+        AddPiece(std::make_unique<Pawn>(Qt::black, QPoint(x, 1), PieceType::Pawn));
     }
 
-    // AddPiece(new Pawn(Qt::black, QPoint(0, 3), PieceType::Pawn));
-    // AddPiece(new Pawn(Qt::black, QPoint(3, 3), PieceType::Pawn));
-    // AddPiece(new Pawn(Qt::black, QPoint(5, 2), PieceType::Pawn));
-    // AddPiece(new Pawn(Qt::black, QPoint(7, 2), PieceType::Pawn));
-
     //Rooks
-    AddPiece(new Rook(Qt::black, QPoint(0, 0), PieceType::Rook));
-    AddPiece(new Rook(Qt::black, QPoint(7, 0), PieceType::Rook));
+    AddPiece(std::make_unique<Rook>(Qt::black, QPoint(0, 0), PieceType::Rook));
+    AddPiece(std::make_unique<Rook>(Qt::black, QPoint(7, 0), PieceType::Rook));
 
     // Knights
-    AddPiece(new Knight(Qt::black, QPoint(1, 0), PieceType::Knight));
-    AddPiece(new Knight(Qt::black, QPoint(6, 0), PieceType::Knight));
+    AddPiece(std::make_unique<Knight>(Qt::black, QPoint(1, 0), PieceType::Knight));
+    AddPiece(std::make_unique<Knight>(Qt::black, QPoint(6, 0), PieceType::Knight));
 
     //Bishops
-    AddPiece(new Bishop(Qt::black, QPoint(2, 0), PieceType::Bishop));
-    AddPiece(new Bishop(Qt::black, QPoint(5, 0), PieceType::Bishop));
+    AddPiece(std::make_unique<Bishop>(Qt::black, QPoint(2, 0), PieceType::Bishop));
+    AddPiece(std::make_unique<Bishop>(Qt::black, QPoint(5, 0), PieceType::Bishop));
 
     //Queen
-    AddPiece(new Queen(Qt::black, QPoint(3, 0), PieceType::Queen));
+    AddPiece(std::make_unique<Queen>(Qt::black, QPoint(3, 0), PieceType::Queen));
 
     //King
-    AddPiece(new King(Qt::black, QPoint(4, 0), PieceType::King));
-    // AddPiece(new King(Qt::white, QPoint(4, 0), PieceType::King));
+    AddPiece(std::make_unique<King>(Qt::black, QPoint(4, 0), PieceType::King));
 }
 
 void ChessBoard::DrawPieces()
 {
-    for (auto &i : pieces)
+    for (const auto &i : pieces)
     {
         i->Draw();
     }

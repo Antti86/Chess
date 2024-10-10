@@ -42,6 +42,8 @@ public:
         bool canPassantRight = false;
     }
 
+    virtual int GetPieceScore() const = 0;
+
     virtual ~BasePiece() = default;
     virtual void Draw()
     {

@@ -1,14 +1,20 @@
 #include "game.h"
+#include "Bishop.h"
+#include "King.h"
+#include "Knight.h"
 #include "Pawn.h"
+#include "PromotionDialog.h"
+#include "Queen.h"
+#include "Rook.h"
 
 Game::Game(ChessBoard *board, QObject *parent)
     : QObject(parent)
     , board(board)
+    , gameInfo(board)
+    , filter(MoveFilter(board, gameInfo))
+    , bot(Bot(board, gameInfo, filter))
 {
-    isWhiteTurn = true;
-    SetAreaFields();
     isPieceSelected = false;
-    turn = Qt::white;
 }
 
 void Game::handlePieceSelection(QPoint pos)
@@ -19,35 +25,9 @@ void Game::handlePieceSelection(QPoint pos)
         {
             selectedPiecePos = pos;
             isPieceSelected = true;
-            BasePiece* piece = GetSelectedPiece(pos);
-            QVector<QPoint> moves = piece->GetLegalMoves(friendly, enemy);
-            QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, GetGhostArea(friendly, selectedPiecePos), enemy);
 
-            if (!IsKingChecked(dangerAreas))
-            {
-                if (piece->getType() == PieceType::King)
-                {
-                    QVector<QPoint> filteredMoves = FilterKingMovements(moves, selectedPiecePos);
-                    emit SetSquareColor(selectedPiecePos, filteredMoves, true);
-                }
-                else
-                {
-                    emit SetSquareColor(selectedPiecePos, moves, true);
-                }
-            }
-            else
-            {
-                if (piece->getType() == PieceType::King)
-                {
-                    QVector<QPoint> filteredMoves = FilterKingMovements(moves, selectedPiecePos);
-                    emit SetSquareColor(selectedPiecePos, filteredMoves, true);
-                }
-                else
-                {
-                    QVector<QPoint> filteredMoves = FilterAvailableMovements(moves);
-                    emit SetSquareColor(selectedPiecePos, filteredMoves, true);
-                }
-            }
+            QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
+            emit SetSquareColor(selectedPiecePos, filteredMoves, true);
         }
     }
     else
@@ -55,70 +35,36 @@ void Game::handlePieceSelection(QPoint pos)
         if (pos == selectedPiecePos) //Realeses selected piece
         {
             isPieceSelected = false;
-            BasePiece* piece = GetSelectedPiece(pos);
-            QVector<QPoint> moves = piece->GetLegalMoves(friendly, enemy);
-
-            if (piece->getType() == PieceType::King)
-            {
-                QVector<QPoint> filteredMoves = FilterKingMovements(moves, selectedPiecePos);
-                emit SetSquareColor(selectedPiecePos, filteredMoves, false);
-            }
-            else
-            {
-                emit SetSquareColor(selectedPiecePos, moves, false);
-            }
+            QVector<QPoint> filteredMoves = filter.GetFilteredMoves(pos);
+            emit SetSquareColor(selectedPiecePos, filteredMoves, false);
         }
         else //Moving a piece path
         {
-            BasePiece* piece = GetSelectedPiece(selectedPiecePos);
-            QVector<QPoint> moves = piece->GetLegalMoves(friendly, enemy);
-            QVector<QPoint> filteredMoves;
-            QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, GetGhostArea(friendly, selectedPiecePos), enemy);
+            BasePiece* piece = filter.GetSelectedPiece(selectedPiecePos);
+            QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
 
-            if (!IsKingChecked(dangerAreas))
-            {
-                if (piece->getType() == PieceType::King)
-                {
-                    filteredMoves = FilterKingMovements(moves, selectedPiecePos);
-                }
-                else
-                {
-                    filteredMoves = moves;
-                }
-            }
-            else
-            {
-                if (piece->getType() == PieceType::King)
-                {
-                    filteredMoves = FilterKingMovements(moves, selectedPiecePos);
-                }
-                else
-                {
-                    filteredMoves = FilterAvailableMovements(moves);
-                }
-            }
             if (ValidMovement(piece, filteredMoves, pos))
             {
                 emit SetSquareColor(selectedPiecePos, filteredMoves, false);
                 if (IsPassantMovement(piece, selectedPiecePos, pos))
                 {
-                    int fix = isWhiteTurn ? 1 : -1;
+                    int fix = gameInfo.isWhiteTurn ? 1 : -1;
                     QPoint fixed = QPoint(pos.x(), pos.y() + fix);
                     emit EatPiece(fixed);
                 }
 
-                if (IsEatingMovement(pos))
+                if (filter.IsEatingMovement(pos))
                 {
                     emit EatPiece(pos);
                 }
 
                 if (IsPawnPromotionMove(piece, pos))
                 {
-                    PromotionDialog dialog(isWhiteTurn);
+                    PromotionDialog dialog(gameInfo.isWhiteTurn);
                     if (dialog.exec() == QDialog::Accepted)
                     {
                         PieceType promotedPiece = dialog.getSelectedPiece();
-                        emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
+                        emit PawnPromotion(selectedPiecePos, promotedPiece, gameInfo.isWhiteTurn);
                     }
 
                 }
@@ -139,11 +85,11 @@ void Game::handlePieceSelection(QPoint pos)
                         RookNewPos = QPoint(5, pos.y());
                     }
                     castlingRook->Move(RookNewPos);
-                    emit pieceMoved(selectedPiecePos, kingNewPos, isWhiteTurn);
+                    emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
                 }
                 else
                 {
-                    emit pieceMoved(selectedPiecePos, pos, isWhiteTurn);
+                    emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
 
                 }
                 isPieceSelected = false;
@@ -152,20 +98,198 @@ void Game::handlePieceSelection(QPoint pos)
     }
 }
 
+
+void Game::BotMovement()
+{
+
+    QVector<Movement> filteredTestMoves;
+
+    for (const auto& p: board->pieces)
+    {
+        if (p->getColor() == Qt::black)
+        {
+            selectedPiecePos = p->getPos();
+            filteredTestMoves.append(Movement(selectedPiecePos, filter.GetFilteredMoves(selectedPiecePos)));
+        }
+    }
+
+    QPoint kingPos; //Refactor this
+    for (auto& p : board->pieces)
+    {
+        if (p->getColor() == Qt::white && p->getType() == PieceType::King)
+        {
+            kingPos = p->getPos();
+            break;
+        }
+    }
+
+    QVector<MovementScore> fMove;
+
+    int bestScore = 0;
+
+    for (auto& selpiece : filteredTestMoves)
+    {
+        auto tt = selpiece.From;
+        BasePiece* p = filter.GetSelectedPiece(selpiece.From);
+        for (auto& m : selpiece.To)
+        {
+            int score = 0;
+
+            BasePiece* capPiece = nullptr;
+            PieceType capType;
+            QPoint capPos;
+            bool capHasMoved;
+            bool capCanPassLeft;
+            bool capCanPassRight;
+            bool eating = filter.IsEatingMovement(m);
+            if (filter.IsEatingMovement(m))
+            {
+                capPiece = filter.GetSelectedPiece(m);
+                score += capPiece->GetPieceScore();
+                capType = capPiece->getType();
+                capPos = capPiece->getPos();
+                capHasMoved = capPiece->hasMoved;
+                capCanPassLeft = capPiece->canPassantLeft;
+                capCanPassRight = capPiece->canPassantRight;
+                emit EatPiece(m);
+            }
+            p->Move(m);
+
+            auto dangerArea = board->GetDangerAreas(true, gameInfo.enemy, gameInfo.friendly);
+
+            if (dangerArea.contains(kingPos))
+            {
+                score += 100;
+            }
+
+
+
+
+            if (score > bestScore)
+            {
+                bestScore = score;
+            }
+            fMove.append(MovementScore(selpiece.From, m, score));
+            if (eating)
+            {
+                p->Move(selpiece.From);
+                std::unique_ptr<BasePiece> newPiece;
+                switch (capType)
+                {
+                case PieceType::Bishop:
+                    newPiece = std::make_unique<Bishop>(Qt::white, capPos, capType);
+                    break;
+                case PieceType::Pawn:
+                    newPiece = std::make_unique<Pawn>(Qt::white, capPos, capType);
+                    break;
+                case PieceType::Queen:
+                    newPiece = std::make_unique<Queen>(Qt::white, capPos, capType);
+                    break;
+                case PieceType::King:
+                    newPiece = std::make_unique<King>(Qt::white, capPos, capType);
+                    break;
+                case PieceType::Knight:
+                    newPiece = std::make_unique<Knight>(Qt::white, capPos, capType);
+                    break;
+                case PieceType::Rook:
+                    newPiece = std::make_unique<Rook>(Qt::white, capPos, capType);
+                    break;
+                }
+                newPiece->hasMoved = capHasMoved;
+                newPiece->canPassantLeft = capCanPassLeft;
+                newPiece->canPassantRight = capCanPassRight;
+
+                board->AddPiece(std::move(newPiece));
+            }
+            else
+            {
+                p->Move(selpiece.From);
+            }
+
+        }
+        p = nullptr;
+    }
+
+    auto final = std::max_element(fMove.begin(), fMove.end());
+
+    selectedPiecePos = final->From;
+
+    QPoint pos = final->To;
+
+    QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
+    isPieceSelected = true;
+
+    // QPoint pos = bot.SelectMove(filteredMoves);
+
+    BasePiece* piece = filter.GetSelectedPiece(selectedPiecePos);
+
+    if (ValidMovement(piece, filteredMoves, pos))
+    {
+        if (IsPassantMovement(piece, selectedPiecePos, pos))
+        {
+            int fix = gameInfo.isWhiteTurn ? 1 : -1;
+            QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+            emit EatPiece(fixed);
+        }
+
+        if (filter.IsEatingMovement(pos))
+        {
+            emit EatPiece(pos);
+        }
+
+        if (IsPawnPromotionMove(piece, pos))
+        {
+            emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
+            // PromotionDialog dialog(isWhiteTurn);
+            // if (dialog.exec() == QDialog::Accepted)
+            // {
+            //     PieceType promotedPiece = dialog.getSelectedPiece();
+            //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
+            // }
+
+        }
+
+        BasePiece* castlingRook = IsCastlingMove(piece, pos);
+        if (castlingRook)
+        {
+            QPoint kingNewPos;
+            QPoint RookNewPos;
+            if (pos.x() < 3)
+            {
+                kingNewPos = QPoint(2, pos.y());
+                RookNewPos = QPoint(3, pos.y());
+            }
+            else
+            {
+                kingNewPos = QPoint(6, pos.y());
+                RookNewPos = QPoint(5, pos.y());
+            }
+            castlingRook->Move(RookNewPos);
+            emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
+        }
+        else
+        {
+            emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
+
+        }
+        isPieceSelected = false;
+    }
+
+}
+
+
 void Game::EndOfTurn()
 {
-    isWhiteTurn = !isWhiteTurn;
-    turn = isWhiteTurn ? Qt::white : Qt::black;
-    SetAreaFields();
+    gameInfo.SetAreaFields();
 
-    QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
-    bool isChecked = IsKingChecked(dangerAreas);
+    QVector<QPoint> dangerAreas = board->GetDangerAreas(gameInfo.isWhiteTurn, gameInfo.friendly, gameInfo.enemy);
+    bool isChecked = filter.IsKingChecked(dangerAreas);
 
     if (isChecked)
     {
         if (IsCheckMate())
         {
-            EndStatus status = isWhiteTurn ? EndStatus::BlackWins : EndStatus::WhiteWins;
+            EndStatus status = gameInfo.isWhiteTurn ? EndStatus::BlackWins : EndStatus::WhiteWins;
             emit UpdateUiForGameOver(status);
             return;
         }
@@ -202,7 +326,12 @@ void Game::EndOfTurn()
         return;
     }
     emit UpdateUiForCheck(isChecked);
-    emit UpdateUiToTurn(isWhiteTurn);
+    emit UpdateUiToTurn(gameInfo.isWhiteTurn);
+
+    if (!gameInfo.isWhiteTurn)
+    {
+        BotMovement();
+    }
 
 
 }
@@ -210,7 +339,7 @@ void Game::EndOfTurn()
 
 bool Game::IsPieceOnSelectedSquare(QPoint square) const
 {
-    if (isWhiteTurn)
+    if (gameInfo.isWhiteTurn)
     {
         for (auto &piece : board->pieces)
         {
@@ -239,10 +368,6 @@ bool Game::ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& p
     return piece && legalMoves.contains(pos);
 }
 
-bool Game::IsEatingMovement(const QPoint pos) const
-{
-    return enemy.contains(pos);
-}
 
 bool Game::IsPassantMovement(BasePiece* piece, const QPoint &selectedPiecePos, const QPoint &newpos) const
 {
@@ -256,12 +381,12 @@ bool Game::IsPassantMovement(BasePiece* piece, const QPoint &selectedPiecePos, c
         {
             if (pawn->canPassantLeft)
             {
-                return enemy.contains(checkPosLeft);
+                return gameInfo.enemy.contains(checkPosLeft);
             }
 
             if (pawn->canPassantRight)
             {
-                return enemy.contains(checkPosRight);
+                return gameInfo.enemy.contains(checkPosRight);
             }
         }
         return false;
@@ -269,40 +394,21 @@ bool Game::IsPassantMovement(BasePiece* piece, const QPoint &selectedPiecePos, c
     return false;
 }
 
-BasePiece *Game::GetSelectedPiece(const QPoint pos) const
-{
-    BasePiece* piece = nullptr;
-    for (auto& p : board->pieces)
-    {
-        if (p->getPos() == selectedPiecePos)
-        {
-            piece = p;
-            break;
-        }
-    }
-    return piece;
-}
-
-bool Game::IsKingChecked(const QVector<QPoint> &dangerAreas) const
-{
-    return dangerAreas.contains(GetTurnKingPos());
-}
-
 bool Game::IsCheckMate() const
 {
     QVector<QPoint> availableMoves;
     for (auto& p : board->pieces)
     {
-        if (p->getColor() == turn)
+        if (p->getColor() == gameInfo.turn)
         {
-            QVector<QPoint> legalMoves = p->GetLegalMoves(friendly, enemy);
+            QVector<QPoint> legalMoves = p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy);
             if (p->getType() == PieceType::King)
             {
-                availableMoves.append(FilterKingMovements(legalMoves, GetTurnKingPos()));
+                availableMoves.append(filter.FilterKingMovements(legalMoves, filter.GetKingPos(gameInfo.turn)));
             }
             else
             {
-                availableMoves.append(FilterAvailableMovements(legalMoves));
+                availableMoves.append(filter.FilterAvailableMovements(legalMoves, p->getPos()));
             }
         }
     }
@@ -314,15 +420,15 @@ bool Game::IsStaleMate() const
     QVector<QPoint> availableMoves;
     for (auto& p : board->pieces)
     {
-        if (p->getColor() == turn)
+        if (p->getColor() == gameInfo.turn)
         {
             if (p->getType() == PieceType::King)
             {
-                availableMoves.append(FilterKingMovements(p->GetLegalMoves(friendly, enemy), GetTurnKingPos()));
+                availableMoves.append(filter.FilterKingMovements(p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy), filter.GetKingPos(gameInfo.turn)));
             }
             else
             {
-                availableMoves.append(FilterAvailableMovements(p->GetLegalMoves(friendly, enemy)));
+                availableMoves.append(filter.FilterAvailableMovements(p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy), p->getPos()));
             }
             if (!availableMoves.isEmpty())
             {
@@ -429,9 +535,9 @@ bool Game::IsDeadPositionDraw() const
         if (p->getType() == PieceType::Pawn)
         {
             pawnCount++;
-            if (p->getColor() == turn)
+            if (p->getColor() == gameInfo.turn)
             {
-                if (p->GetLegalMoves(friendly, enemy).size() != 0)
+                if (p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy).size() != 0)
                 {
                     return false;
                 }
@@ -439,13 +545,13 @@ bool Game::IsDeadPositionDraw() const
             }
             else
             {
-                if (p->GetLegalMoves(enemy, friendly).size() != 0)
+                if (p->GetLegalMoves(gameInfo.enemy, gameInfo.friendly).size() != 0)
                 {
                     return false;
                 }
                 else
                 {
-                    threatAreas.append(p->GetThreateningMoves(friendly, enemy));
+                    threatAreas.append(p->GetThreateningMoves(gameInfo.friendly, gameInfo.enemy));
                     enemyPawns.append(p->getPos());
                 }
             }
@@ -488,7 +594,7 @@ bool Game::IsDeadPositionDraw() const
     //Checks that kings cant move across the board
     for (auto& p : board->pieces)
     {
-        if (p->getType() == PieceType::Pawn && p->getColor() == turn)
+        if (p->getType() == PieceType::Pawn && p->getColor() == gameInfo.turn)
         {
             QPoint pPos = p->getPos();
 
@@ -547,7 +653,7 @@ bool Game::IsPawnPromotionMove(BasePiece *piece, const QPoint pos) const
 {
     if (piece->getType() == PieceType::Pawn)
     {
-        int edge = isWhiteTurn ? 0 : 7;
+        int edge = gameInfo.isWhiteTurn ? 0 : 7;
         if (pos.y() == edge)
         {
             return true;
@@ -564,217 +670,11 @@ BasePiece* Game::IsCastlingMove(BasePiece *piece, const QPoint &pos) const
     {
         for (auto& p : board->pieces)
         {
-            if (p->getColor() == turn && p->getType() == PieceType::Rook && p->getPos() == pos)
+            if (p->getColor() == gameInfo.turn && p->getType() == PieceType::Rook && p->getPos() == pos)
             {
-                return p;
+                return p.get();
             }
         }
     }
     return nullptr;
-}
-
-
-QVector<QPoint> Game::GetCastlingMoves() const
-{
-    QVector<QPoint> castlingMoves;
-    QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
-
-    if (IsKingChecked(dangerAreas))
-    {
-        return castlingMoves;
-    }
-
-    QVector<QPoint> pieceArea;
-
-    int rookCount;
-    bool leftRook = false;
-    bool rightRook = false;
-
-    for (auto& p : board->pieces)
-    {
-        if (p->getColor() == turn)
-        {
-            pieceArea.append(p->getPos());
-            if (p->getType() == PieceType::King && p->GetHashMoved())
-            {
-                return castlingMoves;
-            }
-            if (p->getType() == PieceType::Rook)
-            {
-                if (!p->GetHashMoved() && (p->getPos() == QPoint(0, 7) || p->getPos() == QPoint(0, 0)))
-                {
-                    leftRook = true;
-                }
-                if (!p->GetHashMoved() && (p->getPos() == QPoint(7, 7) || p->getPos() == QPoint(7, 0)))
-                {
-                    rightRook = true;
-                }
-            }
-        }
-    }
-
-    if (!leftRook && !rightRook)
-    {
-        return castlingMoves;
-    }
-
-    QVector<QPoint> checkAreaLeft;
-    QVector<QPoint> checkAreaRight;
-
-    if (isWhiteTurn)
-    {
-        if (leftRook)
-        {
-            checkAreaLeft.append(QPoint(1, 7));
-            checkAreaLeft.append(QPoint(2, 7));
-            checkAreaLeft.append(QPoint(3, 7));
-        }
-        if (rightRook)
-        {
-            checkAreaRight.append(QPoint(5, 7));
-            checkAreaRight.append(QPoint(6, 7));
-        }
-    }
-    else
-    {
-        if (leftRook)
-        {
-            checkAreaLeft.append(QPoint(1, 0));
-            checkAreaLeft.append(QPoint(2, 0));
-            checkAreaLeft.append(QPoint(3, 0));
-        }
-        if (rightRook)
-        {
-            checkAreaRight.append(QPoint(5, 0));
-            checkAreaRight.append(QPoint(6, 0));
-        }
-    }
-
-    if (leftRook)
-    {
-        if (std::none_of(checkAreaLeft.begin(), checkAreaLeft.end(), [&] (QPoint& p)
-                         {
-                             return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
-                                    std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a)
-                                                {
-                                                    if (p == QPoint(1,0) || p == QPoint(1, 7))
-                                                    {
-                                                        return false;
-                                                    }
-                                                    else
-                                                    {
-                                                        return a == p;
-                                                    }
-                                                });
-
-                         }))
-        {
-            int y = isWhiteTurn ? 7 : 0;
-            castlingMoves.append(QPoint(0, y));
-        }
-    }
-
-    if (rightRook)
-    {
-        if (std::none_of(checkAreaRight.begin(), checkAreaRight.end(), [&] (QPoint& p)
-                         {
-                             return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
-                                    std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a) {return a == p;});
-
-                         }))
-        {
-            int y = isWhiteTurn ? 7 : 0;
-            castlingMoves.append(QPoint(7, y));
-        }
-    }
-    return castlingMoves;
-}
-
-QVector<QPoint> Game::FilterKingMovements(const QVector<QPoint> &moves, const QPoint& kingPos) const
-{
-    QVector<QPoint> filteredMoves;
-    QVector<QPoint> ghostFriendly = GetGhostArea(friendly, kingPos);
-
-    QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, ghostFriendly, enemy);
-
-    for (auto& m : moves)
-    {
-        if (!dangerAreas.contains(m))
-        {
-            filteredMoves.append(m);
-        }
-    }
-    filteredMoves.append(GetCastlingMoves());
-    return filteredMoves;
-
-}
-
-void Game::SetAreaFields()
-{
-    friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
-    enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
-}
-
-QVector<QPoint> Game::GetGhostArea(const QVector<QPoint>& field, const QPoint& pos) const
-{
-    // Filters out selectedPiece. This vector can be feeded to GetDangerAreas so that it doesnt take count a selectedPiece
-    // This way player cant make a move that the king would end up in check
-    QVector<QPoint> ghostArea;
-    for (auto& p : field)
-    {
-        if (p != pos)
-        {
-            ghostArea.append(p);
-        }
-    }
-    return ghostArea;
-}
-
-QVector<QPoint> Game::FilterAvailableMovements(const QVector<QPoint> &moves) const
-{
-    //Filters and returns all the pieces (expect kings) available movements, so that king wont end up in check
-    QVector<QPoint> filteredMoves;
-    QVector<QPoint> ghost = GetGhostArea(friendly, selectedPiecePos);
-
-    for (auto& p : moves)
-    {
-        if (IsEatingMovement(p))
-        {
-            ghost.append(p);
-            QVector<QPoint> ghostEnemy = GetGhostArea(enemy, p);
-            QVector<QPoint> dangerAreas2 = board->GetDangerAreas(isWhiteTurn, ghost, ghostEnemy, p);
-
-            if (!IsKingChecked(dangerAreas2))
-            {
-                filteredMoves.append(p);
-            }
-            ghost.pop_back();
-        }
-        else
-        {
-            ghost.append(p);
-            QVector<QPoint> dangerAreas = board->GetDangerAreas(isWhiteTurn, ghost, enemy);
-
-            if (!IsKingChecked(dangerAreas))
-            {
-                filteredMoves.append(p);
-            }
-            ghost.pop_back();
-        }
-    }
-    return filteredMoves;
-}
-
-QPoint Game::GetTurnKingPos() const
-{
-    QPoint kingPos;
-    for (auto& p : board->pieces)
-    {
-        if (p->getColor() == turn && p->getType() == PieceType::King)
-        {
-            kingPos = p->getPos();
-            break;
-        }
-    }
-    return kingPos;
 }

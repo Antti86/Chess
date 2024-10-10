@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
         Pieces/basepiece.h
         Pieces/Queen.h
         resources.qrc
+
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
@@ -38,6 +39,9 @@ if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
 
         Pieces/PieceStateRecord.h
         PromotionDialog.h
+        bot.h bot.cpp
+        movefilter.h movefilter.cpp
+        GameInfo.h
     )
 # Define target properties for Android with Qt 6 as:
 #    set_property(TARGET Chess APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
