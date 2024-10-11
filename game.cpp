@@ -102,124 +102,115 @@ void Game::handlePieceSelection(QPoint pos)
 void Game::BotMovement()
 {
 
-    QVector<Movement> filteredTestMoves;
+    // QVector<Movement> filteredTestMoves;
 
-    for (const auto& p: board->pieces)
-    {
-        if (p->getColor() == Qt::black)
-        {
-            selectedPiecePos = p->getPos();
-            filteredTestMoves.append(Movement(selectedPiecePos, filter.GetFilteredMoves(selectedPiecePos)));
-        }
-    }
+    // for (const auto& p: board->pieces)
+    // {
+    //     if (p->getColor() == Qt::black)
+    //     {
+    //         selectedPiecePos = p->getPos();
+    //         filteredTestMoves.append(Movement(selectedPiecePos, filter.GetFilteredMoves(selectedPiecePos)));
+    //     }
+    // }
 
-    QPoint kingPos; //Refactor this
-    for (auto& p : board->pieces)
-    {
-        if (p->getColor() == Qt::white && p->getType() == PieceType::King)
-        {
-            kingPos = p->getPos();
-            break;
-        }
-    }
+    // QPoint kingPos = filter.GetKingPos(Qt::white);
 
-    QVector<MovementScore> fMove;
+    // QVector<MovementScore> fMove;
 
-    int bestScore = 0;
+    // int bestScore = 0;
 
-    for (auto& selpiece : filteredTestMoves)
-    {
-        auto tt = selpiece.From;
-        BasePiece* p = filter.GetSelectedPiece(selpiece.From);
-        for (auto& m : selpiece.To)
-        {
-            int score = 0;
+    // for (auto& selpiece : filteredTestMoves)
+    // {
+    //     auto tt = selpiece.From;
+    //     BasePiece* p = filter.GetSelectedPiece(selpiece.From);
+    //     for (auto& m : selpiece.To)
+    //     {
+    //         int score = 0;
 
-            BasePiece* capPiece = nullptr;
-            PieceType capType;
-            QPoint capPos;
-            bool capHasMoved;
-            bool capCanPassLeft;
-            bool capCanPassRight;
-            bool eating = filter.IsEatingMovement(m);
-            if (filter.IsEatingMovement(m))
-            {
-                capPiece = filter.GetSelectedPiece(m);
-                score += capPiece->GetPieceScore();
-                capType = capPiece->getType();
-                capPos = capPiece->getPos();
-                capHasMoved = capPiece->hasMoved;
-                capCanPassLeft = capPiece->canPassantLeft;
-                capCanPassRight = capPiece->canPassantRight;
-                emit EatPiece(m);
-            }
-            p->Move(m);
+    //         BasePiece* capPiece = nullptr;
+    //         PieceType capType;
+    //         QPoint capPos;
+    //         bool capHasMoved;
+    //         bool capCanPassLeft;
+    //         bool capCanPassRight;
+    //         bool eating = filter.IsEatingMovement(m);
+    //         if (filter.IsEatingMovement(m))
+    //         {
+    //             capPiece = filter.GetSelectedPiece(m);
+    //             score += capPiece->GetPieceScore();
+    //             capType = capPiece->getType();
+    //             capPos = capPiece->getPos();
+    //             capHasMoved = capPiece->hasMoved;
+    //             capCanPassLeft = capPiece->canPassantLeft;
+    //             capCanPassRight = capPiece->canPassantRight;
+    //             emit EatPiece(m);
+    //         }
+    //         p->Move(m);
 
-            auto dangerArea = board->GetDangerAreas(true, gameInfo.enemy, gameInfo.friendly);
+    //         auto dangerArea = board->GetDangerAreas(true, gameInfo.enemy, gameInfo.friendly);
 
-            if (dangerArea.contains(kingPos))
-            {
-                score += 100;
-            }
+    //         if (dangerArea.contains(kingPos))
+    //         {
+    //             score += 100;
+    //         }
 
 
 
 
-            if (score > bestScore)
-            {
-                bestScore = score;
-            }
-            fMove.append(MovementScore(selpiece.From, m, score));
-            if (eating)
-            {
-                p->Move(selpiece.From);
-                std::unique_ptr<BasePiece> newPiece;
-                switch (capType)
-                {
-                case PieceType::Bishop:
-                    newPiece = std::make_unique<Bishop>(Qt::white, capPos, capType);
-                    break;
-                case PieceType::Pawn:
-                    newPiece = std::make_unique<Pawn>(Qt::white, capPos, capType);
-                    break;
-                case PieceType::Queen:
-                    newPiece = std::make_unique<Queen>(Qt::white, capPos, capType);
-                    break;
-                case PieceType::King:
-                    newPiece = std::make_unique<King>(Qt::white, capPos, capType);
-                    break;
-                case PieceType::Knight:
-                    newPiece = std::make_unique<Knight>(Qt::white, capPos, capType);
-                    break;
-                case PieceType::Rook:
-                    newPiece = std::make_unique<Rook>(Qt::white, capPos, capType);
-                    break;
-                }
-                newPiece->hasMoved = capHasMoved;
-                newPiece->canPassantLeft = capCanPassLeft;
-                newPiece->canPassantRight = capCanPassRight;
+    //         if (score > bestScore)
+    //         {
+    //             bestScore = score;
+    //         }
+    //         fMove.append(MovementScore(selpiece.From, m, score));
+    //         if (eating)
+    //         {
+    //             p->Move(selpiece.From);
+    //             std::unique_ptr<BasePiece> newPiece;
+    //             switch (capType)
+    //             {
+    //             case PieceType::Bishop:
+    //                 newPiece = std::make_unique<Bishop>(Qt::white, capPos, capType);
+    //                 break;
+    //             case PieceType::Pawn:
+    //                 newPiece = std::make_unique<Pawn>(Qt::white, capPos, capType);
+    //                 break;
+    //             case PieceType::Queen:
+    //                 newPiece = std::make_unique<Queen>(Qt::white, capPos, capType);
+    //                 break;
+    //             case PieceType::King:
+    //                 newPiece = std::make_unique<King>(Qt::white, capPos, capType);
+    //                 break;
+    //             case PieceType::Knight:
+    //                 newPiece = std::make_unique<Knight>(Qt::white, capPos, capType);
+    //                 break;
+    //             case PieceType::Rook:
+    //                 newPiece = std::make_unique<Rook>(Qt::white, capPos, capType);
+    //                 break;
+    //             }
+    //             newPiece->hasMoved = capHasMoved;
+    //             newPiece->canPassantLeft = capCanPassLeft;
+    //             newPiece->canPassantRight = capCanPassRight;
 
-                board->AddPiece(std::move(newPiece));
-            }
-            else
-            {
-                p->Move(selpiece.From);
-            }
+    //             board->AddPiece(std::move(newPiece));
+    //         }
+    //         else
+    //         {
+    //             p->Move(selpiece.From);
+    //         }
 
-        }
-        p = nullptr;
-    }
+    //     }
+    //     p = nullptr;
+    // }
 
-    auto final = std::max_element(fMove.begin(), fMove.end());
+    auto final = bot.GetABestMove();
 
-    selectedPiecePos = final->From;
+    selectedPiecePos = final.From;
 
-    QPoint pos = final->To;
+    QPoint pos = final.To;
 
     QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
     isPieceSelected = true;
 
-    // QPoint pos = bot.SelectMove(filteredMoves);
 
     BasePiece* piece = filter.GetSelectedPiece(selectedPiecePos);
 
@@ -365,7 +356,7 @@ bool Game::IsPieceOnSelectedSquare(QPoint square) const
 
 bool Game::ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& pos) const
 {
-    return piece && legalMoves.contains(pos);
+    return piece && legalMoves.contains(pos) && board->IsInsideBoard(pos);
 }
 
 

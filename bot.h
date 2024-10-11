@@ -45,9 +45,10 @@ class Bot
 {
 public:
     Bot(ChessBoard* board, GameInfo& gameInfo, MoveFilter& filter);
+    MovementScore GetABestMove();
 
 private:
-
+    int GetPawnScore(const QPoint &From, const QPoint &To) const;
 
 private:
     ChessBoard* board;

@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->LastMove, &QPushButton::clicked, ui->Board, &ChessBoard::ReverseMoveAndTurn);
 
 
+
 }
 
 MainWindow::~MainWindow()
@@ -122,7 +123,7 @@ void MainWindow::StartGame()
 
     ui->WhosTurn->setText("White");
 
-
+    ChangeCheckedStatus(false);
     //Gameplay connections
 
     //Movements and eating

@@ -164,7 +164,7 @@ protected:
             break;
         case CheckDirection::SouthEast:
             xOffset = 1;
-            dirCheckVal = std::min(pos.x(), pos.y()) + 1;
+            dirCheckVal = std::max(pos.x(), pos.y()) + 1;
             dirIncrement = 1;
             yOffset = 1;
             dirCap = 7;
