@@ -12,6 +12,17 @@ struct PieceStateRecord
     bool canPassantLeft;
     bool canPassantRight;
 
+    PieceStateRecord() = default;
+    explicit PieceStateRecord(PieceType type, QPoint position, bool hasMoved, QBrush color, bool canPassantLeft, bool canPassantRight)
+        :
+        type(type),
+        position(position),
+        hasMoved(hasMoved),
+        color(color),
+        canPassantLeft(canPassantLeft),
+        canPassantRight(canPassantRight)
+    {};
+
     bool operator==(const PieceStateRecord& other) const
     {
         return type == other.type && position == other.position && hasMoved == other.hasMoved && color == other.color &&

@@ -27,6 +27,8 @@ set(PROJECT_SOURCES
         Pieces/Bishop.h Pieces/King.h Pieces/Knight.h Pieces/Pawn.h Pieces/Rook.h
         Pieces/basepiece.h
         Pieces/Queen.h
+        Rng.h
+        Rng.cpp
         resources.qrc
 
 )

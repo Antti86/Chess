@@ -302,8 +302,8 @@ void ChessBoard::RecordPiecePositions()
     QVector<PieceStateRecord> currentPos;
     for (auto& piece : pieces)
     {
-        currentPos.push_back({ piece->getType(), piece->getPos(), piece->GetHashMoved(), piece->getColor(),
-                                piece->canPassantLeft, piece->canPassantRight });
+        currentPos.push_back(PieceStateRecord(piece->getType(), piece->getPos(), piece->GetHashMoved(), piece->getColor(),
+                                piece->canPassantLeft, piece->canPassantRight ));
     }
     repetitionTrack.push_back(currentPos);
     posRecords.push_back(currentPos);
@@ -337,6 +337,24 @@ void ChessBoard::AddPiece(std::unique_ptr<BasePiece> piece)
 {
     scene->addItem(piece.get());
     pieces.push_back(std::move(piece));
+}
+
+std::vector<BasePiece *> ChessBoard::GetSquarethreateningPiece(const QPoint &checkPos,const QVector<QPoint> &friendly, const QVector<QPoint> &enemy)
+{
+
+    std::vector<BasePiece*> ret;
+
+    for (auto& p : pieces)
+    {
+        if (p->GetThreateningMoves(friendly,enemy).contains(checkPos))
+        {
+            ret.push_back(p.get());
+        }
+    }
+
+
+    return ret;
+
 }
 
 void ChessBoard::DrawBoard()

@@ -112,6 +112,7 @@ BasePiece *MoveFilter::GetSelectedPiece(const QPoint &pos) const
     BasePiece* piece = nullptr;
     for (auto& p : board->pieces)
     {
+
         if (p->getPos() == pos)
         {
             piece = p.get();
@@ -120,6 +121,19 @@ BasePiece *MoveFilter::GetSelectedPiece(const QPoint &pos) const
     }
     return piece;
 
+}
+
+std::unique_ptr<BasePiece> MoveFilter::GivePiecePointer(const QPoint &selectedPiecePos)
+{
+    for (auto& p : board->pieces)
+    {
+
+        if (p->getPos() == selectedPiecePos)
+        {
+            return std::move(p);
+        }
+    }
+    return nullptr;
 }
 
 QPoint MoveFilter::GetKingPos(QBrush color) const

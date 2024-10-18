@@ -5,6 +5,7 @@
 #include "chessboard.h"
 #include "GameInfo.h"
 #include "movefilter.h"
+#include "Rng.h"
 
 struct Movement //Model for storing piece and all its movement options
 {
@@ -46,15 +47,26 @@ class Bot
 public:
     Bot(ChessBoard* board, GameInfo& gameInfo, MoveFilter& filter);
     MovementScore GetABestMove();
+    MovementScore GetMinMaxMove();
 
 private:
     int GetPawnScore(const QPoint &From, const QPoint &To) const;
+    bool HaveCover(BasePiece *p, const QPoint &checkPos) const;
+    bool IsCheckMateMovement() const;
+
+    QVector<Movement> GetAllTheMovements(QBrush turn);
+
+    int GetScoreEval(QBrush turn);
+
+
+    std::unique_ptr<BasePiece> DoMove(BasePiece *p, const QPoint& movePos);
+    void UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoint& prePos, bool hasMoved, QBrush enemy);
 
 private:
     ChessBoard* board;
     GameInfo& gameInfo;
     MoveFilter& filter;
-
+    Rng rng;
 
 };
 

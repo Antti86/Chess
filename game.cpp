@@ -202,7 +202,8 @@ void Game::BotMovement()
     //     p = nullptr;
     // }
 
-    auto final = bot.GetABestMove();
+    // auto final = bot.GetABestMove();
+    auto final = bot.GetMinMaxMove();
 
     selectedPiecePos = final.From;
 

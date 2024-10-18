@@ -16,6 +16,8 @@ public:
     QVector<QPoint> GetGhostArea(const QVector<QPoint> &field, const QPoint &pos) const;
 
     BasePiece* GetSelectedPiece(const QPoint &pos) const;
+
+    std::unique_ptr<BasePiece> GivePiecePointer(const QPoint& selectedPiecePos);
     QPoint GetKingPos(QBrush color) const;
 
     bool IsKingChecked(const QVector<QPoint> &dangerAreas) const;
