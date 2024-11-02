@@ -205,13 +205,19 @@ MovementScore Bot::GetMinMaxMove()
 
                     if (playerScore > playerMaxScore)
                     {
-                        playerMaxScore = playerMaxScore;
+                        playerMaxScore = playerScore;
                     }
                     UnDoMove(p2, std::move(capturedPiece2), selpiece2.From, hasMoved2, Qt::black);
                 }
             }
 
             fMove.append(MovementScore(selpiece.From, movePos, playerMaxScore));
+
+            if (selpiece.From == QPoint(6,1))
+            {
+                int x = 0;
+                int k = 0;
+            }
 
             UnDoMove(p, std::move(capturedPiece), selpiece.From, hasMoved, Qt::white);
 
