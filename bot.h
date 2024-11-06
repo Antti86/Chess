@@ -24,6 +24,7 @@ struct MovementScore    //Model for storing individual movement and its score
         , To(To)
         , score(score)
     {}
+    MovementScore() = default;
     QPoint From;
     QPoint To;
     int score;
@@ -49,6 +50,8 @@ public:
     MovementScore GetABestMove();
     MovementScore GetMinMaxMove();
 
+    MovementScore GetMinMaxMoveTest();
+
 private:
     int GetPawnScore(const QPoint &From, const QPoint &To) const;
     bool HaveCover(BasePiece *p, const QPoint &checkPos) const;
@@ -56,7 +59,13 @@ private:
 
     QVector<Movement> GetAllTheMovements(QBrush turn);
 
+    QVector<MovementScore> GetAllTheMovementsTest(bool isWhiteTurn);
+
     int GetScoreEval(QBrush turn);
+
+    int ScoreTheBoard();
+
+    int FindMinMax(int depth, QVector<MovementScore>& filteredMoves, bool whiteToMove);
 
 
     std::unique_ptr<BasePiece> DoMove(BasePiece *p, const QPoint& movePos);
@@ -67,6 +76,8 @@ private:
     GameInfo& gameInfo;
     MoveFilter& filter;
     Rng rng;
+    MovementScore bestMove;
+    int DEPTH = 2;
 
 };
 

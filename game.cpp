@@ -102,170 +102,120 @@ void Game::handlePieceSelection(QPoint pos)
 void Game::BotMovement()
 {
 
-    // QVector<Movement> filteredTestMoves;
-
-    // for (const auto& p: board->pieces)
-    // {
-    //     if (p->getColor() == Qt::black)
-    //     {
-    //         selectedPiecePos = p->getPos();
-    //         filteredTestMoves.append(Movement(selectedPiecePos, filter.GetFilteredMoves(selectedPiecePos)));
-    //     }
-    // }
-
-    // QPoint kingPos = filter.GetKingPos(Qt::white);
-
-    // QVector<MovementScore> fMove;
-
-    // int bestScore = 0;
-
-    // for (auto& selpiece : filteredTestMoves)
-    // {
-    //     auto tt = selpiece.From;
-    //     BasePiece* p = filter.GetSelectedPiece(selpiece.From);
-    //     for (auto& m : selpiece.To)
-    //     {
-    //         int score = 0;
-
-    //         BasePiece* capPiece = nullptr;
-    //         PieceType capType;
-    //         QPoint capPos;
-    //         bool capHasMoved;
-    //         bool capCanPassLeft;
-    //         bool capCanPassRight;
-    //         bool eating = filter.IsEatingMovement(m);
-    //         if (filter.IsEatingMovement(m))
-    //         {
-    //             capPiece = filter.GetSelectedPiece(m);
-    //             score += capPiece->GetPieceScore();
-    //             capType = capPiece->getType();
-    //             capPos = capPiece->getPos();
-    //             capHasMoved = capPiece->hasMoved;
-    //             capCanPassLeft = capPiece->canPassantLeft;
-    //             capCanPassRight = capPiece->canPassantRight;
-    //             emit EatPiece(m);
-    //         }
-    //         p->Move(m);
-
-    //         auto dangerArea = board->GetDangerAreas(true, gameInfo.enemy, gameInfo.friendly);
-
-    //         if (dangerArea.contains(kingPos))
-    //         {
-    //             score += 100;
-    //         }
-
-
-
-
-    //         if (score > bestScore)
-    //         {
-    //             bestScore = score;
-    //         }
-    //         fMove.append(MovementScore(selpiece.From, m, score));
-    //         if (eating)
-    //         {
-    //             p->Move(selpiece.From);
-    //             std::unique_ptr<BasePiece> newPiece;
-    //             switch (capType)
-    //             {
-    //             case PieceType::Bishop:
-    //                 newPiece = std::make_unique<Bishop>(Qt::white, capPos, capType);
-    //                 break;
-    //             case PieceType::Pawn:
-    //                 newPiece = std::make_unique<Pawn>(Qt::white, capPos, capType);
-    //                 break;
-    //             case PieceType::Queen:
-    //                 newPiece = std::make_unique<Queen>(Qt::white, capPos, capType);
-    //                 break;
-    //             case PieceType::King:
-    //                 newPiece = std::make_unique<King>(Qt::white, capPos, capType);
-    //                 break;
-    //             case PieceType::Knight:
-    //                 newPiece = std::make_unique<Knight>(Qt::white, capPos, capType);
-    //                 break;
-    //             case PieceType::Rook:
-    //                 newPiece = std::make_unique<Rook>(Qt::white, capPos, capType);
-    //                 break;
-    //             }
-    //             newPiece->hasMoved = capHasMoved;
-    //             newPiece->canPassantLeft = capCanPassLeft;
-    //             newPiece->canPassantRight = capCanPassRight;
-
-    //             board->AddPiece(std::move(newPiece));
-    //         }
-    //         else
-    //         {
-    //             p->Move(selpiece.From);
-    //         }
-
-    //     }
-    //     p = nullptr;
-    // }
-
     // auto final = bot.GetABestMove();
-    auto final = bot.GetMinMaxMove();
+    // auto final = bot.GetMinMaxMove();
 
+    auto final = bot.GetMinMaxMoveTest();
     selectedPiecePos = final.From;
 
     QPoint pos = final.To;
 
-    QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
+    // QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
     isPieceSelected = true;
 
 
     BasePiece* piece = filter.GetSelectedPiece(selectedPiecePos);
 
-    if (ValidMovement(piece, filteredMoves, pos))
+    if (IsPassantMovement(piece, selectedPiecePos, pos))
     {
-        if (IsPassantMovement(piece, selectedPiecePos, pos))
-        {
-            int fix = gameInfo.isWhiteTurn ? 1 : -1;
-            QPoint fixed = QPoint(pos.x(), pos.y() + fix);
-            emit EatPiece(fixed);
-        }
+        int fix = gameInfo.isWhiteTurn ? 1 : -1;
+        QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+        emit EatPiece(fixed);
+    }
 
-        if (filter.IsEatingMovement(pos))
-        {
-            emit EatPiece(pos);
-        }
+    if (filter.IsEatingMovement(pos))
+    {
+        emit EatPiece(pos);
+    }
 
-        if (IsPawnPromotionMove(piece, pos))
-        {
-            emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
-            // PromotionDialog dialog(isWhiteTurn);
-            // if (dialog.exec() == QDialog::Accepted)
-            // {
-            //     PieceType promotedPiece = dialog.getSelectedPiece();
-            //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
-            // }
+    if (IsPawnPromotionMove(piece, pos))
+    {
+        emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
+        // PromotionDialog dialog(isWhiteTurn);
+        // if (dialog.exec() == QDialog::Accepted)
+        // {
+        //     PieceType promotedPiece = dialog.getSelectedPiece();
+        //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
+        // }
 
-        }
+    }
 
-        BasePiece* castlingRook = IsCastlingMove(piece, pos);
-        if (castlingRook)
+    BasePiece* castlingRook = IsCastlingMove(piece, pos);
+    if (castlingRook)
+    {
+        QPoint kingNewPos;
+        QPoint RookNewPos;
+        if (pos.x() < 3)
         {
-            QPoint kingNewPos;
-            QPoint RookNewPos;
-            if (pos.x() < 3)
-            {
-                kingNewPos = QPoint(2, pos.y());
-                RookNewPos = QPoint(3, pos.y());
-            }
-            else
-            {
-                kingNewPos = QPoint(6, pos.y());
-                RookNewPos = QPoint(5, pos.y());
-            }
-            castlingRook->Move(RookNewPos);
-            emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
+            kingNewPos = QPoint(2, pos.y());
+            RookNewPos = QPoint(3, pos.y());
         }
         else
         {
-            emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
-
+            kingNewPos = QPoint(6, pos.y());
+            RookNewPos = QPoint(5, pos.y());
         }
-        isPieceSelected = false;
+        castlingRook->Move(RookNewPos);
+        emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
     }
+    else
+    {
+        emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
+
+    }
+    isPieceSelected = false;
+
+    // if (ValidMovement(piece, filteredMoves, pos))
+    // {
+    //     if (IsPassantMovement(piece, selectedPiecePos, pos))
+    //     {
+    //         int fix = gameInfo.isWhiteTurn ? 1 : -1;
+    //         QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+    //         emit EatPiece(fixed);
+    //     }
+
+    //     if (filter.IsEatingMovement(pos))
+    //     {
+    //         emit EatPiece(pos);
+    //     }
+
+    //     if (IsPawnPromotionMove(piece, pos))
+    //     {
+    //         emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
+    //         // PromotionDialog dialog(isWhiteTurn);
+    //         // if (dialog.exec() == QDialog::Accepted)
+    //         // {
+    //         //     PieceType promotedPiece = dialog.getSelectedPiece();
+    //         //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
+    //         // }
+
+    //     }
+
+    //     BasePiece* castlingRook = IsCastlingMove(piece, pos);
+    //     if (castlingRook)
+    //     {
+    //         QPoint kingNewPos;
+    //         QPoint RookNewPos;
+    //         if (pos.x() < 3)
+    //         {
+    //             kingNewPos = QPoint(2, pos.y());
+    //             RookNewPos = QPoint(3, pos.y());
+    //         }
+    //         else
+    //         {
+    //             kingNewPos = QPoint(6, pos.y());
+    //             RookNewPos = QPoint(5, pos.y());
+    //         }
+    //         castlingRook->Move(RookNewPos);
+    //         emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
+    //     }
+    //     else
+    //     {
+    //         emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
+
+    //     }
+    //     isPieceSelected = false;
+    // }
 
 }
 
@@ -320,10 +270,10 @@ void Game::EndOfTurn()
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(gameInfo.isWhiteTurn);
 
-    // if (!gameInfo.isWhiteTurn)
-    // {
-    //     BotMovement();
-    // }
+    if (!gameInfo.isWhiteTurn)
+    {
+        BotMovement();
+    }
 
 
 }

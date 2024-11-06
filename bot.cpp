@@ -181,16 +181,15 @@ MovementScore Bot::GetMinMaxMove()
         BasePiece* p = filter.GetSelectedPiece(selpiece.From);
         bool hasMoved = p->hasMoved;
 
-        for (auto& movePos : selpiece.To)
+        for (auto& movePos : selpiece.To) //Black moves
         {
 
             std::unique_ptr<BasePiece> capturedPiece = DoMove(p, movePos);
-            // playerMinMaxScore = playerMaxScore;
             playerMaxScore = 0;
             gameInfo.SetAreaFields();
             auto filteredMovesOpponent = GetAllTheMovements(Qt::white);
             gameInfo.SetAreaFields();
-            for (auto& selpiece2 : filteredMovesOpponent)
+            for (auto& selpiece2 : filteredMovesOpponent)   //White CounterMoves
             {
 
                 BasePiece* p2 = filter.GetSelectedPiece(selpiece2.From);
@@ -210,25 +209,104 @@ MovementScore Bot::GetMinMaxMove()
                     UnDoMove(p2, std::move(capturedPiece2), selpiece2.From, hasMoved2, Qt::black);
                 }
             }
-
             fMove.append(MovementScore(selpiece.From, movePos, playerMaxScore));
-
-            if (selpiece.From == QPoint(6,1))
-            {
-                int x = 0;
-                int k = 0;
-            }
-
             UnDoMove(p, std::move(capturedPiece), selpiece.From, hasMoved, Qt::white);
-
-
         }
 
 
     }
 
-    gameInfo.SetAreaFields();
+    // gameInfo.SetAreaFields();
     return *std::min_element(fMove.begin(), fMove.end());
+
+}
+
+MovementScore Bot::GetMinMaxMoveTest()
+{
+    auto filteredMoves = GetAllTheMovementsTest(false);
+
+    FindMinMax(DEPTH, filteredMoves, false);
+    return bestMove;
+}
+
+
+int Bot::FindMinMax(int depth, QVector<MovementScore>& filteredMoves, bool whiteToMove)
+{
+
+
+    if (depth == 0)
+    {
+        return ScoreTheBoard();
+    }
+
+    if (whiteToMove)
+    {
+        int maxScore = -10000;
+        for (auto& move : filteredMoves)
+        {
+
+            BasePiece* p = filter.GetSelectedPiece(move.From);
+            bool hasMoved = p->hasMoved;
+
+            std::unique_ptr<BasePiece> capturedPiece = DoMove(p, move.To);
+
+            gameInfo.SetAreaFields();
+
+            auto filteredMoves2 = GetAllTheMovementsTest(gameInfo.isWhiteTurn);
+
+            int score = FindMinMax(depth - 1, filteredMoves2, false);
+
+            if (score > maxScore)
+            {
+                maxScore = score;
+                if (depth == DEPTH)
+                {
+                    bestMove = move;
+                }
+
+            }
+
+            gameInfo.SetAreaFields();
+            UnDoMove(p, std::move(capturedPiece), move.From, hasMoved, Qt::white);
+
+        }
+        return maxScore;
+    }
+    else
+    {
+        int minScore = 10000;
+        for (auto& move : filteredMoves)
+        {
+
+            BasePiece* p = filter.GetSelectedPiece(move.From);
+            bool hasMoved = p->hasMoved;
+
+            std::unique_ptr<BasePiece> capturedPiece = DoMove(p, move.To);
+
+            gameInfo.SetAreaFields();
+
+            auto filteredMoves2 = GetAllTheMovementsTest(gameInfo.isWhiteTurn);
+
+            int score = FindMinMax(depth - 1, filteredMoves2, true);
+
+            if (score < minScore)
+            {
+                minScore = score;
+                if (depth == DEPTH)
+                {
+                    bestMove = move;
+                }
+
+            }
+
+            gameInfo.SetAreaFields();
+            UnDoMove(p, std::move(capturedPiece), move.From, hasMoved, Qt::white);
+
+        }
+        return minScore;
+    }
+
+
 
 }
 
@@ -316,6 +394,28 @@ QVector<Movement> Bot::GetAllTheMovements(QBrush turn)
     return filteredTestMoves;
 }
 
+QVector<MovementScore> Bot::GetAllTheMovementsTest(bool isWhiteTurn)
+{
+    QVector<MovementScore> filteredTestMoves;
+
+    QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
+
+    for (const auto& p: board->pieces)
+    {
+        if (p->getColor() == turn)
+        {
+            auto moves = filter.GetFilteredMoves(p->getPos());
+
+            for (auto& m : moves)
+            {
+                filteredTestMoves.append(MovementScore(p->getPos(), m, 0));
+            }
+
+        }
+    }
+    return filteredTestMoves;
+}
+
 int Bot::GetScoreEval(QBrush turn)
 {
     int score = 0;
@@ -330,6 +430,24 @@ int Bot::GetScoreEval(QBrush turn)
     return score;
 }
 
+int Bot::ScoreTheBoard()
+{
+    int score = 0;
+    for (auto& p : board->pieces)
+    {
+        if (p->getColor() == Qt::white)
+        {
+            score += p->GetPieceScore();
+        }
+        else
+        {
+            score -= p->GetPieceScore();
+        }
+    }
+    return score;
+}
+
+
 std::unique_ptr<BasePiece> Bot::DoMove(BasePiece* p, const QPoint &movePos)
 {
     BasePiece* capPiece = filter.GetSelectedPiece(movePos);
@@ -337,16 +455,12 @@ std::unique_ptr<BasePiece> Bot::DoMove(BasePiece* p, const QPoint &movePos)
 
     PieceStateRecord psr;
 
-    std::unique_ptr<BasePiece> capturePiece = nullptr;
+    std::unique_ptr<BasePiece> capturePiece;
 
     if (capPiece)
     {
 
-        // psr = PieceStateRecord(capPiece->getType(), capPiece->getPos(), capPiece->hasMoved, capPiece->getColor(),
-        //                        capPiece->canPassantLeft, capPiece->canPassantRight);
-        // capturedMove = true;
-        // board->EatingPiece(movePos);
-        std::unique_ptr<BasePiece> capturePiece = filter.GivePiecePointer(movePos);
+        capturePiece = filter.GivePiecePointer(movePos);
 
         auto it = std::remove_if(board->pieces.begin(), board->pieces.end(), [](const std::unique_ptr<BasePiece>& piece)
                                  {
@@ -371,31 +485,6 @@ void Bot::UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoi
 
     if (capPiece)
     {
-        // std::unique_ptr<BasePiece> newPiece;
-        // switch (capPiece->getType())
-        // {
-        // case PieceType::Bishop:
-        //     newPiece = std::make_unique<Bishop>(enemy, capPiece->getPos(), capPiece->getType());
-        //     break;
-        // case PieceType::Pawn:
-        //     newPiece = std::make_unique<Pawn>(enemy, capPiece->getPos(), capPiece->getType());
-        //     break;
-        // case PieceType::Queen:
-        //     newPiece = std::make_unique<Queen>(enemy, capPiece->getPos(), capPiece->getType());
-        //     break;
-        // case PieceType::King:
-        //     newPiece = std::make_unique<King>(enemy, capPiece->getPos(), capPiece->getType());
-        //     break;
-        // case PieceType::Knight:
-        //     newPiece = std::make_unique<Knight>(enemy, capPiece->getPos(), capPiece->getType());
-        //     break;
-        // case PieceType::Rook:
-        //     newPiece = std::make_unique<Rook>(enemy, capPiece->getPos(), capPiece->getType());
-        //     break;
-        // }
-        // newPiece->hasMoved = capPiece->hasMoved;
-        // newPiece->canPassantLeft = capPiece->canPassantLeft;
-        // newPiece->canPassantRight = capPiece->canPassantRight;
 
         board->AddPiece(std::move(capPiece));
     }
