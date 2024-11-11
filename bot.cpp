@@ -34,7 +34,6 @@ MovementScore Bot::GetABestMove()
 
     for (auto& selpiece : filteredTestMoves)
     {
-        auto tt = selpiece.From; //debugging
         BasePiece* p = filter.GetSelectedPiece(selpiece.From);
         bool hasMoved = p->hasMoved;
         for (auto& movePos : selpiece.To)
@@ -168,7 +167,6 @@ MovementScore Bot::GetMinMaxMove()
 
     auto filteredMoves = GetAllTheMovements(Qt::black);
 
-    int aiScore = 0;
     int playerScore = 0;
     int playerMaxScore = 0;
     // int playerMinMaxScore = 0;
@@ -206,11 +204,11 @@ MovementScore Bot::GetMinMaxMove()
                     {
                         playerMaxScore = playerScore;
                     }
-                    UnDoMove(p2, std::move(capturedPiece2), selpiece2.From, hasMoved2, Qt::black);
+                    UnDoMove(p2, std::move(capturedPiece2), selpiece2.From, hasMoved2);
                 }
             }
             fMove.append(MovementScore(selpiece.From, movePos, playerMaxScore));
-            UnDoMove(p, std::move(capturedPiece), selpiece.From, hasMoved, Qt::white);
+            UnDoMove(p, std::move(capturedPiece), selpiece.From, hasMoved);
         }
 
 
@@ -267,7 +265,7 @@ int Bot::FindMinMax(int depth, QVector<MovementScore>& filteredMoves, bool white
             }
 
             gameInfo.SetAreaFields();
-            UnDoMove(p, std::move(capturedPiece), move.From, hasMoved, Qt::white);
+            UnDoMove(p, std::move(capturedPiece), move.From, hasMoved);
 
         }
         return maxScore;
@@ -300,7 +298,7 @@ int Bot::FindMinMax(int depth, QVector<MovementScore>& filteredMoves, bool white
             }
 
             gameInfo.SetAreaFields();
-            UnDoMove(p, std::move(capturedPiece), move.From, hasMoved, Qt::white);
+            UnDoMove(p, std::move(capturedPiece), move.From, hasMoved);
 
         }
         return minScore;
@@ -452,9 +450,6 @@ std::unique_ptr<BasePiece> Bot::DoMove(BasePiece* p, const QPoint &movePos)
 {
     BasePiece* capPiece = filter.GetSelectedPiece(movePos);
 
-
-    PieceStateRecord psr;
-
     std::unique_ptr<BasePiece> capturePiece;
 
     if (capPiece)
@@ -480,7 +475,7 @@ std::unique_ptr<BasePiece> Bot::DoMove(BasePiece* p, const QPoint &movePos)
 
 }
 
-void Bot::UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoint &prePos, bool hasMoved, QBrush enemy)
+void Bot::UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoint &prePos, bool hasMoved)
 {
 
     if (capPiece)

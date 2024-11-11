@@ -69,7 +69,7 @@ private:
 
 
     std::unique_ptr<BasePiece> DoMove(BasePiece *p, const QPoint& movePos);
-    void UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoint& prePos, bool hasMoved, QBrush enemy);
+    void UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoint& prePos, bool hasMoved);
 
 private:
     ChessBoard* board;

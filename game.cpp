@@ -11,8 +11,8 @@ Game::Game(ChessBoard *board, QObject *parent)
     : QObject(parent)
     , board(board)
     , gameInfo(board)
-    , filter(MoveFilter(board, gameInfo))
     , bot(Bot(board, gameInfo, filter))
+    , filter(MoveFilter(board, gameInfo))
 {
     isPieceSelected = false;
 }
@@ -110,112 +110,114 @@ void Game::BotMovement()
 
     QPoint pos = final.To;
 
-    // QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
+    gameInfo.SetAreaFields();
+    gameInfo.SetAreaFields();
+    QVector<QPoint> filteredMoves = filter.GetFilteredMoves(selectedPiecePos);
     isPieceSelected = true;
 
 
     BasePiece* piece = filter.GetSelectedPiece(selectedPiecePos);
 
-    if (IsPassantMovement(piece, selectedPiecePos, pos))
-    {
-        int fix = gameInfo.isWhiteTurn ? 1 : -1;
-        QPoint fixed = QPoint(pos.x(), pos.y() + fix);
-        emit EatPiece(fixed);
-    }
-
-    if (filter.IsEatingMovement(pos))
-    {
-        emit EatPiece(pos);
-    }
-
-    if (IsPawnPromotionMove(piece, pos))
-    {
-        emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
-        // PromotionDialog dialog(isWhiteTurn);
-        // if (dialog.exec() == QDialog::Accepted)
-        // {
-        //     PieceType promotedPiece = dialog.getSelectedPiece();
-        //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
-        // }
-
-    }
-
-    BasePiece* castlingRook = IsCastlingMove(piece, pos);
-    if (castlingRook)
-    {
-        QPoint kingNewPos;
-        QPoint RookNewPos;
-        if (pos.x() < 3)
-        {
-            kingNewPos = QPoint(2, pos.y());
-            RookNewPos = QPoint(3, pos.y());
-        }
-        else
-        {
-            kingNewPos = QPoint(6, pos.y());
-            RookNewPos = QPoint(5, pos.y());
-        }
-        castlingRook->Move(RookNewPos);
-        emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
-    }
-    else
-    {
-        emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
-
-    }
-    isPieceSelected = false;
-
-    // if (ValidMovement(piece, filteredMoves, pos))
+    // if (IsPassantMovement(piece, selectedPiecePos, pos))
     // {
-    //     if (IsPassantMovement(piece, selectedPiecePos, pos))
-    //     {
-    //         int fix = gameInfo.isWhiteTurn ? 1 : -1;
-    //         QPoint fixed = QPoint(pos.x(), pos.y() + fix);
-    //         emit EatPiece(fixed);
-    //     }
+    //     int fix = gameInfo.isWhiteTurn ? 1 : -1;
+    //     QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+    //     emit EatPiece(fixed);
+    // }
 
-    //     if (filter.IsEatingMovement(pos))
-    //     {
-    //         emit EatPiece(pos);
-    //     }
+    // if (filter.IsEatingMovement(pos))
+    // {
+    //     emit EatPiece(pos);
+    // }
 
-    //     if (IsPawnPromotionMove(piece, pos))
-    //     {
-    //         emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
-    //         // PromotionDialog dialog(isWhiteTurn);
-    //         // if (dialog.exec() == QDialog::Accepted)
-    //         // {
-    //         //     PieceType promotedPiece = dialog.getSelectedPiece();
-    //         //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
-    //         // }
+    // if (IsPawnPromotionMove(piece, pos))
+    // {
+    //     emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
+    //     // PromotionDialog dialog(isWhiteTurn);
+    //     // if (dialog.exec() == QDialog::Accepted)
+    //     // {
+    //     //     PieceType promotedPiece = dialog.getSelectedPiece();
+    //     //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
+    //     // }
 
-    //     }
+    // }
 
-    //     BasePiece* castlingRook = IsCastlingMove(piece, pos);
-    //     if (castlingRook)
+    // BasePiece* castlingRook = IsCastlingMove(piece, pos);
+    // if (castlingRook)
+    // {
+    //     QPoint kingNewPos;
+    //     QPoint RookNewPos;
+    //     if (pos.x() < 3)
     //     {
-    //         QPoint kingNewPos;
-    //         QPoint RookNewPos;
-    //         if (pos.x() < 3)
-    //         {
-    //             kingNewPos = QPoint(2, pos.y());
-    //             RookNewPos = QPoint(3, pos.y());
-    //         }
-    //         else
-    //         {
-    //             kingNewPos = QPoint(6, pos.y());
-    //             RookNewPos = QPoint(5, pos.y());
-    //         }
-    //         castlingRook->Move(RookNewPos);
-    //         emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
+    //         kingNewPos = QPoint(2, pos.y());
+    //         RookNewPos = QPoint(3, pos.y());
     //     }
     //     else
     //     {
-    //         emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
-
+    //         kingNewPos = QPoint(6, pos.y());
+    //         RookNewPos = QPoint(5, pos.y());
     //     }
-    //     isPieceSelected = false;
+    //     castlingRook->Move(RookNewPos);
+    //     emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
     // }
+    // else
+    // {
+    //     emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
+
+    // }
+    // isPieceSelected = false;
+
+    if (ValidMovement(piece, filteredMoves, pos))
+    {
+        if (IsPassantMovement(piece, selectedPiecePos, pos))
+        {
+            int fix = gameInfo.isWhiteTurn ? 1 : -1;
+            QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+            emit EatPiece(fixed);
+        }
+
+        if (filter.IsEatingMovement(pos))
+        {
+            emit EatPiece(pos);
+        }
+
+        if (IsPawnPromotionMove(piece, pos))
+        {
+            emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
+            // PromotionDialog dialog(isWhiteTurn);
+            // if (dialog.exec() == QDialog::Accepted)
+            // {
+            //     PieceType promotedPiece = dialog.getSelectedPiece();
+            //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
+            // }
+
+        }
+
+        BasePiece* castlingRook = IsCastlingMove(piece, pos);
+        if (castlingRook)
+        {
+            QPoint kingNewPos;
+            QPoint RookNewPos;
+            if (pos.x() < 3)
+            {
+                kingNewPos = QPoint(2, pos.y());
+                RookNewPos = QPoint(3, pos.y());
+            }
+            else
+            {
+                kingNewPos = QPoint(6, pos.y());
+                RookNewPos = QPoint(5, pos.y());
+            }
+            castlingRook->Move(RookNewPos);
+            emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
+        }
+        else
+        {
+            emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
+
+        }
+        isPieceSelected = false;
+    }
 
 }
 
