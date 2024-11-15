@@ -1,11 +1,6 @@
 #include "game.h"
-#include "Bishop.h"
-#include "King.h"
-#include "Knight.h"
 #include "Pawn.h"
 #include "PromotionDialog.h"
-#include "Queen.h"
-#include "Rook.h"
 
 Game::Game(ChessBoard *board, QObject *parent)
     : QObject(parent)
@@ -348,7 +343,7 @@ bool Game::IsCheckMate() const
             QVector<QPoint> legalMoves = p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy);
             if (p->getType() == PieceType::King)
             {
-                availableMoves.append(filter.FilterKingMovements(legalMoves, filter.GetKingPos(gameInfo.turn)));
+                availableMoves.append(filter.FilterKingMovements(legalMoves, filter.GetKingPos(gameInfo.turn), gameInfo.dangerAreas));
             }
             else
             {
@@ -368,7 +363,7 @@ bool Game::IsStaleMate() const
         {
             if (p->getType() == PieceType::King)
             {
-                availableMoves.append(filter.FilterKingMovements(p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy), filter.GetKingPos(gameInfo.turn)));
+                availableMoves.append(filter.FilterKingMovements(p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy), filter.GetKingPos(gameInfo.turn), gameInfo.dangerAreas));
             }
             else
             {

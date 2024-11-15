@@ -77,7 +77,7 @@ MovementScore Bot::GetABestMove()
 
             p->Move(movePos);
 
-            if (IsCheckMateMovement())
+            if (IsCheckMateMovement(true))
             {
                 score += 100000;
             }
@@ -223,7 +223,9 @@ MovementScore Bot::GetMinMaxMoveTest()
 {
     auto filteredMoves = GetAllTheMovementsTest(false);
 
-    FindMinMax(DEPTH, filteredMoves, false);
+    // FindMinMax(DEPTH, filteredMoves, false);
+    counter = 0;
+    NegaMaxAlphaBeta(DEPTH, filteredMoves, -1, -CheckMate, CheckMate);
     return bestMove;
 }
 
@@ -231,7 +233,7 @@ MovementScore Bot::GetMinMaxMoveTest()
 int Bot::FindMinMax(int depth, QVector<MovementScore>& filteredMoves, bool whiteToMove)
 {
 
-
+    counter++;
     if (depth == 0)
     {
         return ScoreTheBoard();
@@ -308,6 +310,60 @@ int Bot::FindMinMax(int depth, QVector<MovementScore>& filteredMoves, bool white
 
 }
 
+int Bot::NegaMaxAlphaBeta(int depth, QVector<MovementScore> &filteredMoves, int turnMPlyier, int alpha, int beta)
+{
+
+    counter++;
+    if (depth == 0)
+    {
+        return turnMPlyier * ScoreTheBoard() + filteredMoves.size();
+    }
+    int maxScore = -CheckMate;
+    for (auto& move : filteredMoves)
+    {
+
+        BasePiece* p = filter.GetSelectedPiece(move.From);
+        bool hasMoved = p->hasMoved;
+
+        std::unique_ptr<BasePiece> capturedPiece = DoMove(p, move.To);
+
+        gameInfo.SetAreaFields();
+
+        auto filteredMoves2 = GetAllTheMovementsTest(gameInfo.isWhiteTurn);
+        // if (filteredMoves2.empty())
+        // {
+        //     return turnMPlyier * CheckMate;
+        // }
+
+        int score = -NegaMaxAlphaBeta(depth - 1, filteredMoves2, -turnMPlyier, -beta, -alpha);
+
+        if (score > maxScore)
+        {
+            maxScore = score;
+            if (depth == DEPTH)
+            {
+                bestMove = move;
+            }
+
+        }
+
+        gameInfo.SetAreaFields();
+        UnDoMove(p, std::move(capturedPiece), move.From, hasMoved);
+
+        if (maxScore > alpha)
+        {
+            alpha = maxScore;
+        }
+
+        if (alpha >= beta)
+        {
+            break;
+        }
+
+    }
+    return maxScore;
+}
+
 int Bot::GetPawnScore(const QPoint& From, const QPoint& To) const
 {
     int score = 0;
@@ -317,12 +373,12 @@ int Bot::GetPawnScore(const QPoint& From, const QPoint& To) const
     //     score += 5;
     // }
 
-    if (To.x() > 1 && To.x() < 6)
+    if (To.x() > 2 && To.x() < 5)
     {
-        score += 10;
+        score += 30;
     }
 
-    score += To.y();
+    // score += To.y();
 
     return score;
 }
@@ -346,7 +402,7 @@ bool Bot::HaveCover(BasePiece* p, const QPoint& checkPos) const
 
     // auto friendlyDangerArea = board->GetDangerAreas(false, gameInfo.friendly, gameInfo.enemy);
 
-    auto enemyDangerArea = board->GetDangerAreas(true, gameInfo.enemy, gameInfo.friendly);
+    auto enemyDangerArea = board->GetDangerAreas(gameInfo.isWhiteTurn, gameInfo.enemy, gameInfo.friendly);
 
 
     if (enemyDangerArea.contains(checkPos))
@@ -357,17 +413,21 @@ bool Bot::HaveCover(BasePiece* p, const QPoint& checkPos) const
     return false;
 }
 
-bool Bot::IsCheckMateMovement() const
+bool Bot::IsCheckMateMovement(bool isWhiteTurn) const
 {
+    bool end = gameInfo.isWhiteTurn;
+
+    gameInfo.SetTurn(isWhiteTurn);
+
     QVector<QPoint> availableMoves;
     for (auto& p : board->pieces)
     {
-        if (p->getColor() == Qt::white)
+        if (p->getColor() == gameInfo.turn)
         {
             QVector<QPoint> legalMoves = p->GetLegalMoves(gameInfo.enemy, gameInfo.friendly);
             if (p->getType() == PieceType::King)
             {
-                availableMoves.append(filter.FilterKingMovements(legalMoves, filter.GetKingPos(Qt::white)));
+                availableMoves.append(filter.FilterKingMovements(legalMoves, filter.GetKingPos(gameInfo.turn), gameInfo.dangerAreas));
             }
             else
             {
@@ -375,7 +435,24 @@ bool Bot::IsCheckMateMovement() const
             }
         }
     }
+    gameInfo.SetTurn(end);
     return availableMoves.size() == 0;
+}
+
+bool Bot::IsKingCheck(bool isWhiteTurn) const
+{
+    bool end = gameInfo.isWhiteTurn;
+
+    gameInfo.SetTurn(isWhiteTurn);
+    QPoint enemyKingPos = filter.GetKingPos(gameInfo.turn);
+    auto enemyDangerArea = board->GetDangerAreas(isWhiteTurn, gameInfo.enemy, gameInfo.friendly);
+
+
+
+    gameInfo.SetTurn(end);
+
+    return enemyDangerArea.contains(enemyKingPos);
+
 }
 
 QVector<Movement> Bot::GetAllTheMovements(QBrush turn)
@@ -400,17 +477,23 @@ QVector<MovementScore> Bot::GetAllTheMovementsTest(bool isWhiteTurn)
 
     for (const auto& p: board->pieces)
     {
+        int score = p->GetPieceScore();
         if (p->getColor() == turn)
         {
-            auto moves = filter.GetFilteredMoves(p->getPos());
-
+            auto moves = filter.GetFilteredMoves2(p.get(), p->getPos());
+            // auto moves = p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy);
             for (auto& m : moves)
             {
-                filteredTestMoves.append(MovementScore(p->getPos(), m, 0));
+                if (filter.IsEatingMovement(m))
+                {
+                    score += 1000;
+                }
+                filteredTestMoves.append(MovementScore(p->getPos(), m, score));
             }
 
         }
     }
+    std::sort(filteredTestMoves.begin(), filteredTestMoves.end(), [] (MovementScore& l, MovementScore& r) {return l.score > r.score;});
     return filteredTestMoves;
 }
 
@@ -431,15 +514,64 @@ int Bot::GetScoreEval(QBrush turn)
 int Bot::ScoreTheBoard()
 {
     int score = 0;
+
+    // Status Scoring
+    // True = white     False = black
+    // if (IsCheckMateMovement(true))
+    // {
+    //     return CheckMate;
+    // }
+    // if (IsCheckMateMovement(false))
+    // {
+    //     return -CheckMate;
+    // }
+
+    // if (IsKingCheck(true))
+    // {
+    //     score += Check;
+    // }
+    // if (IsKingCheck(false))
+    // {
+    //     score -= Check;
+    // }
+
+    // score += GetAllTheMovementsTest(gameInfo.isWhiteTurn).size();
+
+
+    // Material Scoring
     for (auto& p : board->pieces)
     {
+        int posScore = 0;
+        int coverBonus = 0;
+        int threatBonus = p->GetThreateningMoves(gameInfo.friendly, gameInfo.enemy).size() * 2;
+
+
+
+        if (HaveCover(p.get(), p->getPos()))
+        {
+            coverBonus = 50;
+        }
+
+        if (p->getType() == PieceType::Pawn)
+        {
+            if (p->getPos().x() > 2 && p->getPos().x() < 6 &&
+                p->getPos().y() > 2 && p->getPos().y() < 6)
+            {
+                posScore = 30;
+            }
+        }
+        if (p->getType() == PieceType::Knight)
+        {
+            posScore = p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy).size() * 4;
+        }
+
         if (p->getColor() == Qt::white)
         {
-            score += p->GetPieceScore();
+            score += p->GetPieceScore() + posScore + coverBonus + threatBonus;
         }
         else
         {
-            score -= p->GetPieceScore();
+            score -= p->GetPieceScore() + posScore + coverBonus + threatBonus;
         }
     }
     return score;
@@ -457,15 +589,29 @@ std::unique_ptr<BasePiece> Bot::DoMove(BasePiece* p, const QPoint &movePos)
 
         capturePiece = filter.GivePiecePointer(movePos);
 
-        auto it = std::remove_if(board->pieces.begin(), board->pieces.end(), [](const std::unique_ptr<BasePiece>& piece)
-                                 {
-                                     if (!piece)
-                                     {
-                                         return true;
-                                     }
-                                     return false;
-                                 });
-        board->pieces.erase(it, board->pieces.end());
+        for (auto iter = board->pieces.begin(); iter != board->pieces.end();)
+        {
+            if (!*iter)
+            {
+                std::swap(*iter, board->pieces.back());
+                board->pieces.pop_back();
+            }
+            else
+            {
+                iter++;
+            }
+        }
+
+        // auto it = std::remove_if(board->pieces.begin(), board->pieces.end(), [](const std::unique_ptr<BasePiece>& piece)
+        //                          {
+        //                              if (!piece)
+        //                              {
+        //                                  return true;
+        //                              }
+        //                              return false;
+        //                          });
+
+        // board->pieces.erase(it, board->pieces.end());
 
     }
 
@@ -480,8 +626,7 @@ void Bot::UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoi
 
     if (capPiece)
     {
-
-        board->AddPiece(std::move(capPiece));
+        board->pieces.push_back(std::move(capPiece));
     }
 
     p->Move(prePos);

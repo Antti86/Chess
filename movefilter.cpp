@@ -19,7 +19,7 @@ QVector<QPoint> MoveFilter::GetFilteredMoves(const QPoint &selectedPiecePos)
     {
         if (piece->getType() == PieceType::King)
         {
-            filteredMoves = FilterKingMovements(moves, selectedPiecePos);
+            filteredMoves = FilterKingMovements(moves, selectedPiecePos, dangerAreas);
         }
         else
         {
@@ -30,7 +30,7 @@ QVector<QPoint> MoveFilter::GetFilteredMoves(const QPoint &selectedPiecePos)
     {
         if (piece->getType() == PieceType::King)
         {
-            filteredMoves = FilterKingMovements(moves, selectedPiecePos);
+            filteredMoves = FilterKingMovements(moves, selectedPiecePos, dangerAreas);
         }
         else
         {
@@ -41,13 +41,38 @@ QVector<QPoint> MoveFilter::GetFilteredMoves(const QPoint &selectedPiecePos)
 
 }
 
-QVector<QPoint> MoveFilter::FilterKingMovements(const QVector<QPoint> &moves, const QPoint &kingPos) const
+QVector<QPoint> MoveFilter::GetFilteredMoves2(BasePiece *piece, const QPoint &selectedPiecePos)
+{
+    QVector<QPoint> moves = piece->GetLegalMoves(gameInfo.friendly, gameInfo.enemy);
+    QVector<QPoint> filteredMoves;
+    if (!IsKingChecked(gameInfo.dangerAreas))
+    {
+        if (piece->getType() == PieceType::King)
+        {
+            filteredMoves = FilterKingMovements(moves, selectedPiecePos, gameInfo.dangerAreas);
+        }
+        else
+        {
+            filteredMoves = moves;
+        }
+    }
+    else
+    {
+        if (piece->getType() == PieceType::King)
+        {
+            filteredMoves = FilterKingMovements(moves, selectedPiecePos, gameInfo.dangerAreas);
+        }
+        else
+        {
+            filteredMoves = FilterAvailableMovements(moves, selectedPiecePos);
+        }
+    }
+    return filteredMoves;
+}
+
+QVector<QPoint> MoveFilter::FilterKingMovements(const QVector<QPoint> &moves, const QPoint &kingPos, const QVector<QPoint> &dangerAreas) const
 {
     QVector<QPoint> filteredMoves;
-    QVector<QPoint> ghostFriendly = GetGhostArea(gameInfo.friendly, kingPos);
-
-    QVector<QPoint> dangerAreas = board->GetDangerAreas(gameInfo.isWhiteTurn, ghostFriendly, gameInfo.enemy);
-
     for (auto& m : moves)
     {
         if (!dangerAreas.contains(m))
@@ -163,16 +188,14 @@ bool MoveFilter::IsEatingMovement(const QPoint pos) const
 QVector<QPoint> MoveFilter::GetCastlingMoves() const
 {
     QVector<QPoint> castlingMoves;
-    QVector<QPoint> dangerAreas = board->GetDangerAreas(gameInfo.isWhiteTurn, gameInfo.friendly, gameInfo.enemy);
 
-    if (IsKingChecked(dangerAreas))
+
+    if (IsKingChecked(gameInfo.dangerAreas))
     {
         return castlingMoves;
     }
 
     QVector<QPoint> pieceArea;
-
-    int rookCount;
     bool leftRook = false;
     bool rightRook = false;
 
@@ -241,7 +264,7 @@ QVector<QPoint> MoveFilter::GetCastlingMoves() const
         if (std::none_of(checkAreaLeft.begin(), checkAreaLeft.end(), [&] (QPoint& p)
                          {
                              return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
-                                    std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a)
+                                    std::any_of(gameInfo.dangerAreas.begin(), gameInfo.dangerAreas.end(), [p] (QPoint& a)
                                                 {
                                                     if (p == QPoint(1,0) || p == QPoint(1, 7))
                                                     {
@@ -265,7 +288,7 @@ QVector<QPoint> MoveFilter::GetCastlingMoves() const
         if (std::none_of(checkAreaRight.begin(), checkAreaRight.end(), [&] (QPoint& p)
                          {
                              return std::any_of(pieceArea.begin(), pieceArea.end(), [p] (QPoint& a) { return a == p;}) ||
-                                    std::any_of(dangerAreas.begin(), dangerAreas.end(), [p] (QPoint& a) {return a == p;});
+                                    std::any_of(gameInfo.dangerAreas.begin(), gameInfo.dangerAreas.end(), [p] (QPoint& a) {return a == p;});
 
                          }))
         {

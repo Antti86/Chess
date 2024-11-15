@@ -26,7 +26,7 @@ public:
 
     int GetPieceScore() const override
     {
-        return 800;
+        return 1000;
     }
 
     QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const override
