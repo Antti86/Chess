@@ -29,6 +29,7 @@ public:
     {
         isWhiteTurn = !isWhiteTurn;
         turn = isWhiteTurn ? Qt::white : Qt::black;
+        // enemy = friendly;
         friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
         // friendly = enemy;
         enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);

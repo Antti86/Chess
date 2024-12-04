@@ -10,7 +10,7 @@ class MoveFilter
 public:
     MoveFilter(ChessBoard* board, GameInfo& gameInfo);
     QVector<QPoint> GetFilteredMoves(const QPoint& selectedPiecePos);
-    QVector<QPoint> GetFilteredMoves2(BasePiece* piece, const QPoint& selectedPiecePos);
+    QVector<QPoint> GetFilteredMoves(BasePiece* piece, const QPoint& selectedPiecePos);
     QVector<QPoint> FilterKingMovements(const QVector<QPoint>& moves, const QPoint &kingPos, const QVector<QPoint> &dangerAreas) const;
     QVector<QPoint> FilterAvailableMovements(const QVector<QPoint>& moves, const QPoint &selectedPiecePos) const;
 

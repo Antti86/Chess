@@ -32,8 +32,6 @@ public:
     std::vector<std::unique_ptr<BasePiece>> pieces; // Cant use QVector, wont play nice with unique_ptr
     void AddPiece(std::unique_ptr<BasePiece> piece); //Bot needs to add and delete pieces in simulation, so public
 
-    std::vector<BasePiece*> GetSquarethreateningPiece(const QPoint& checkPos, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy);
-
     //Encap these??
     QVector<QVector<PieceStateRecord>> repetitionTrack; //Wont work with bot right now
     QVector<QVector<PieceStateRecord>> posRecords;

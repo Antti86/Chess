@@ -33,10 +33,10 @@ class BasePiece : public QGraphicsPixmapItem
 public:
     BasePiece(QBrush color, QPoint pos, PieceType type, QGraphicsItem *parent = nullptr)
         : QGraphicsPixmapItem(parent)
+        , hasMoved(false)
         , color(color)
         , pos(pos)
         , type(type)
-        , hasMoved(false)
     {
         bool canPassantLeft = false;
         bool canPassantRight = false;
@@ -73,6 +73,7 @@ protected:
         //Did this algorithm, cos wanted to see if i could make generic movement checker. Works nice for the most pieces.
         //But if this was a paid or team project, i would have probably maked simplier version and just copy pastet to
         // inhereting pieces.
+        auto start = std::chrono::steady_clock::now();
 
         QVector<QPoint> moves;
 
@@ -224,6 +225,9 @@ protected:
             }
 
         }
+        auto end = std::chrono::steady_clock::now();
+        const std::chrono::duration<float> frametime = end - start;
+        auto total = frametime.count();
         return moves;
     }
 

@@ -48,26 +48,15 @@ class Bot
 
 public:
     Bot(ChessBoard* board, GameInfo& gameInfo, MoveFilter& filter);
-    MovementScore GetABestMove(); //??
-    MovementScore GetMinMaxMove(); //??
-
-    MovementScore GetMinMaxMoveTest();
+    MovementScore GetMinMaxMove();
 
 private:
-    int GetPawnScore(const QPoint &From, const QPoint &To) const; //??
-    bool HaveCover(BasePiece *p, const QPoint &checkPos) const; //??
     bool IsCheckMateMovement(bool isWhiteTurn) const;
     bool IsKingCheck(bool isWhiteTurn) const;
 
-    QVector<Movement> GetAllTheMovements(QBrush turn); //??
-
-    QVector<MovementScore> GetAllTheMovementsTest(bool isWhiteTurn);
-
-    int GetScoreEval(QBrush turn); //??
+    QVector<MovementScore> GetAllTheMovements(bool isWhiteTurn);
 
     int ScoreTheBoard();
-
-    int FindMinMax(int depth, QVector<MovementScore>& filteredMoves, bool whiteToMove); //??
 
     int NegaMaxAlphaBeta(int depth, QVector<MovementScore>& filteredMoves, int turnMPlyier, int alpha, int beta );
 
@@ -81,7 +70,7 @@ private:
     MoveFilter& filter;
     Rng rng; //??
     MovementScore bestMove;
-    int DEPTH = 2;
+    int DEPTH = 3;
     int counter = 0;
 
     static constexpr int CheckMate = 10000;

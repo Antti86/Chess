@@ -41,7 +41,7 @@ QVector<QPoint> MoveFilter::GetFilteredMoves(const QPoint &selectedPiecePos)
 
 }
 
-QVector<QPoint> MoveFilter::GetFilteredMoves2(BasePiece *piece, const QPoint &selectedPiecePos)
+QVector<QPoint> MoveFilter::GetFilteredMoves(BasePiece *piece, const QPoint &selectedPiecePos)
 {
     QVector<QPoint> moves = piece->GetLegalMoves(gameInfo.friendly, gameInfo.enemy);
     QVector<QPoint> filteredMoves;
