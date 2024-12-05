@@ -22,6 +22,7 @@ public:
     QVector<QPoint> friendly; //Holds all the piece positions whos turn it is
     QVector<QPoint> enemy;    //Holds all the enemy piece positions
     QVector<QPoint> dangerAreas;
+    QVector<QPoint> ghostDangerAreas;
     bool isWhiteTurn;
     QBrush turn;
 
@@ -34,6 +35,7 @@ public:
         // friendly = enemy;
         enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
         dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
+        ghostDangerAreas = board->GetDangerAreas(isWhiteTurn, QVector<QPoint> (), enemy);
     }
 
     void SetTurn(bool iswhiteturn)
@@ -43,6 +45,7 @@ public:
         friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
         enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
         dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
+        ghostDangerAreas = board->GetDangerAreas(isWhiteTurn, QVector<QPoint> (), enemy);
     }
 
     enum class GameStateStatus {Begin, Midlle, End};

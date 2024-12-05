@@ -45,7 +45,7 @@ QVector<QPoint> MoveFilter::GetFilteredMoves(BasePiece *piece, const QPoint &sel
 {
     QVector<QPoint> moves = piece->GetLegalMoves(gameInfo.friendly, gameInfo.enemy);
     QVector<QPoint> filteredMoves;
-    if (!IsKingChecked(gameInfo.dangerAreas))
+    if (!IsKingChecked(gameInfo.ghostDangerAreas))
     {
         if (piece->getType() == PieceType::King)
         {

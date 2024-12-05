@@ -69,7 +69,7 @@ const QVector<QPoint> ChessBoard::GetPopulatedAreas(QBrush color) const
 const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector<QPoint> &friendly, const QVector<QPoint> &enemy,
                                                  const QPoint ignoredPiecePos) const
 {
-    auto start = std::chrono::steady_clock::now();
+    // auto start = std::chrono::steady_clock::now();
     QVector<QPoint> dangerAreas;
     QBrush enemyColor = isWhiteturn ? Qt::black : Qt::white;
     for (auto& p : pieces)
@@ -79,9 +79,9 @@ const QVector<QPoint> ChessBoard::GetDangerAreas(bool isWhiteturn, const QVector
             dangerAreas.append(p->GetThreateningMoves(enemy, friendly));
         }
     }
-    auto end = std::chrono::steady_clock::now();
-    const std::chrono::duration<float> frametime = end - start;
-    auto total = frametime.count();
+    // auto end = std::chrono::steady_clock::now();
+    // const std::chrono::duration<float> frametime = end - start;
+    // auto total = frametime.count();
     return dangerAreas;
 }
 
