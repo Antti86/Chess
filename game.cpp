@@ -45,11 +45,13 @@ void Game::handlePieceSelection(QPoint pos)
                 {
                     int fix = gameInfo.isWhiteTurn ? 1 : -1;
                     QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+                    gameInfo.DeleteEnemyAreaSpot(fixed);
                     emit EatPiece(fixed);
                 }
 
                 if (filter.IsEatingMovement(pos))
                 {
+                    gameInfo.DeleteEnemyAreaSpot(pos);
                     emit EatPiece(pos);
                 }
 
@@ -59,6 +61,7 @@ void Game::handlePieceSelection(QPoint pos)
                     if (dialog.exec() == QDialog::Accepted)
                     {
                         PieceType promotedPiece = dialog.getSelectedPiece();
+                        gameInfo.friendly.append(pos);
                         emit PawnPromotion(selectedPiecePos, promotedPiece, gameInfo.isWhiteTurn);
                     }
 
@@ -80,10 +83,13 @@ void Game::handlePieceSelection(QPoint pos)
                         RookNewPos = QPoint(5, pos.y());
                     }
                     castlingRook->Move(RookNewPos);
+                    gameInfo.UpdateAreaFields(castlingRook->getPos(), RookNewPos);
+                    gameInfo.UpdateAreaFields(selectedPiecePos, kingNewPos);
                     emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
                 }
                 else
                 {
+                    gameInfo.UpdateAreaFields(selectedPiecePos, pos);
                     emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
 
                 }
@@ -116,16 +122,19 @@ void Game::BotMovement()
         {
             int fix = gameInfo.isWhiteTurn ? 1 : -1;
             QPoint fixed = QPoint(pos.x(), pos.y() + fix);
+            gameInfo.DeleteEnemyAreaSpot(fixed);
             emit EatPiece(fixed);
         }
 
         if (filter.IsEatingMovement(pos))
         {
+            gameInfo.DeleteEnemyAreaSpot(pos);
             emit EatPiece(pos);
         }
 
         if (IsPawnPromotionMove(piece, pos))
         {
+            gameInfo.friendly.append(pos);
             emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
             // PromotionDialog dialog(isWhiteTurn);
             // if (dialog.exec() == QDialog::Accepted)
@@ -152,10 +161,13 @@ void Game::BotMovement()
                 RookNewPos = QPoint(5, pos.y());
             }
             castlingRook->Move(RookNewPos);
+            gameInfo.UpdateAreaFields(castlingRook->getPos(), RookNewPos);
+            gameInfo.UpdateAreaFields(selectedPiecePos, kingNewPos);
             emit pieceMoved(selectedPiecePos, kingNewPos, gameInfo.isWhiteTurn);
         }
         else
         {
+            gameInfo.UpdateAreaFields(selectedPiecePos, pos);
             emit pieceMoved(selectedPiecePos, pos, gameInfo.isWhiteTurn);
 
         }
@@ -213,10 +225,10 @@ void Game::EndOfTurn()
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(gameInfo.isWhiteTurn);
 
-    if (!gameInfo.isWhiteTurn)
-    {
-        BotMovement();
-    }
+    // if (!gameInfo.isWhiteTurn)
+    // {
+    //     BotMovement();
+    // }
 
 
 }

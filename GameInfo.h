@@ -30,10 +30,13 @@ public:
     {
         isWhiteTurn = !isWhiteTurn;
         turn = isWhiteTurn ? Qt::white : Qt::black;
-        // enemy = friendly;
-        friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
-        // friendly = enemy;
-        enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
+
+        auto temp = friendly;
+        friendly = enemy;
+        enemy = temp;
+
+        // friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
+        // enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
         dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
         ghostDangerAreas = board->GetDangerAreas(isWhiteTurn, QVector<QPoint> (), enemy);
     }
@@ -42,10 +45,37 @@ public:
     {
         isWhiteTurn = iswhiteturn;
         turn = isWhiteTurn ? Qt::white : Qt::black;
-        friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
-        enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
+        auto temp = friendly;
+        friendly = enemy;
+        enemy = temp;
+        // friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
+        // enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
         dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
         ghostDangerAreas = board->GetDangerAreas(isWhiteTurn, QVector<QPoint> (), enemy);
+    }
+
+    void UpdateAreaFields(const QPoint& from, const QPoint& to)
+    {
+        for (int i = 0; i < friendly.size(); i++)
+        {
+            if (friendly[i] == from)
+            {
+                friendly[i] = to;
+                break;
+            }
+        }
+    }
+
+    void DeleteEnemyAreaSpot(const QPoint& to)
+    {
+        for (int i = 0; i < enemy.size(); i++)
+        {
+            if (enemy[i] == to)
+            {
+                enemy.remove(i);
+                break;
+            }
+        }
     }
 
     enum class GameStateStatus {Begin, Midlle, End};

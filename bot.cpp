@@ -251,6 +251,7 @@ std::unique_ptr<BasePiece> Bot::DoMove(BasePiece* p, const QPoint &movePos)
                 ++i;
             }
         }
+        gameInfo.DeleteEnemyAreaSpot(movePos);
 
 
         // auto it = std::remove_if(board->pieces.begin(), board->pieces.end(), [](const std::unique_ptr<BasePiece>& piece)
@@ -265,7 +266,7 @@ std::unique_ptr<BasePiece> Bot::DoMove(BasePiece* p, const QPoint &movePos)
         // board->pieces.erase(it, board->pieces.end());
 
     }
-
+    gameInfo.UpdateAreaFields(p->getPos(), movePos);
     p->Move(movePos);
 
     return std::move(capturePiece);
@@ -278,10 +279,15 @@ void Bot::UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoi
     if (capPiece)
     {
         board->pieces.push_back(std::move(capPiece));
+        gameInfo.enemy.append(capPiece->getPos());
+
     }
+
+    gameInfo.UpdateAreaFields(p->getPos(), prePos);
 
     p->Move(prePos);
     p->hasMoved = hasMoved;
+
 }
 
 
