@@ -225,10 +225,10 @@ void Game::EndOfTurn()
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(gameInfo.isWhiteTurn);
 
-    // if (!gameInfo.isWhiteTurn)
-    // {
-    //     BotMovement();
-    // }
+    if (!gameInfo.isWhiteTurn)
+    {
+        BotMovement();
+    }
 
 
 }

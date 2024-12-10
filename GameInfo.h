@@ -45,11 +45,11 @@ public:
     {
         isWhiteTurn = iswhiteturn;
         turn = isWhiteTurn ? Qt::white : Qt::black;
-        auto temp = friendly;
-        friendly = enemy;
-        enemy = temp;
-        // friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
-        // enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
+        // auto temp = friendly;
+        // friendly = enemy;
+        // enemy = temp;
+        friendly = isWhiteTurn ? board->GetPopulatedAreas(Qt::white) : board->GetPopulatedAreas(Qt::black);
+        enemy = isWhiteTurn ? board->GetPopulatedAreas(Qt::black) : board->GetPopulatedAreas(Qt::white);
         dangerAreas = board->GetDangerAreas(isWhiteTurn, friendly, enemy);
         ghostDangerAreas = board->GetDangerAreas(isWhiteTurn, QVector<QPoint> (), enemy);
     }

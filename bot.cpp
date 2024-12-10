@@ -122,9 +122,10 @@ QVector<MovementScore> Bot::GetAllTheMovements(bool isWhiteTurn)
 
     for (const auto& p: board->pieces)
     {
-        int score = p->GetPieceScore();
+
         if (p->getColor() == turn)
         {
+            int score = p->GetPieceScore();
             auto moves = filter.GetFilteredMoves(p.get(), p->getPos());
             // auto moves = filter.GetFilteredMoves( p->getPos());
             // auto moves = p->GetLegalMoves(gameInfo.friendly, gameInfo.enemy);
@@ -169,24 +170,24 @@ int Bot::ScoreTheBoard()
 
 
 
-    if (filter.IsKingChecked(gameInfo.dangerAreas))
-    {
-        if (gameInfo.isWhiteTurn)
-        {
-            score -= Check;
-        }
-        else
-        {
-            score += Check;
-        }
-    }
+    // if (filter.IsKingChecked(gameInfo.dangerAreas))
+    // {
+    //     if (gameInfo.isWhiteTurn)
+    //     {
+    //         score -= Check;
+    //     }
+    //     else
+    //     {
+    //         score += Check;
+    //     }
+    // }
 
     // Material Scoring
     for (auto& p : board->pieces)
     {
         int posScore = 0;
         int coverBonus = 0;
-        int threatBonus = p->GetThreateningMoves(gameInfo.friendly, gameInfo.enemy).size() * 2;
+        int threatBonus = 0/*p->GetThreateningMoves(gameInfo.friendly, gameInfo.enemy).size() * 2*/;
 
 
         if (p->getType() == PieceType::Pawn)
@@ -278,9 +279,8 @@ void Bot::UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoi
 
     if (capPiece)
     {
-        board->pieces.push_back(std::move(capPiece));
         gameInfo.enemy.append(capPiece->getPos());
-
+        board->pieces.push_back(std::move(capPiece));
     }
 
     gameInfo.UpdateAreaFields(p->getPos(), prePos);
