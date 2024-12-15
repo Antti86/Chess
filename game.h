@@ -5,7 +5,6 @@
 #include "chessboard.h"
 #include "qobject.h"
 #include "bot.h"
-#include <cmath>
 #include "movefilter.h"
 #include "GameInfo.h"
 
@@ -21,7 +20,7 @@ public:
     Game(ChessBoard *board, QObject *parent);
 
 signals:
-    void pieceMoved(QPoint from, QPoint to, bool isWhiteTurn); //Starts a event chain that will ends turn
+    void pieceMoved(QPoint from, QPoint to, bool isWhiteTurn); //Starts a event chain that will end turn
     void EatPiece(QPoint eatingPos);
     void SetSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
     void PawnPromotion(const QPoint& pos, PieceType newPieceType, bool isWhiteTurn);
@@ -52,8 +51,10 @@ private:
     bool IsDeadPositionDraw() const;
     bool Is50MoveDraw() const;
 
-    // If playing against bot, move this own class??
+    // If playing against bot
     void BotMovement();
+
+    float MeanTime(); // for performance tests
 
 private:
     bool isPieceSelected;
@@ -62,7 +63,7 @@ private:
     GameInfo gameInfo; //Contains gamestate info, like whos turn etc..
     Bot bot;    //Ai opponent
     MoveFilter filter; // Helper class for movement checks and filtering
-
+    QVector<std::pair<float, int>> runTime; // for performance tests
 };
 
 #endif // GAME_H

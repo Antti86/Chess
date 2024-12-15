@@ -102,8 +102,15 @@ void Game::handlePieceSelection(QPoint pos)
 
 void Game::BotMovement()
 {
-
+    auto start = std::chrono::steady_clock::now();
     auto final = bot.GetMinMaxMove();
+    auto end = std::chrono::steady_clock::now();
+    const std::chrono::duration<float> frametime = end - start;
+    auto total = frametime.count();
+    runTime.append(std::pair<float, int> (total, bot.GetCounter()));
+    float mean = MeanTime();
+
+
     selectedPiecePos = final.From;
 
     QPoint pos = final.To;
@@ -136,13 +143,6 @@ void Game::BotMovement()
         {
             gameInfo.friendly.append(pos);
             emit PawnPromotion(selectedPiecePos, PieceType::Queen, gameInfo.isWhiteTurn);
-            // PromotionDialog dialog(isWhiteTurn);
-            // if (dialog.exec() == QDialog::Accepted)
-            // {
-            //     PieceType promotedPiece = dialog.getSelectedPiece();
-            //     emit PawnPromotion(selectedPiecePos, promotedPiece, isWhiteTurn);
-            // }
-
         }
 
         BasePiece* castlingRook = IsCastlingMove(piece, pos);
@@ -174,6 +174,16 @@ void Game::BotMovement()
         isPieceSelected = false;
     }
 
+}
+
+float Game::MeanTime()
+{
+    float meanTime = 0.0f;
+    for (int i = 0; i < runTime.size(); i++)
+    {
+        meanTime += runTime[i].first;
+    }
+    return meanTime / runTime.size();
 }
 
 

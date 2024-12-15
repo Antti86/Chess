@@ -7,16 +7,6 @@
 #include "movefilter.h"
 #include "Rng.h"
 
-struct Movement //Model for storing piece and all its movement options
-{
-    Movement(QPoint From, QVector<QPoint> To)
-        : From(From)
-        , To(To)
-    {}
-    QPoint From;
-    QVector<QPoint> To;
-};
-
 struct MovementScore    //Model for storing individual movement and its score
 {
     MovementScore(QPoint From, QPoint To, int score)
@@ -49,18 +39,16 @@ class Bot
 public:
     Bot(ChessBoard* board, GameInfo& gameInfo, MoveFilter& filter);
     MovementScore GetMinMaxMove();
+    int GetCounter() const; //For benchmarking purpose
 
 private:
+    // Bot "Ai"
     bool IsCheckMateMovement(bool isWhiteTurn) const;
-    bool IsKingCheck(bool isWhiteTurn) const;
-
     QVector<MovementScore> GetAllTheMovements(bool isWhiteTurn);
-
-    int ScoreTheBoard();
-
+    int ScoreTheBoard(QVector<MovementScore>& filteredMoves);
     int NegaMaxAlphaBeta(int depth, QVector<MovementScore>& filteredMoves, int turnMPlyier, int alpha, int beta );
 
-
+    //For the movement simulation, if capture movement, the piece will be moved in unique pointer and moved back with undomove
     std::unique_ptr<BasePiece> DoMove(BasePiece *p, const QPoint& movePos);
     void UnDoMove(BasePiece *p, std::unique_ptr<BasePiece> capPiece, const QPoint& prePos, bool hasMoved);
 
@@ -68,11 +56,11 @@ private:
     ChessBoard* board;
     GameInfo& gameInfo;
     MoveFilter& filter;
-    Rng rng; //??
+    Rng rng;
     MovementScore bestMove;
-    int DEPTH = 3;
-    int counter = 0;
 
+    int counter = 0; //For benchmarking purpose
+    int DEPTH = 4;  // 2 == easy, 3 == medium, 4 == hard, Cant handle 5 for now
     static constexpr int CheckMate = 10000;
     static constexpr int Check = 200;
 
