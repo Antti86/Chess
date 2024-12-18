@@ -416,10 +416,10 @@ bool Game::ArePositionsEqual(const QVector<PieceStateRecord>& pos1, const QVecto
     {
         return false;
     }
-
     for (int i = 0; i < pos1.size(); ++i)
     {
-        if (pos1[i] != pos2[i])
+        auto checkPos = pos1[i];
+        if (!pos2.contains(checkPos))
         {
             return false;
         }

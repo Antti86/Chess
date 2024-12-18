@@ -60,7 +60,7 @@ private:
     MovementScore bestMove;
 
     int counter = 0; //For benchmarking purpose
-    int DEPTH = 4;  // 2 == easy, 3 == medium, 4 == hard, Cant handle 5 for now
+    int DEPTH = 2;  // 2 == easy, 3 == medium, 4 == hard, Cant handle 5 for now
     static constexpr int CheckMate = 10000;
     static constexpr int Check = 200;
 

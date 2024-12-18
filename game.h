@@ -37,7 +37,7 @@ private:
     bool IsPieceOnSelectedSquare(QPoint square) const;
     bool ValidMovement(BasePiece* piece, QVector<QPoint> legalMoves, QPoint& pos) const;
 
-    // Some special move checkers
+    // Some special move checkers, refactor these to moveFilter??
     bool IsPassantMovement(BasePiece* piece, const QPoint& selectedPiecePos, const QPoint &newpos) const;
     bool IsPawnPromotionMove(BasePiece* piece, const QPoint pos) const;
     BasePiece* IsCastlingMove(BasePiece* piece, const QPoint& pos) const;
