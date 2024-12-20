@@ -2,9 +2,10 @@
 #include "Pawn.h"
 #include "PromotionDialog.h"
 
-Game::Game(ChessBoard *board, QObject *parent)
+Game::Game(ChessBoard *board, bool playingAgainstBot, QObject *parent)
     : QObject(parent)
     , board(board)
+    , playingAgainstBot(playingAgainstBot)
     , gameInfo(board)
     , bot(Bot(board, gameInfo, filter))
     , filter(MoveFilter(board, gameInfo))
@@ -235,10 +236,14 @@ void Game::EndOfTurn()
     emit UpdateUiForCheck(isChecked);
     emit UpdateUiToTurn(gameInfo.isWhiteTurn);
 
-    if (!gameInfo.isWhiteTurn)
+    if (playingAgainstBot)
     {
-        BotMovement();
+        if (!gameInfo.isWhiteTurn)
+        {
+            BotMovement();
+        }
     }
+
 
 
 }

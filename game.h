@@ -17,7 +17,7 @@ class Game : public QObject
     Q_OBJECT
 
 public:
-    Game(ChessBoard *board, QObject *parent);
+    Game(ChessBoard *board, bool playingAgainstBot, QObject *parent);
 
 signals:
     void pieceMoved(QPoint from, QPoint to, bool isWhiteTurn); //Starts a event chain that will end turn
@@ -64,6 +64,7 @@ private:
     Bot bot;    //Ai opponent
     MoveFilter filter; // Helper class for movement checks and filtering
     QVector<std::pair<float, int>> runTime; // for performance tests
+    bool playingAgainstBot;
 };
 
 #endif // GAME_H

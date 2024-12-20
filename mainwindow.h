@@ -35,7 +35,7 @@ private:
     void kill();
     void ChangePage(QWidget *widget);
 
-    void StartGame();
+    void StartGame(bool playingAgainstBot);
     void ExitGame();
 };
 #endif // MAINWINDOW_H

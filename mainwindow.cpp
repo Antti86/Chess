@@ -16,14 +16,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Navigation connections
     connect(ui->Exit, &QPushButton::clicked, this, &MainWindow::kill);
-    connect(ui->SinglePlayer, &QPushButton::clicked, this, [this]() {
+    connect(ui->PlayerVsBot_Btn, &QPushButton::clicked, this, [this]() {
         ChangePage(ui->SinglePlayerMenu);
     });
+    connect(ui->PlayerVsPlayer_Btn, &QPushButton::clicked, this, [this]() {ChangePage(ui->MultiplayerMenu);});
+
     connect(ui->BackToMain, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
     connect(ui->BackToMain_2, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
     connect(ui->WinExit, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
 
-    connect(ui->Play, &QPushButton::clicked, this, [this]() { StartGame(); });
+    connect(ui->PlayBot_Btn, &QPushButton::clicked, this, [this]() { StartGame(true); });
+    connect(ui->PlayHuman_Btn, &QPushButton::clicked, this, [this]() { StartGame(false); });
     connect(ui->ExitGame, &QPushButton::clicked, this, [this]() { ExitGame(); });
 
 
@@ -109,7 +112,7 @@ void MainWindow::ChangePage(QWidget *widget)
     ui->stackedWidget->setCurrentWidget(widget);
 }
 
-void MainWindow::StartGame()
+void MainWindow::StartGame(bool playingAgainstBot)
 {
     ChangePage(ui->PlayScreen);
     isPlaying = true;
@@ -119,7 +122,7 @@ void MainWindow::StartGame()
         game = nullptr;
     }
 
-    game = new Game(ui->Board, this);
+    game = new Game(ui->Board, playingAgainstBot, this);
 
     ui->WhosTurn->setText("White");
 
