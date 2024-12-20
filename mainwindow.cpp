@@ -9,16 +9,22 @@ MainWindow::MainWindow(QWidget *parent)
     , game(nullptr)
 {
     //Set up
+    botDifficulty = 2;
     ui->setupUi(this);
     isPlaying = false;
     ui->Board->setMouseTracking(true); //Needed??
     ui->stackedWidget->setCurrentWidget(ui->MainMenu);
+    ui->Difficulty_Btn->setText("Easy");
 
     //Navigation connections
     connect(ui->Exit, &QPushButton::clicked, this, &MainWindow::kill);
     connect(ui->PlayerVsBot_Btn, &QPushButton::clicked, this, [this]() {
         ChangePage(ui->SinglePlayerMenu);
     });
+    connect(ui->SettingsNav_Btn, &QPushButton::clicked, this, [this]() {ChangePage(ui->SettingsPage);});
+    connect(ui->Difficulty_Btn, &QPushButton::clicked, this, [this] () {SetBotDifficulty();});
+    connect(ui->BackToSingleMenu_Btn, &QPushButton::clicked, this, [this]() {ChangePage(ui->SinglePlayerMenu);});
+
     connect(ui->PlayerVsPlayer_Btn, &QPushButton::clicked, this, [this]() {ChangePage(ui->MultiplayerMenu);});
 
     connect(ui->BackToMain, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
@@ -112,6 +118,29 @@ void MainWindow::ChangePage(QWidget *widget)
     ui->stackedWidget->setCurrentWidget(widget);
 }
 
+void MainWindow::SetBotDifficulty()
+{
+    botDifficulty++;
+    if (botDifficulty > 4)
+    {
+        botDifficulty = 2;
+    }
+
+    if (botDifficulty == 2)
+    {
+        ui->Difficulty_Btn->setText("Easy");
+    }
+    else if (botDifficulty == 3)
+    {
+        ui->Difficulty_Btn->setText("Medium");
+    }
+    else if (botDifficulty == 4)
+    {
+        ui->Difficulty_Btn->setText("Hard");
+    }
+
+}
+
 void MainWindow::StartGame(bool playingAgainstBot)
 {
     ChangePage(ui->PlayScreen);
@@ -122,7 +151,7 @@ void MainWindow::StartGame(bool playingAgainstBot)
         game = nullptr;
     }
 
-    game = new Game(ui->Board, playingAgainstBot, this);
+    game = new Game(ui->Board, playingAgainstBot, botDifficulty, this);
 
     ui->WhosTurn->setText("White");
 

@@ -63,7 +63,7 @@ background: rgb(61, 56, 70);
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>2</number>
       </property>
       <widget class="QWidget" name="MainMenu">
        <property name="enabled">
@@ -163,7 +163,7 @@ background: rgb(61, 56, 70);
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="DifficultyBtn">
+           <widget class="QPushButton" name="SettingsNav_Btn">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -171,14 +171,7 @@ background: rgb(61, 56, 70);
              </sizepolicy>
             </property>
             <property name="text">
-             <string>Difficulty</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="BoardColor">
-            <property name="text">
-             <string>Change Board</string>
+             <string>Settings</string>
             </property>
            </widget>
           </item>
@@ -196,6 +189,59 @@ background: rgb(61, 56, 70);
            </widget>
           </item>
          </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="SettingsPage">
+       <widget class="QWidget" name="verticalLayoutWidget">
+        <property name="geometry">
+         <rect>
+          <x>90</x>
+          <y>30</y>
+          <width>441</width>
+          <height>301</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_7">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:24pt; font-weight:700;&quot;&gt;Difficulty:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="Difficulty_Btn">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="BackToSingleMenu_Btn">
+           <property name="text">
+            <string>Back</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="MultiplayerMenu">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <item>
+         <widget class="QPushButton" name="PlayHuman_Btn">
+          <property name="text">
+           <string>Play</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="BackToMain_2">
+          <property name="text">
+           <string>Back to main menu</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -360,24 +406,6 @@ color:  rgb(255,0,0);</string>
          </item>
         </layout>
        </widget>
-      </widget>
-      <widget class="QWidget" name="MultiplayerMenu">
-       <layout class="QVBoxLayout" name="verticalLayout_4">
-        <item>
-         <widget class="QPushButton" name="PlayHuman_Btn">
-          <property name="text">
-           <string>Play</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="BackToMain_2">
-          <property name="text">
-           <string>Back to main menu</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
       </widget>
      </widget>
     </item>

@@ -31,9 +31,11 @@ private:
     Ui::MainWindow *ui;
     Game *game;
     bool isPlaying;
+    int botDifficulty;
 
     void kill();
     void ChangePage(QWidget *widget);
+    void SetBotDifficulty();
 
     void StartGame(bool playingAgainstBot);
     void ExitGame();

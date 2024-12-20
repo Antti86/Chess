@@ -2,12 +2,13 @@
 #include "Pawn.h"
 #include "PromotionDialog.h"
 
-Game::Game(ChessBoard *board, bool playingAgainstBot, QObject *parent)
+Game::Game(ChessBoard *board, bool playingAgainstBot, int botDifficulty, QObject *parent)
     : QObject(parent)
     , board(board)
     , playingAgainstBot(playingAgainstBot)
+    , botDifficulty(botDifficulty)
     , gameInfo(board)
-    , bot(Bot(board, gameInfo, filter))
+    , bot(Bot(board, gameInfo, botDifficulty, filter))
     , filter(MoveFilter(board, gameInfo))
 {
     isPieceSelected = false;
