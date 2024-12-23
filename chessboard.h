@@ -33,7 +33,7 @@ public:
     void AddPiece(std::unique_ptr<BasePiece> piece); //Bot needs to add and delete pieces in simulation, so public
 
     //Encap these??
-    QVector<QVector<PieceStateRecord>> repetitionTrack; //Wont work with bot right now
+    QVector<QVector<PieceStateRecord>> repetitionTrack;
     QVector<QVector<PieceStateRecord>> posRecords;
 
 public slots:
@@ -41,11 +41,12 @@ public slots:
     void SettingSquareColor(const QPoint& pos, const QVector<QPoint>& legalMoves, bool highlighting);
     void EatingPiece(QPoint eatingPos);
     void PromotingPawn(const QPoint& pos, PieceType newPieceType, bool isWhiteTurn);
-    void ReverseMoveAndTurn();
+    void ReverseMoveAndTurn(bool playAgainstBot);
 
 signals:
     void pieceSelected(QPoint pos);
     void endTurn();
+    void HandleReverseMove();
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;

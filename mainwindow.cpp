@@ -34,13 +34,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->PlayBot_Btn, &QPushButton::clicked, this, [this]() { StartGame(true); });
     connect(ui->PlayHuman_Btn, &QPushButton::clicked, this, [this]() { StartGame(false); });
     connect(ui->ExitGame, &QPushButton::clicked, this, [this]() { ExitGame(); });
-
-
-
-    connect(ui->LastMove, &QPushButton::clicked, ui->Board, &ChessBoard::ReverseMoveAndTurn);
-
-
-
 }
 
 MainWindow::~MainWindow()
@@ -156,37 +149,51 @@ void MainWindow::StartGame(bool playingAgainstBot)
     ui->WhosTurn->setText("White");
 
     ChangeCheckedStatus(false);
-    //Gameplay connections
+    //Gameplay connections, uses template wrapper.
 
     //Movements and eating
-    connect(ui->Board, &ChessBoard::pieceSelected, game, &Game::handlePieceSelection);
-    connect(game, &Game::pieceMoved, ui->Board, &ChessBoard::MovePiece);
-    connect(game, &Game::EatPiece, ui->Board, &ChessBoard::EatingPiece);
-    connect(game, &Game::PawnPromotion, ui->Board, &ChessBoard::PromotingPawn);
+    trackConnection(ui->Board, &ChessBoard::pieceSelected, game, &Game::handlePieceSelection);
+    trackConnection(game, &Game::pieceMoved, ui->Board, &ChessBoard::MovePiece);
+    trackConnection(game, &Game::EatPiece, ui->Board, &ChessBoard::EatingPiece);
+    trackConnection(game, &Game::PawnPromotion, ui->Board, &ChessBoard::PromotingPawn);
 
     //Marking selection and available moves
-    connect(game, &Game::SetSquareColor, ui->Board, &ChessBoard::SettingSquareColor);
+    trackConnection(game, &Game::SetSquareColor, ui->Board, &ChessBoard::SettingSquareColor);
 
     //Changing turn
-    connect(ui->Board, &ChessBoard::endTurn, game, &Game::EndOfTurn);
-    connect(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
-    connect(game, &Game::UpdateUiForCheck, this, &MainWindow::ChangeCheckedStatus);
-    connect(game, &Game::UpdateUiForGameOver, this, &MainWindow::GameOver);
+    trackConnection(ui->Board, &ChessBoard::endTurn, game, &Game::EndOfTurn);
+    trackConnection(game, &Game::UpdateUiToTurn, this, &MainWindow::ChangeTurnMark);
+    trackConnection(game, &Game::UpdateUiForCheck, this, &MainWindow::ChangeCheckedStatus);
+    trackConnection(game, &Game::UpdateUiForGameOver, this, &MainWindow::GameOver);
 
 
-    // connect(ui->LastMove, &QPushButton::clicked, ui->Board, &ChessBoard::ReverseMoveAndTurn);
+    trackConnection(ui->LastMove, &QPushButton::clicked, [this]() {
+        ui->Board->ReverseMoveAndTurn(game->isPlayingAgainstBot());
+    });
+    trackConnection(ui->Board, &ChessBoard::HandleReverseMove, game, &Game::HandleReverseMove);
 
 
 }
 
 void MainWindow::ExitGame()
 {
+    ResetConnections();
     ChangePage(ui->MainMenu);
     isPlaying = false;
     ui->Board->ResetBoard();
+
 
     if (game) {
         delete game;
         game = nullptr;
     }
+}
+
+void MainWindow::ResetConnections()
+{
+    for (const auto &connection : connectionList)
+    {
+        disconnect(connection);
+    }
+    connectionList.clear();
 }

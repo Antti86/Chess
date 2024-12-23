@@ -39,5 +39,27 @@ private:
 
     void StartGame(bool playingAgainstBot);
     void ExitGame();
+
+    // Dynamic connection wrapper
+    QList<QMetaObject::Connection> connectionList;
+
+    //Basic connections
+    template <typename Sender, typename Signal, typename Receiver, typename Method>
+    void trackConnection(Sender sender, Signal signal, Receiver receiver, Method method)
+    {
+        QMetaObject::Connection connection = connect(sender, signal, receiver, method);
+        connectionList.append(connection);
+    }
+
+    // Overload for lambda funcs in connection
+    template <typename Sender, typename Signal, typename Func>
+    void trackConnection(Sender sender, Signal signal, Func func)
+    {
+        QMetaObject::Connection connection = connect(sender, signal, func);
+        connectionList.append(connection);
+    }
+
+    // Kills all the dynamic connections. Navigation connections wont be included.
+    void ResetConnections();
 };
 #endif // MAINWINDOW_H

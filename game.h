@@ -18,6 +18,7 @@ class Game : public QObject
 
 public:
     Game(ChessBoard *board, bool playingAgainstBot, int botDifficulty, QObject *parent);
+    bool isPlayingAgainstBot() const;
 
 signals:
     void pieceMoved(QPoint from, QPoint to, bool isWhiteTurn); //Starts a event chain that will end turn
@@ -32,6 +33,7 @@ signals:
 public slots:
     void handlePieceSelection(QPoint pos); // Handles player gaming logic
     void EndOfTurn(); // Check all the game ending states and sets gameInfo values
+    void HandleReverseMove();
 
 private:
     bool IsPieceOnSelectedSquare(QPoint square) const;

@@ -5,13 +5,18 @@
 Game::Game(ChessBoard *board, bool playingAgainstBot, int botDifficulty, QObject *parent)
     : QObject(parent)
     , board(board)
-    , playingAgainstBot(playingAgainstBot)
-    , botDifficulty(botDifficulty)
     , gameInfo(board)
     , bot(Bot(board, gameInfo, botDifficulty, filter))
     , filter(MoveFilter(board, gameInfo))
+    , playingAgainstBot(playingAgainstBot)
+    , botDifficulty(botDifficulty)
 {
     isPieceSelected = false;
+}
+
+bool Game::isPlayingAgainstBot() const
+{
+    return playingAgainstBot;
 }
 
 void Game::handlePieceSelection(QPoint pos)
@@ -246,6 +251,24 @@ void Game::EndOfTurn()
     }
 
 
+
+}
+
+void Game::HandleReverseMove()
+{
+    if (playingAgainstBot)
+    {
+        gameInfo.SetTurn(true);
+    }
+    else
+    {
+        bool turn = !gameInfo.isWhiteTurn;
+        gameInfo.SetTurn(turn);
+    }
+
+    bool isChecked = filter.IsKingChecked(gameInfo.dangerAreas);
+    emit UpdateUiForCheck(isChecked);
+    emit UpdateUiToTurn(gameInfo.isWhiteTurn);
 
 }
 

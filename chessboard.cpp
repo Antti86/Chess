@@ -99,7 +99,7 @@ void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
         }
         else
         {
-            //Reset En Passant, option is active only on turn
+            //Reset En Passant, option is active only one turn
             QBrush turn = isWhiteTurn ? Qt::white : Qt::black;
             if (piece->getType() == PieceType::Pawn && piece->getColor() == turn)
             {
@@ -184,10 +184,11 @@ void ChessBoard::PromotingPawn(const QPoint &pos, PieceType newPieceType, bool i
     }
 }
 
-void ChessBoard::ReverseMoveAndTurn()
+void ChessBoard::ReverseMoveAndTurn(bool playAgainstBot)
 {
     // Optimize this, no need to delete and load everything all the time
-    if (posRecords.size() < 2)
+    int backTrack = playAgainstBot ? 3 : 2;
+    if (posRecords.size() < backTrack)
     {
         return;
     }
@@ -195,7 +196,7 @@ void ChessBoard::ReverseMoveAndTurn()
     pieces.clear();
 
     // Getting old state and populating pieces
-    auto lastRecord = posRecords[posRecords.size() - 2];
+    auto lastRecord = posRecords[posRecords.size() - backTrack];
     for (auto& loc : lastRecord)
     {
         auto type = loc.type;
@@ -229,14 +230,24 @@ void ChessBoard::ReverseMoveAndTurn()
     }
 
     // Updating records and board
-    posRecords.pop_back();
+    if (playAgainstBot)
+    {
+        posRecords.pop_back();
+        posRecords.pop_back();
+    }
+    else
+    {
+        posRecords.pop_back();
+    }
+
     UpdateBoard();
     if (!repetitionTrack.empty())
     {
         repetitionTrack.pop_back();
     }
 
-    emit endTurn();
+    emit HandleReverseMove();
+
 }
 
 
