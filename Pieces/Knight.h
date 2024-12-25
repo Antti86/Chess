@@ -8,8 +8,8 @@
 class Knight : public BasePiece
 {
 public:
-    Knight(QBrush color, QPoint pos, PieceType type, QGraphicsItem *parent = nullptr)
-        : BasePiece(color, pos, type, parent)
+    Knight(QBrush color, QPoint logicalPosition, PieceType type, QGraphicsItem *parent = nullptr)
+        : BasePiece(color, logicalPosition, type, parent)
     {
         if (color == Qt::white)
         {
@@ -34,17 +34,17 @@ public:
         QVector<QPoint> moves;
         QVector<QPoint> possibleMoves;
 
-        possibleMoves.append(QPoint(pos.x() + 2, pos.y() + 1));
-        possibleMoves.append(QPoint(pos.x() + 2, pos.y() - 1));
+        possibleMoves.append(QPoint(logicalPosition.x() + 2, logicalPosition.y() + 1));
+        possibleMoves.append(QPoint(logicalPosition.x() + 2, logicalPosition.y() - 1));
 
-        possibleMoves.append(QPoint(pos.x() - 2, pos.y() + 1));
-        possibleMoves.append(QPoint(pos.x() - 2, pos.y() - 1));
+        possibleMoves.append(QPoint(logicalPosition.x() - 2, logicalPosition.y() + 1));
+        possibleMoves.append(QPoint(logicalPosition.x() - 2, logicalPosition.y() - 1));
 
-        possibleMoves.append(QPoint(pos.x() + 1, pos.y() + 2));
-        possibleMoves.append(QPoint(pos.x() + 1, pos.y() - 2));
+        possibleMoves.append(QPoint(logicalPosition.x() + 1, logicalPosition.y() + 2));
+        possibleMoves.append(QPoint(logicalPosition.x() + 1, logicalPosition.y() - 2));
 
-        possibleMoves.append(QPoint(pos.x() - 1, pos.y() + 2));
-        possibleMoves.append(QPoint(pos.x() - 1, pos.y() - 2));
+        possibleMoves.append(QPoint(logicalPosition.x() - 1, logicalPosition.y() + 2));
+        possibleMoves.append(QPoint(logicalPosition.x() - 1, logicalPosition.y() - 2));
 
         for (auto& m : possibleMoves)
         {
@@ -64,17 +64,17 @@ public:
         QVector<QPoint> moves;
         QVector<QPoint> possibleMoves;
 
-        possibleMoves.append(QPoint(pos.x() + 2, pos.y() + 1));
-        possibleMoves.append(QPoint(pos.x() + 2, pos.y() - 1));
+        possibleMoves.append(QPoint(logicalPosition.x() + 2, logicalPosition.y() + 1));
+        possibleMoves.append(QPoint(logicalPosition.x() + 2, logicalPosition.y() - 1));
 
-        possibleMoves.append(QPoint(pos.x() - 2, pos.y() + 1));
-        possibleMoves.append(QPoint(pos.x() - 2, pos.y() - 1));
+        possibleMoves.append(QPoint(logicalPosition.x() - 2, logicalPosition.y() + 1));
+        possibleMoves.append(QPoint(logicalPosition.x() - 2, logicalPosition.y() - 1));
 
-        possibleMoves.append(QPoint(pos.x() + 1, pos.y() + 2));
-        possibleMoves.append(QPoint(pos.x() + 1, pos.y() - 2));
+        possibleMoves.append(QPoint(logicalPosition.x() + 1, logicalPosition.y() + 2));
+        possibleMoves.append(QPoint(logicalPosition.x() + 1, logicalPosition.y() - 2));
 
-        possibleMoves.append(QPoint(pos.x() - 1, pos.y() + 2));
-        possibleMoves.append(QPoint(pos.x() - 1, pos.y() - 2));
+        possibleMoves.append(QPoint(logicalPosition.x() - 1, logicalPosition.y() + 2));
+        possibleMoves.append(QPoint(logicalPosition.x() - 1, logicalPosition.y() - 2));
 
         for (auto& m : possibleMoves)
         {

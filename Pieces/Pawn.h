@@ -7,8 +7,8 @@
 class Pawn : public BasePiece
 {
 public:
-    Pawn(QBrush color, QPoint pos, PieceType type, QGraphicsItem *parent = nullptr)
-        : BasePiece(color, pos, type, parent)
+    Pawn(QBrush color, QPoint logicalPosition, PieceType type, QGraphicsItem *parent = nullptr)
+        : BasePiece(color, logicalPosition, type, parent)
     {
         if (color == Qt::white)
         {
@@ -31,10 +31,11 @@ public:
         return 100;
     }
 
-    void Move(QPoint newPos) override
+    void Move(QPoint newLogicalPosition) override
     {
-        pos = newPos;
-        hasMoved = true;
+        BasePiece::Move(newLogicalPosition);
+        // logicalPosition = newPos;
+        // hasMoved = true;
 
         canPassantLeft = false;
         canPassantRight = false;
@@ -50,7 +51,7 @@ public:
 
         if (this->getColor() == Qt::white)
         {
-            QPoint basicMove = QPoint(pos.x(), pos.y() - 1);
+            QPoint basicMove = QPoint(logicalPosition.x(), logicalPosition.y() - 1);
             bool canBasicMove = false;
             if (!friendlyPieces.contains(basicMove) && !enemyPieces.contains(basicMove))
             {
@@ -58,12 +59,12 @@ public:
                 canBasicMove = true;
             }
 
-            QPoint eatingMoveR = QPoint(pos.x() + 1, pos.y() - 1);
-            QPoint eatingMoveL = QPoint(pos.x() - 1, pos.y() - 1);
+            QPoint eatingMoveR = QPoint(logicalPosition.x() + 1, logicalPosition.y() - 1);
+            QPoint eatingMoveL = QPoint(logicalPosition.x() - 1, logicalPosition.y() - 1);
 
             if (canPassantLeft)
             {
-                QPoint passantMoveL = QPoint(pos.x() - 1, pos.y());
+                QPoint passantMoveL = QPoint(logicalPosition.x() - 1, logicalPosition.y());
                 if (enemyPieces.contains(passantMoveL))
                 {
                     moves.append(eatingMoveL);
@@ -72,7 +73,7 @@ public:
 
             if (canPassantRight)
             {
-                QPoint passantMoveR = QPoint(pos.x() + 1, pos.y());
+                QPoint passantMoveR = QPoint(logicalPosition.x() + 1, logicalPosition.y());
                 if (enemyPieces.contains(passantMoveR))
                 {
                     moves.append(eatingMoveR);
@@ -90,7 +91,7 @@ public:
 
             if (!hasMoved && canBasicMove)
             {
-                QPoint twoStepMove = QPoint(pos.x(), pos.y() - 2);
+                QPoint twoStepMove = QPoint(logicalPosition.x(), logicalPosition.y() - 2);
                 if (!friendlyPieces.contains(twoStepMove) && !enemyPieces.contains(twoStepMove))
                 {
                     moves.append(twoStepMove);
@@ -99,19 +100,19 @@ public:
         }
         else
         {
-            QPoint basicMove = QPoint(pos.x(), pos.y() + 1);
+            QPoint basicMove = QPoint(logicalPosition.x(), logicalPosition.y() + 1);
             bool canBasicMove = false;
             if (!friendlyPieces.contains(basicMove) && !enemyPieces.contains(basicMove))
             {
                 moves.append(basicMove);
                 canBasicMove = true;
             }
-            QPoint eatingMoveR = QPoint(pos.x() + 1, pos.y() + 1);
-            QPoint eatingMoveL = QPoint(pos.x() - 1, pos.y() + 1);
+            QPoint eatingMoveR = QPoint(logicalPosition.x() + 1, logicalPosition.y() + 1);
+            QPoint eatingMoveL = QPoint(logicalPosition.x() - 1, logicalPosition.y() + 1);
 
             if (canPassantLeft)
             {
-                QPoint passantMoveL = QPoint(pos.x() - 1, pos.y());
+                QPoint passantMoveL = QPoint(logicalPosition.x() - 1, logicalPosition.y());
                 if (enemyPieces.contains(passantMoveL))
                 {
                     moves.append(eatingMoveL);
@@ -120,7 +121,7 @@ public:
 
             if (canPassantRight)
             {
-                QPoint passantMoveR = QPoint(pos.x() + 1, pos.y());
+                QPoint passantMoveR = QPoint(logicalPosition.x() + 1, logicalPosition.y());
                 if (enemyPieces.contains(passantMoveR))
                 {
                     moves.append(eatingMoveR);
@@ -138,7 +139,7 @@ public:
 
             if (!hasMoved && canBasicMove)
             {
-                QPoint twoStepMove = QPoint(pos.x(), pos.y() + 2);
+                QPoint twoStepMove = QPoint(logicalPosition.x(), logicalPosition.y() + 2);
                 if (!friendlyPieces.contains(twoStepMove) && !enemyPieces.contains(twoStepMove))
                 {
                     moves.append(twoStepMove);
@@ -154,13 +155,13 @@ public:
         QVector<QPoint> moves;
         if (this->getColor() == Qt::white)
         {
-            moves.append(QPoint(pos.x() - 1, pos.y() - 1));
-            moves.append(QPoint(pos.x() + 1, pos.y() - 1));
+            moves.append(QPoint(logicalPosition.x() - 1, logicalPosition.y() - 1));
+            moves.append(QPoint(logicalPosition.x() + 1, logicalPosition.y() - 1));
         }
         else
         {
-            moves.append(QPoint(pos.x() + 1, pos.y() + 1));
-            moves.append(QPoint(pos.x() - 1, pos.y() + 1));
+            moves.append(QPoint(logicalPosition.x() + 1, logicalPosition.y() + 1));
+            moves.append(QPoint(logicalPosition.x() - 1, logicalPosition.y() + 1));
         }
         return moves;
     }

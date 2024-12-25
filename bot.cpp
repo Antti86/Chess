@@ -3,9 +3,9 @@
 
 Bot::Bot(ChessBoard *board, GameInfo& gameInfo, int DEPTH, MoveFilter &filter)
     : board(board)
-    , DEPTH(DEPTH)
     , gameInfo(gameInfo)
     , filter(filter)
+    , DEPTH(DEPTH)
 {
 
 }

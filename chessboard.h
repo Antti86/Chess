@@ -12,6 +12,7 @@
 #include "boardsquare.h"
 #include "Pieces/PieceStateRecord.h"
 #include <memory>
+#include <QTimer>
 
 class ChessBoard : public QGraphicsView
 {

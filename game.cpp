@@ -109,15 +109,16 @@ void Game::handlePieceSelection(QPoint pos)
 
 void Game::BotMovement()
 {
-    auto start = std::chrono::steady_clock::now();
+    // auto start = std::chrono::steady_clock::now();
+    // auto final = bot.GetMinMaxMove();
+    // auto end = std::chrono::steady_clock::now();
+    // const std::chrono::duration<float> frametime = end - start;
+    // auto total = frametime.count();
+    // runTime.append(std::pair<float, int> (total, bot.GetCounter()));
+    // float mean = MeanTime();
+
+
     auto final = bot.GetMinMaxMove();
-    auto end = std::chrono::steady_clock::now();
-    const std::chrono::duration<float> frametime = end - start;
-    auto total = frametime.count();
-    runTime.append(std::pair<float, int> (total, bot.GetCounter()));
-    float mean = MeanTime();
-
-
     selectedPiecePos = final.From;
 
     QPoint pos = final.To;

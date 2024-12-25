@@ -110,7 +110,8 @@ void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
     }
     RecordPiecePositions();
     UpdateBoard();
-    emit endTurn();
+    QTimer::singleShot(550, this, [this] () {emit endTurn();});
+    // emit endTurn();
 }
 
 void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& legalMoves, bool highlighting)

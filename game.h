@@ -7,6 +7,8 @@
 #include "bot.h"
 #include "movefilter.h"
 #include "GameInfo.h"
+#include <QTimer>
+#include <QtConcurrent>
 
 
 

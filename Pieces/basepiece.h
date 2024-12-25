@@ -5,6 +5,7 @@
 #include "qbrush.h"
 #include "qgraphicsitem.h"
 #include "../ConstantValues.h"
+#include <QPropertyAnimation>
 
 enum class PieceType {
     King,
@@ -28,18 +29,23 @@ enum class CheckDirection
     SouthEast
 };
 
-class BasePiece : public QGraphicsPixmapItem
+class BasePiece : public QObject, public QGraphicsPixmapItem
 {
+    Q_OBJECT
+    Q_PROPERTY(QPointF pos READ pos WRITE setPos)
 public:
-    BasePiece(QBrush color, QPoint pos, PieceType type, QGraphicsItem *parent = nullptr)
+    BasePiece(QBrush color, QPoint logicalPosition, PieceType type, QGraphicsItem *parent = nullptr)
         : QGraphicsPixmapItem(parent)
         , hasMoved(false)
         , color(color)
-        , pos(pos)
+        , logicalPosition(logicalPosition)
         , type(type)
     {
         bool canPassantLeft = false;
         bool canPassantRight = false;
+
+        setPos(logicalPosition.x() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET,
+               logicalPosition.y() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET);
     }
 
     virtual int GetPieceScore() const = 0;
@@ -47,23 +53,37 @@ public:
     virtual ~BasePiece() = default;
     virtual void Draw()
     {
-        setPos(pos.x() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET, pos.y() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET);
+        setPos(logicalPosition.x() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET, logicalPosition.y() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET);
     };
-    virtual void Move(QPoint newPos)
+    virtual void Move(QPoint newLogicalPosition)
     {
-        pos = newPos;
+        QPropertyAnimation *anim = new QPropertyAnimation(this, "pos");
+        anim->setDuration(500);
+        anim->setStartValue(pos());
+        anim->setEndValue(QPointF(newLogicalPosition.x() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET,
+                                  newLogicalPosition.y() * Constants::SQUARE_SIZE + Constants::PIECE_OFFSET));
+        anim->start(QAbstractAnimation::DeleteWhenStopped);
+
         hasMoved = true;
+        logicalPosition = newLogicalPosition;
     }
     virtual QVector<QPoint> GetLegalMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const = 0;
     virtual QVector<QPoint> GetThreateningMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces) const = 0;
     QBrush getColor() const { return color; }
-    QPoint getPos() const { return pos; }
+    QPoint getPos() const { return logicalPosition; }
     PieceType getType() const { return type; }
     bool GetHashMoved() const {return hasMoved;}
 
     bool canPassantLeft;
     bool canPassantRight;
     bool hasMoved;
+
+protected:
+    QBrush color;
+    QPoint logicalPosition;
+    PieceType type;
+    QPixmap pixmap;
+    QPixmap scaledPixmap;
 
 protected:
     QVector<QPoint> CheckMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces, bool onlyOneSquare,
@@ -87,7 +107,7 @@ protected:
         {
         case CheckDirection::East:
             xOffset = 1;
-            dirCheckVal = pos.x() + 1;
+            dirCheckVal = logicalPosition.x() + 1;
             dirIncrement = 1;
             yOffset = 0;
             dirCap = 7;
@@ -95,7 +115,7 @@ protected:
             break;
         case CheckDirection::North:
             xOffset = 0;
-            dirCheckVal = pos.y() - 1;
+            dirCheckVal = logicalPosition.y() - 1;
             dirIncrement = -1;
             yOffset = -1;
             dirCap = 0;
@@ -103,9 +123,9 @@ protected:
             break;
         case CheckDirection::NorthEast:
         {
-            bool isXmain = (7 - pos.x()) <= pos.y() ? true : false;
+            bool isXmain = (7 - logicalPosition.x()) <= logicalPosition.y() ? true : false;
             xOffset = 1;
-            dirCheckVal = isXmain ? (pos.x() + 1) : (pos.y() - 1);
+            dirCheckVal = isXmain ? (logicalPosition.x() + 1) : (logicalPosition.y() - 1);
             dirIncrement = isXmain ? 1 : -1;
             yOffset = -1;
             dirCap = isXmain ? 7 : 0;
@@ -121,7 +141,7 @@ protected:
         break;
         case CheckDirection::South:
             xOffset = 0;
-            dirCheckVal = pos.y() + 1;
+            dirCheckVal = logicalPosition.y() + 1;
             dirIncrement = 1;
             yOffset = 1;
             dirCap = 7;
@@ -129,9 +149,9 @@ protected:
             break;
         case CheckDirection::SouthWest:
         {
-            bool isXmain = pos.x() <= (7 - pos.y()) ? true : false;
+            bool isXmain = logicalPosition.x() <= (7 - logicalPosition.y()) ? true : false;
             xOffset = -1;
-            dirCheckVal = isXmain ? (pos.x() - 1) : (pos.y() + 1);
+            dirCheckVal = isXmain ? (logicalPosition.x() - 1) : (logicalPosition.y() + 1);
             dirIncrement = isXmain ? -1 : 1;
             yOffset = 1;
             dirCap = isXmain ? 0 : 7;
@@ -148,7 +168,7 @@ protected:
             break;
         case CheckDirection::West:
             xOffset = -1;
-            dirCheckVal = pos.x() - 1;
+            dirCheckVal = logicalPosition.x() - 1;
             dirIncrement = -1;
             yOffset = 0;
             dirCap = 0;
@@ -156,7 +176,7 @@ protected:
             break;
         case CheckDirection::NorthWest:
             xOffset = -1;
-            dirCheckVal = std::min(pos.x(), pos.y()) - 1;
+            dirCheckVal = std::min(logicalPosition.x(), logicalPosition.y()) - 1;
             dirIncrement = -1;
             yOffset = -1;
             dirCap = 0;
@@ -164,7 +184,7 @@ protected:
             break;
         case CheckDirection::SouthEast:
             xOffset = 1;
-            dirCheckVal = std::max(pos.x(), pos.y()) + 1;
+            dirCheckVal = std::max(logicalPosition.x(), logicalPosition.y()) + 1;
             dirIncrement = 1;
             yOffset = 1;
             dirCap = 7;
@@ -176,7 +196,7 @@ protected:
         {
             if (onlyOneSquare)
             {
-                QPoint checkArea = QPoint(pos.x() + xOffset, pos.y() + yOffset);
+                QPoint checkArea = QPoint(logicalPosition.x() + xOffset, logicalPosition.y() + yOffset);
                 if (checkArea.x() >= 0 && checkArea.x() < 8 && checkArea.y() >= 0 && checkArea.y() < 8)
                 {
                     if (!checkingThreat)
@@ -195,7 +215,7 @@ protected:
             else
             {
 
-                for (int x = pos.x() + xOffset, y = pos.y() + yOffset; comp(dirCheckVal, dirCap); dirCheckVal += dirIncrement, x += xOffset, y += yOffset )
+                for (int x = logicalPosition.x() + xOffset, y = logicalPosition.y() + yOffset; comp(dirCheckVal, dirCap); dirCheckVal += dirIncrement, x += xOffset, y += yOffset )
                 {
                     QPoint checkArea = QPoint(x, y);
                     if (!checkingThreat)
@@ -227,12 +247,7 @@ protected:
         return moves;
     }
 
-protected:
-    QBrush color;
-    QPoint pos;
-    PieceType type;
-    QPixmap pixmap;
-    QPixmap scaledPixmap;
+
 
 };
 
