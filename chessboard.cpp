@@ -110,7 +110,7 @@ void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
     }
     RecordPiecePositions();
     UpdateBoard();
-    QTimer::singleShot(550, this, [this] () {emit endTurn();});
+    QTimer::singleShot(600, this, [this] () {emit endTurn();});
     // emit endTurn();
 }
 
@@ -242,8 +242,13 @@ void ChessBoard::ReverseMoveAndTurn(bool playAgainstBot)
     }
 
     UpdateBoard();
+
     if (!repetitionTrack.empty())
     {
+        if (playAgainstBot)
+        {
+            repetitionTrack.pop_back();
+        }
         repetitionTrack.pop_back();
     }
 

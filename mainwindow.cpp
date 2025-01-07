@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->stackedWidget->setCurrentWidget(ui->MainMenu);
     ui->Difficulty_Btn->setText("Easy");
 
+
     //Navigation connections
     connect(ui->Exit, &QPushButton::clicked, this, &MainWindow::kill);
     connect(ui->PlayerVsBot_Btn, &QPushButton::clicked, this, [this]() {
@@ -29,7 +30,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(ui->BackToMain, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
     connect(ui->BackToMain_2, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
-    connect(ui->WinExit, &QPushButton::clicked, this, [this]() { ChangePage(ui->MainMenu); });
 
     connect(ui->PlayBot_Btn, &QPushButton::clicked, this, [this]() { StartGame(true); });
     connect(ui->PlayHuman_Btn, &QPushButton::clicked, this, [this]() { StartGame(false); });
@@ -63,7 +63,6 @@ void MainWindow::ChangeCheckedStatus(bool isChecked)
 
 void MainWindow::GameOver(EndStatus status)
 {
-    ChangePage(ui->WinScreen);
     QString endStatus;
     switch (status)
     {
@@ -90,15 +89,12 @@ void MainWindow::GameOver(EndStatus status)
         break;
     }
 
-    ui->Winner->setText(endStatus);
 
-    isPlaying = false;
-    ui->Board->ResetBoard();
+    ui->GameEnds_Lbl->setHidden(false);
+    ui->EndStatus_Lbl->setHidden(false);
+    ui->EndStatus_Lbl->setText(endStatus);
+    ui->LastMove->setEnabled(false);
 
-    if (game) {
-        delete game;
-        game = nullptr;
-    }
 }
 
 void MainWindow::kill()
@@ -138,6 +134,10 @@ void MainWindow::StartGame(bool playingAgainstBot)
 {
     ChangePage(ui->PlayScreen);
     isPlaying = true;
+    ui->GameEnds_Lbl->setHidden(true);
+    ui->EndStatus_Lbl->setHidden(true);
+    ui->EndStatus_Lbl->setText("");
+    ui->LastMove->setEnabled(true);
 
     if (game) {
         delete game;
@@ -147,8 +147,8 @@ void MainWindow::StartGame(bool playingAgainstBot)
     game = new Game(ui->Board, playingAgainstBot, botDifficulty, this);
 
     ui->WhosTurn->setText("White");
-
     ChangeCheckedStatus(false);
+
     //Gameplay connections, uses template wrapper.
 
     //Movements and eating

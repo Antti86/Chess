@@ -63,7 +63,7 @@ background: rgb(61, 56, 70);
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>2</number>
+       <number>4</number>
       </property>
       <widget class="QWidget" name="MainMenu">
        <property name="enabled">
@@ -331,6 +331,27 @@ color:  rgb(255,0,0);</string>
             </property>
            </widget>
           </item>
+          <item row="4" column="1">
+           <widget class="QLabel" name="GameEnds_Lbl">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:700;&quot;&gt;Game ends:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="1">
+           <widget class="QLabel" name="EndStatus_Lbl">
+            <property name="styleSheet">
+             <string notr="true">font: 600 20pt &quot;Ubuntu Sans&quot;rgb(170, 0, 0);
+color: rgb(170, 0, 0);</string>
+            </property>
+            <property name="text">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; color:#aa0000;&quot;&gt;Wins&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </item>
         <item row="0" column="0">
@@ -365,47 +386,6 @@ color:  rgb(255,0,0);</string>
          </widget>
         </item>
        </layout>
-      </widget>
-      <widget class="QWidget" name="WinScreen">
-       <widget class="QPushButton" name="WinExit">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>130</y>
-          <width>138</width>
-          <height>26</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Back To Main Menu</string>
-        </property>
-       </widget>
-       <widget class="QWidget" name="layoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>40</y>
-          <width>411</width>
-          <height>55</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:24pt; font-weight:700;&quot;&gt;Game ends:&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="Winner">
-           <property name="text">
-            <string/>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
       </widget>
      </widget>
     </item>
