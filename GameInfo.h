@@ -76,8 +76,6 @@ public:
         }
     }
 
-    enum class GameStateStatus {Begin, Midlle, End};
-    GameStateStatus status = GameStateStatus::Begin;
 private:
 
     ChessBoard* board;

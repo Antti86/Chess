@@ -109,6 +109,8 @@ void Game::handlePieceSelection(QPoint pos)
 
 void Game::BotMovement()
 {
+    // Performance clocking
+
     // auto start = std::chrono::steady_clock::now();
     // auto final = bot.GetMinMaxMove();
     // auto end = std::chrono::steady_clock::now();

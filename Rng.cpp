@@ -1,4 +1,4 @@
-#include "Rng.h"
+ #include "Rng.h"
 
 int Rng::CreateInt(int min, int max, bool NormalDistr)
 {

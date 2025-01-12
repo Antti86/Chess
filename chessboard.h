@@ -77,12 +77,6 @@ private:
     //Coordinate font and color
     QBrush textColor;
     QFont font;
-
-    //Testing for now..
-    int squareSize = 70;
-    int boardWidth = 8 * squareSize;
-    int boardHeight = 8 * squareSize;
-    QGraphicsRectItem fullBoardRect;
 };
 
 #endif // CHESSBOARD_H

@@ -56,6 +56,12 @@ background: rgb(61, 56, 70);
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="minimumSize">
+       <size>
+        <width>648</width>
+        <height>691</height>
+       </size>
+      </property>
       <property name="autoFillBackground">
        <bool>false</bool>
       </property>
@@ -63,7 +69,7 @@ background: rgb(61, 56, 70);
        <string notr="true"/>
       </property>
       <property name="currentIndex">
-       <number>4</number>
+       <number>3</number>
       </property>
       <widget class="QWidget" name="MainMenu">
        <property name="enabled">
@@ -230,18 +236,35 @@ background: rgb(61, 56, 70);
       <widget class="QWidget" name="MultiplayerMenu">
        <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
-         <widget class="QPushButton" name="PlayHuman_Btn">
+         <widget class="QLabel" name="label">
           <property name="text">
-           <string>Play</string>
+           <string/>
+          </property>
+          <property name="pixmap">
+           <pixmap resource="resources.qrc">:/Images/chessMain.png</pixmap>
+          </property>
+          <property name="scaledContents">
+           <bool>true</bool>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="BackToMain_2">
-          <property name="text">
-           <string>Back to main menu</string>
-          </property>
-         </widget>
+         <layout class="QVBoxLayout" name="verticalLayout_9">
+          <item>
+           <widget class="QPushButton" name="PlayHuman_Btn">
+            <property name="text">
+             <string>Play</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="BackToMain_2">
+            <property name="text">
+             <string>Back to main menu</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>

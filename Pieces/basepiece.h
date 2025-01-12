@@ -89,11 +89,6 @@ protected:
     QVector<QPoint> CheckMoves(const QVector<QPoint>& friendlyPieces, const QVector<QPoint>& enemyPieces, bool onlyOneSquare,
                                CheckDirection dir, bool checkingThreat = false) const
     {
-
-        //Did this algorithm, cos wanted to see if i could make generic movement checker. Works nice for the most pieces.
-        //But if this was a paid or team project, i would have probably maked simplier version and just copy pastet to
-        // inhereting pieces.
-
         QVector<QPoint> moves;
 
         int xOffset;
@@ -246,9 +241,6 @@ protected:
         }
         return moves;
     }
-
-
-
 };
 
 #endif // BASEPIECE_H

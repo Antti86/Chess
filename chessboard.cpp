@@ -13,13 +13,8 @@ ChessBoard::ChessBoard(QWidget *widget)
     , sColor(Qt::gray)
 
 {
-    boardWidth = 8 * squareSize;
-    boardHeight = 8 * squareSize + 30;
-
     scene = new QGraphicsScene();
     this->setScene(scene);
-    // scene->setSceneRect(0, 0, boardWidth, boardHeight);
-
     textColor = Qt::black;
 
     DrawBoard();
@@ -40,8 +35,6 @@ ChessBoard::~ChessBoard()
 void ChessBoard::ResetBoard()
 {
     pieces.clear();
-    // scene->clear();
-    // DrawBoard();
     SetPiecesOnBoard();
     DrawPieces();
     ResetAllRecords();
@@ -110,8 +103,8 @@ void ChessBoard::MovePiece(QPoint from, QPoint to, bool isWhiteTurn)
     }
     RecordPiecePositions();
     UpdateBoard();
+    // Waiting animation to complete
     QTimer::singleShot(600, this, [this] () {emit endTurn();});
-    // emit endTurn();
 }
 
 void ChessBoard::SettingSquareColor(const QPoint &pos, const QVector<QPoint>& legalMoves, bool highlighting)
