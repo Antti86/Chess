@@ -1,0 +1,116 @@
+name: Build and Release (Multiplatform)
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.7.2
+          host: windows
+          target: desktop
+          arch: win64_msvc2019_64
+          setup-python: false
+
+      - name: Build with CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
+          cmake --build . --config Release
+      - name: Bundle the app
+        run: |
+          windeployqt.exe build\Release\Chess.exe
+          powershell Compress-Archive -Path build\Release\* -DestinationPath ${{ github.workspace }}/Chess-Windows.zip
+          
+      - name: Upload the release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chess-windows
+          path: ${{ github.workspace }}/Chess-Windows.zip
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Setup Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.7.2
+          host: mac
+          target: desktop
+          arch: clang_64
+      - name: Build with CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
+          cmake --build . --config Release
+      - name: Bundle the app into a DMG
+        run: |
+          ${{ env.QT_ROOT_DIR }}/bin/macdeployqt build/Chess.app -dmg
+          mv build/Chess.dmg ${{ github.workspace }}/Chess-macos.dmg
+      - name: Upload the release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chess-macos
+          path: ${{ github.workspace }}/Chess-macos.dmg
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: 6.7.2
+          host: linux
+          target: desktop
+          arch: linux_gcc_64
+          setup-python: false
+          dir: ${{ github.workspace }}/Qt
+      - name: Build with CMake
+        run: |
+          mkdir build
+          cd build
+          cmake .. -DCMAKE_PREFIX_PATH=${{ env.QT_ROOT_DIR }}
+          cmake --build . --config Release
+      - name: Bundle the app
+        run: |
+          tar -czvf ${{ github.workspace }}/Chess-Linux.tar.gz build/Chess
+      - name: Upload the release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Chess-linux
+          path: ${{ github.workspace }}/Chess-Linux.tar.gz
+
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          pattern: Chess-*
+          merge-multiple: true
+      - name: Upload release to GitHub
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: |
+            artifacts/Chess-Windows.zip
+            artifacts/Chess-macos.dmg
+            artifacts/Chess-Linux.tar.gz
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref_name }}
